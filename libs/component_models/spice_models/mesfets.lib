@@ -1,0 +1,3 @@
+.model mes1 NMF(ALPHA=0.31 FC=0.51)
+
+.model mes2 PMF(ALPHA=0.5 FC=0.8 B=0.1)

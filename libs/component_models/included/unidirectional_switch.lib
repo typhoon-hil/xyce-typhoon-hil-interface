@@ -1,0 +1,15 @@
+* Ideal unidirectional switch model
+
+.SUBCKT unidir_switch drain gate source
++PARAMS: R_ON=1e-4 VD_ON=0
+
+* Gate aux resistor
+*R_auxGATE gate 0 1
+
+SW_UNI source mid_node UNIDIR OFF CONTROL={IF(V(gate)>0.5, 2, IF( I(V_UNI) > 0, 2, 0))}
+
+V_UNI mid_node drain {VD_ON}
+
+.MODEL UNIDIR VSWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF=1e5 ON=0.99 OFF=0.01
+
+.ENDS unidir_switch

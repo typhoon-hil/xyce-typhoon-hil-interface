@@ -1,0 +1,12 @@
+* Ideal diode model
+
+.SUBCKT id_diode anode cathode
++PARAMS: R_ON=1e-4 VD_ON=0
+
+SW_DIODE anode midnode IDDIODE OFF CONTROL={IF( I(V_DROP) > 0, 1, 0)}
+
+V_DROP midnode cathode {VD_ON}
+
+.MODEL IDDIODE VSWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF=1e5 ON=0.9 OFF=0.1
+
+.ENDS id_diode

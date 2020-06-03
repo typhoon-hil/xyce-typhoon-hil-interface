@@ -1,0 +1,763 @@
+version = 4.2
+
+//
+// Saved by sw version: 2020.1 SP1
+// Save timestamp: 03-Jun-2020 @ 11:57:37 AM
+//
+
+model "dual_active_bridge" {
+    configuration {
+        hil_device = "HIL402"
+        hil_configuration_id = 1
+        simulation_method = exact
+        simulation_time_step = auto
+        simulation_discret_scaling = 1.0
+        dsp_timer_periods = 100e-6, 50e-3
+        ss_calc_method = "systematic elimination"
+        enb_pole_shift = True
+        enb_gds_oversampling = True
+        show_modes = False
+        device_ao_limit_enable = False
+        cpl_stb = False
+        enb_dep_sw_detect = False
+        code_section = "internal memory"
+        data_section = "internal memory"
+        sys_sp_rate_1 = 0.0001
+        sys_sp_rate_2 = 0.05
+        sys_real_type_precision = "default"
+        user_real_type_precision = "default"
+        sys_cpu_optimization = "high"
+        user_cpu_optimization = "high"
+    }
+
+    component Subsystem Root {
+        component src_ground gnd1 {
+        }
+        [
+            position = 7224, 8656
+        ]
+
+        component "xyce_lib/Ideal Inductor" "Ideal Inductor1" {
+            L = "4.7e-6"
+        }
+        [
+            position = 7824, 8224
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Unidirectional Switch" Q1 {
+            r_on = "r_on"
+            vd_on = "vd_on"
+        }
+        [
+            position = 7424, 8096
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Unidirectional Switch" Q2 {
+            r_on = "r_on"
+            vd_on = "vd_on"
+        }
+        [
+            position = 7424, 8528
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Unidirectional Switch" Q3 {
+            r_on = "r_on"
+            vd_on = "vd_on"
+        }
+        [
+            position = 7664, 8096
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Unidirectional Switch" Q4 {
+            r_on = "r_on"
+            vd_on = "vd_on"
+        }
+        [
+            position = 7664, 8520
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Transformer" Transformer1 {
+            n1 = "10"
+            n2 = "1"
+        }
+        [
+            position = 7976, 8320
+            size = 124, 256
+        ]
+
+        component "xyce_lib/Unidirectional Switch" Q5 {
+            r_on = "r_on"
+            vd_on = "vd_on"
+        }
+        [
+            position = 8232, 8080
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Unidirectional Switch" Q6 {
+            r_on = "r_on"
+            vd_on = "vd_on"
+        }
+        [
+            position = 8232, 8504
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Unidirectional Switch" Q7 {
+            r_on = "r_on"
+            vd_on = "vd_on"
+        }
+        [
+            position = 8472, 8088
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Unidirectional Switch" Q8 {
+            r_on = "r_on"
+            vd_on = "vd_on"
+        }
+        [
+            position = 8472, 8504
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" Rin {
+            R = "0.01"
+        }
+        [
+            position = 7032, 8040
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" Rtrace {
+            R = "10e-3"
+        }
+        [
+            position = 7312, 8040
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" R4 {
+            R = "0.00001"
+        }
+        [
+            position = 8536, 8024
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" Rout {
+            R = "0.5"
+        }
+        [
+            position = 8904, 8328
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Capacitor" Cin {
+            C = "330e-6"
+        }
+        [
+            position = 7224, 8328
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Capacitor" Cout {
+        }
+        [
+            position = 8712, 8328
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/DC Voltage Source" V_dc {
+        }
+        [
+            position = 6968, 8320
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "core/Current Measurement" Am2 {
+        }
+        [
+            position = 7144, 8040
+            size = 64, 32
+        ]
+
+        component "core/Current Measurement" Am3 {
+        }
+        [
+            position = 7424, 8176
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "core/Current Measurement" Am4 {
+        }
+        [
+            position = 7424, 8376
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "core/Voltage Measurement" switching_v1 {
+        }
+        [
+            position = 7560, 8384
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "core/Current Measurement" Am7 {
+        }
+        [
+            position = 8232, 8168
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "core/Current Measurement" Am8 {
+        }
+        [
+            position = 8232, 8328
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "core/Voltage Measurement" Vm2 {
+        }
+        [
+            position = 9048, 8328
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "core/Current Measurement" Am1 {
+        }
+        [
+            position = 8632, 8024
+            size = 64, 32
+        ]
+
+        component "core/Current Measurement" iL {
+        }
+        [
+            position = 7720, 8224
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID1 {
+            node_id = "s_Q1Q4"
+        }
+        [
+            position = 7472, 8080
+            rotation = left
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID2 {
+            node_id = "s_Q2Q3"
+        }
+        [
+            position = 7712, 8080
+            rotation = left
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID3 {
+            node_id = "s_Q1Q4"
+        }
+        [
+            position = 7712, 8496
+            rotation = left
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID4 {
+            node_id = "s_Q2Q3"
+        }
+        [
+            position = 7472, 8504
+            rotation = left
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID5 {
+            node_id = "s_Q5Q8"
+        }
+        [
+            position = 8280, 8104
+            rotation = right
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID6 {
+            node_id = "s_Q6Q7"
+        }
+        [
+            position = 8520, 8120
+            rotation = right
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID7 {
+            node_id = "s_Q5Q8"
+        }
+        [
+            position = 8528, 8552
+            rotation = right
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID8 {
+            node_id = "s_Q6Q7"
+        }
+        [
+            position = 8280, 8536
+            rotation = right
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID9 {
+            node_id = "s_Q1Q4"
+        }
+        [
+            position = 7776, 8664
+            rotation = left
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID10 {
+            node_id = "s_Q2Q3"
+        }
+        [
+            position = 7872, 8664
+            rotation = left
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component src_ground gnd2 {
+        }
+        [
+            position = 7960, 8880
+        ]
+
+        component "xyce_lib/NodeID" NodeID11 {
+            node_id = "s_Q5Q8"
+        }
+        [
+            position = 8048, 8664
+            rotation = left
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/NodeID" NodeID12 {
+            node_id = "s_Q6Q7"
+        }
+        [
+            position = 8144, 8664
+            rotation = left
+            hide_name = True
+            size = 16, 16
+        ]
+
+        component "xyce_lib/Pulse Voltage Source" s14 {
+            PER = "1e-6"
+            PW = "0.5e-6"
+            V1 = "0"
+        }
+        [
+            position = 7776, 8744
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Pulse Voltage Source" s23 {
+            PER = "1e-6"
+            PW = "0.5e-6"
+            TD = "0.5e-6"
+            V1 = "0"
+        }
+        [
+            position = 7872, 8744
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Pulse Voltage Source" s58 {
+            PER = "1e-6"
+            PW = "0.5e-6"
+            TD = "sec_delay"
+            V1 = "0"
+        }
+        [
+            position = 8048, 8744
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Pulse Voltage Source" s67 {
+            PER = "1e-6"
+            PW = "0.5e-6"
+            TD = "sec_delay+0.5e-6"
+            V1 = "0"
+        }
+        [
+            position = 8144, 8744
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/XyceSim" XyceSim1 {
+            max_ts = "1e-8"
+            sim_time = "0.4ms"
+        }
+        [
+            position = 7968, 8056
+            size = 112, 56
+        ]
+
+        junction Junction2 pe
+        [
+            position = 8472, 8416
+        ]
+
+        junction Junction3 pe
+        [
+            position = 7664, 8416
+        ]
+
+        junction Junction4 pe
+        [
+            position = 7424, 8224
+        ]
+
+        junction Junction5 pe
+        [
+            position = 7424, 8040
+        ]
+
+        junction Junction6 pe
+        [
+            position = 7424, 8592
+        ]
+
+        junction Junction7 pe
+        [
+            position = 7224, 8040
+        ]
+
+        junction Junction8 pe
+        [
+            position = 7224, 8592
+        ]
+
+        junction Junction9 pe
+        [
+            position = 7224, 8592
+        ]
+
+        junction Junction11 pe
+        [
+            position = 7560, 8592
+        ]
+
+        junction Junction12 pe
+        [
+            position = 8232, 8224
+        ]
+
+        junction Junction13 pe
+        [
+            position = 8472, 8024
+        ]
+
+        junction Junction14 pe
+        [
+            position = 8472, 8592
+        ]
+
+        junction Junction15 pe
+        [
+            position = 8712, 8024
+        ]
+
+        junction Junction16 pe
+        [
+            position = 8712, 8592
+        ]
+
+        junction Junction17 pe
+        [
+            position = 8904, 8024
+        ]
+
+        junction Junction18 pe
+        [
+            position = 8904, 8592
+        ]
+
+        junction Junction19 pe
+        [
+            position = 7560, 8224
+        ]
+
+        junction Junction20 pe
+        [
+            position = 7960, 8816
+        ]
+
+        junction Junction21 pe
+        [
+            position = 8048, 8816
+        ]
+
+        junction Junction22 pe
+        [
+            position = 7872, 8816
+        ]
+
+        connect "Ideal Inductor1.p_node" Transformer1.prm_1 as Connection1103
+        connect Q8.drain Junction2 as Connection1112
+        connect Junction2 Q7.src as Connection1113
+        connect Transformer1.sec_2 Junction2 as Connection1114
+        connect Q4.drain Junction3 as Connection1115
+        connect Junction3 Q3.src as Connection1116
+        connect Transformer1.prm_2 Junction3 as Connection1117
+        connect V_dc.p_node Rin.n_node as Connection1121
+        connect Rin.p_node Am2.p_node as Connection1122
+        connect Q1.src Am3.p_node as Connection1124
+        connect Am3.n_node Junction4 as Connection1127
+        connect Q2.drain Am4.n_node as Connection1128
+        connect Am4.p_node Junction4 as Connection1129
+        connect Junction5 Q1.drain as Connection1131
+        [
+            breakpoints = 7424, 8040
+        ]
+        connect Rtrace.p_node Junction5 as Connection1132
+        connect Junction6 Q2.src as Connection1135
+        [
+            breakpoints = 7424, 8592
+        ]
+        connect Rtrace.n_node Junction7 as Connection1137
+        connect Junction7 Cin.p_node as Connection1138
+        connect Cin.n_node Junction8 as Connection1140
+        connect Junction8 Junction6 as Connection1141
+        connect V_dc.n_node Junction9 as Connection1143
+        connect Junction9 Junction8 as Connection1144
+        connect gnd1.node Junction9 as Connection1145
+        connect Q4.src Junction11 as Connection1149
+        [
+            breakpoints = 7664, 8592
+        ]
+        connect Junction11 Junction6 as Connection1150
+        connect switching_v1.n_node Junction11 as Connection1151
+        connect Am7.p_node Q5.src as Connection1153
+        connect Am7.n_node Junction12 as Connection1158
+        connect Junction12 Transformer1.sec_1 as Connection1159
+        [
+            breakpoints = 8232, 8224
+        ]
+        connect Am8.p_node Junction12 as Connection1160
+        connect Am8.n_node Q6.drain as Connection1161
+        connect Q7.drain Junction13 as Connection1162
+        connect Junction13 Q5.drain as Connection1163
+        [
+            breakpoints = 8472, 8024; 8232, 8024
+        ]
+        connect R4.n_node Junction13 as Connection1164
+        connect Am1.p_node R4.p_node as Connection1166
+        connect Q8.src Junction14 as Connection1167
+        connect Junction14 Q6.src as Connection1168
+        [
+            breakpoints = 8472, 8592; 8232, 8592
+        ]
+        connect Cout.p_node Junction15 as Connection1170
+        connect Junction15 Am1.n_node as Connection1171
+        connect Cout.n_node Junction16 as Connection1173
+        connect Junction16 Junction14 as Connection1174
+        connect Rout.n_node Junction17 as Connection1176
+        connect Junction17 Junction15 as Connection1177
+        connect Vm2.p_node Junction17 as Connection1178
+        connect Rout.p_node Junction18 as Connection1179
+        connect Junction18 Junction16 as Connection1180
+        connect Vm2.n_node Junction18 as Connection1181
+        connect Junction4 Junction19 as Connection1183
+        [
+            breakpoints = 7424, 8224; 7424, 8224
+        ]
+        connect Junction19 switching_v1.p_node as Connection1184
+        [
+            breakpoints = 7560, 8224
+        ]
+        connect iL.p_node Junction19 as Connection1185
+        connect iL.n_node "Ideal Inductor1.n_node" as Connection1186
+        connect Junction5 Q3.drain as Connection1204
+        [
+            breakpoints = 7424, 8040; 7424, 8040; 7664, 8040; 7664, 8040; 7664, 8040
+        ]
+        connect NodeID1.node Q1.gate as Connection1205
+        connect NodeID2.node Q3.gate as Connection1206
+        connect Q2.gate NodeID4.node as Connection1207
+        connect Q4.gate NodeID3.node as Connection1208
+        connect Q6.gate NodeID8.node as Connection1209
+        connect Q8.gate NodeID7.node as Connection1210
+        connect NodeID6.node Q7.gate as Connection1211
+        connect NodeID5.node Q5.gate as Connection1212
+        connect Am2.n_node Junction7 as Connection1216
+        [
+            breakpoints = 7224, 8040
+        ]
+        connect s14.p_node NodeID9.node as Connection1217
+        connect s23.p_node NodeID10.node as Connection1218
+        connect s58.p_node NodeID11.node as Connection1219
+        connect NodeID12.node s67.p_node as Connection1220
+        connect gnd2.node Junction20 as Connection1222
+        connect s58.n_node Junction21 as Connection1225
+        connect Junction21 Junction20 as Connection1226
+        connect s67.n_node Junction21 as Connection1227
+        connect Junction20 Junction22 as Connection1228
+        [
+            breakpoints = 7960, 8816
+        ]
+        connect Junction22 s14.n_node as Connection1229
+        [
+            breakpoints = 7776, 8816
+        ]
+        connect s23.n_node Junction22 as Connection1230
+    }
+
+    default {
+        "core/Current Measurement" {
+            bw_limit = "False"
+            frequency = "10e3"
+            comparator_enable = "False"
+            operator = "greater"
+            threshold = "0"
+            cmp_abs_value = "False"
+            feed_forward = "false"
+            sig_output = "False"
+            execution_rate = "100e-6"
+            addr = "0"
+            nd_msr_estimation = "false"
+            dev_cpl_msr = "false"
+            host_device = "0"
+            output_to_device = "0"
+            dev_cpl_index = "0"
+            dev_cpl_var_nb = "0"
+            visible = "True"
+            override_signal_name = "False"
+            signal_name = ""
+        }
+
+        "xyce_lib/DC Voltage Source" {
+            voltage = "100"
+        }
+
+        "xyce_lib/Ideal Capacitor" {
+            C = "100e-6"
+            IC = "0"
+        }
+
+        "xyce_lib/Ideal Inductor" {
+            L = "10e-6"
+            IC = "0"
+        }
+
+        "xyce_lib/Ideal Resistor" {
+            R = "100"
+        }
+
+        "xyce_lib/NodeID" {
+            node_id = "name"
+        }
+
+        "xyce_lib/Pulse Voltage Source" {
+            V1 = "-1"
+            V2 = "1"
+            TD = "0"
+            TR = "0"
+            TF = "0"
+            PW = "0.0125"
+            PER = "0.025"
+        }
+
+        "xyce_lib/Transformer" {
+            n1 = "0"
+            n2 = "0"
+        }
+
+        "xyce_lib/Unidirectional Switch" {
+            vd_on = "0"
+            r_on = "0"
+        }
+
+        "core/Voltage Measurement" {
+            bw_limit = "False"
+            frequency = "10e3"
+            comparator_enable = "False"
+            operator = "greater"
+            threshold = "0"
+            cmp_abs_value = "False"
+            feed_forward = "false"
+            sig_output = "False"
+            execution_rate = "100e-6"
+            addr = "0"
+            nd_msr_estimation = "false"
+            dev_cpl_msr = "false"
+            host_device = "0"
+            output_to_device = "0"
+            dev_cpl_index = "0"
+            dev_cpl_var_nb = "0"
+            visible = "True"
+            override_signal_name = "False"
+            signal_name = ""
+        }
+
+        "xyce_lib/XyceSim" {
+            tse2xyce_path = "path"
+            sim_time = "0.04ms"
+            max_ts = "1"
+            start_sim = "Start simulation"
+            open_sa = "Plot"
+        }
+    }
+
+    CODE model_init
+        # Numpy module is imported as 'np'
+        # Scipy module is imported as 'sp'
+        # The Schematic API is imported as 'mdl'
+        # To get the model file path, use 'mdl.get_model_file_path()'
+        # To print information to the console, use info()
+        
+        r_on = 1e-4
+        vd_on = 0
+        sec_delay = 0.25e-6
+    ENDCODE
+}
