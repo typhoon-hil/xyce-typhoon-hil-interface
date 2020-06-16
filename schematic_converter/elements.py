@@ -195,9 +195,9 @@ class VoltageSource(TwoTerminal):
         if elem_type == "Vtri":
             V0 = init_data["vmin"]
             V1 = init_data["vmax"]
-            T1 = init_data["trise"]
-            T2 = init_data["tfall"]
-            self.transient_spec = f"PWL 0S {V0} {T1} {V1} {T2} {V0} R=0"
+            T1 = float(init_data["trise"])
+            T2 = float(init_data["tfall"])
+            self.transient_spec = f"PWL 0S {V0} {str(T1)} {str(V1)} {str(T1+T2)} {V0} R=0"
 
     # Needs special xyce_line method
     def xyce_line(self):

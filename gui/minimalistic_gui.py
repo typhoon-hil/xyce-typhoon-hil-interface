@@ -1,10 +1,3 @@
-# cd "D:\Dropbox\Typhoon HIL\Repository\XyceSim"
-# cd "C:\users\marcos\dropbox\Typhoon HIL\Repository\XyceSim"
-# cd "D:\Dropbox\Typhoon HIL\Repository\XyceSim\schematic_converter\model_libs\Qt"
-# pyuic5 -o main_gui.py main_gui.ui
-# pyuic5 -o plotscreen_gui.py plotscreen_gui.ui
-# pyuic5 -o dynamic_spice_component.py dynamic_spice_component.ui
-
 # Built-in #
 import traceback, sys, os, re, io, time
 from subprocess import Popen, PIPE
@@ -37,22 +30,25 @@ def available_variables(csv_file, cir_file):
     ''' Uses the last line of the .cir file to determine available
         variables and changes the headers of the CSV accordingly. '''
 
-    with open(csv_file) as f_csv:
-        table = pd.read_csv(f_csv)
-        with open(cir_file) as f_cir:
-            # Original table header may include extra commas due to
-            # differential voltage measurements V(v+,v-)
-            new_tab =  table.dropna(axis=1) # Drops empty columns
-            # Sets the new header
-            last_line = f_cir.readlines()[-1].replace('\n','')
-            cols = ['Time']
-            cols.extend(last_line.split(",")[1:])
-            new_tab.columns = cols
-            new_tab.to_csv(csv_file, index=False)
-            #new_tab.to_hdf(csv_file.split('.')[0]+'.h5', 'data', mode='w', format='table')
-
-
-        return list(new_tab)[1:] # Doesn't return the *TIME column
+    try:
+        with open(csv_file) as f_csv:
+            table = pd.read_csv(f_csv)
+            with open(cir_file) as f_cir:
+                # Original table header may include extra commas due to
+                # differential voltage measurements V(v+,v-)
+                new_tab =  table.dropna(axis=1) # Drops empty columns
+                # Sets the new header
+                last_line = f_cir.readlines()[-1].replace('\n','')
+                cols = ['Time']
+                cols.extend(last_line.split(",")[1:])
+                try:
+                    new_tab.columns = cols
+                    new_tab.to_csv(csv_file, index=False)
+                except ValueError:
+                    # Length mismatch
+                    pass
+    except FileNotFoundError:
+        pass
 
 
 # Widget definition
@@ -86,6 +82,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         super().__init__()
         # Set up the user interface generated with Qt Designer.
         self.setupUi(self)
+        self.setModal(False)
         self.closed_window.connect(self.on_close_window)
 
         self.textBrowser.append('Loading the Xyce .cir file...')
@@ -162,7 +159,6 @@ class XyceOutput(QDialog, Ui_XyceOutput):
             if ("XyceSim>More") in currenttext:
                 self.keep_printing = False
                 self.textBrowser.append('\n'.join(currenttext.split('\n')[1:-1]))
-                #self.textBrowser.verticalScrollBar.setValue(maximum())
             else:
                 # Append the new text available from the process output
                 self.textBrowser.append(currenttext)
@@ -171,10 +167,10 @@ class XyceOutput(QDialog, Ui_XyceOutput):
     def proc_finished(self):
         # Reset Start Simulation button when Xyce has finished or was canceled
         if self.process.exitCode() == 0:
-            self.plot_data_path = "xyce_out.csv"
-            available_variables(self.plot_data_path,
-                                self.xyce_file_path)
             if not "Xyce Abort" in self.textBrowser.toPlainText():
+                self.plot_data_path = "xyce_out.csv"
+                available_variables(self.plot_data_path,
+                                    self.xyce_file_path)
                 self.textBrowser.append("""<body>
                     <h2 style='color:green;'>Simulation finished successfully.<br>
                     Opening the Signal Analyzer tool...</h2>
@@ -214,7 +210,6 @@ class XyceOutput(QDialog, Ui_XyceOutput):
                             f"decimation = {float(self.sim_params_dict['max_ts'])}\n"])
         # Xyce simulation command
         command = f'xyce -prf "{self.params_path}" "{self.xyce_file_path}"\n'
-        print(command)
         # Start the process by entering the Cygwin environment
         self.process.start('cmd')
 
@@ -222,7 +217,6 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         self.process.write((command+"quit").encode('utf-8'))
         # Close the write channel and send the written lines
         self.process.closeWriteChannel()
-        #self.pushButton_start_sim.setText("Stop Simulation")
 
 
     def plot_data(self):
@@ -232,9 +226,8 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
 
 if __name__ == "__main__":
-    print(sys.version)
     app = QApplication(sys.argv)
-    sim_params = {'max_ts':'1e-9','sim_time':'0.4ms'}
-    mainwindow = XyceOutput(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\dual_active_bridge Target files\dual_active_bridge.json", sim_params)
+    sim_params = {'max_ts':'1e-6','sim_time':'1ms'}
+    mainwindow = XyceOutput(r"json_file_path.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

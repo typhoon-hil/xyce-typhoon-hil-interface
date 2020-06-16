@@ -185,5 +185,4 @@ def tse2xyce(jsonfile):
     print(f"Total conversion time: {time.time()-t0} seconds")
 
 if __name__ == "__main__":
-    tse2xyce(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\dual_active_bridge Target files\dual_active_bridge.json")
-    #tse2xyce(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\transformer_component\transf Target files\transf.json")
+    tse2xyce(r"json_file_path.json")
