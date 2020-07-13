@@ -52,6 +52,8 @@ class Element:
         #     return SubcircuitBased(elem_type, **elem_data)
         if elem_type == "U":
             return BehavioralDigitalDevice(elem_type, **elem_data)
+        if elem_type == "DELAY":
+            return Delay(elem_type, **elem_data)
         if elem_type == "PWM":
             return PWM(elem_type, **elem_data)
         if any(elem_type == t for t in ["Vdc", "Vac", "Vpulse", "Vexp", "Vtri", "I_meas"]):
@@ -569,25 +571,46 @@ class BehavioralDigitalDevice(Element):
         # Digital Power Node is a new voltage source defined by "output"
         ouput_voltage = self.init_data["output_voltage"]
         # Fixing inputs in 2 for now
-        num_inputs = 2
+        num_inputs = len(self.nodes)-1
         in_nodes = ["n_" + self.nodes[k] for k in list(self.nodes.keys()) if k != "out"]
         out_node = self.nodes["out"]
         model_name = f"BD{self.name}"
 
-        return f'''V_PN_{self.name} PWRNODE{self.name} 0 {float(ouput_voltage)*1.1}
+        return f'''V_PN_{self.name} PWRNODE{self.name} 0 {float(ouput_voltage)}
 U_{self.name} {self.device_type}({num_inputs}) PWRNODE{self.name} 0 \
 {" ".join(in_nodes)} n_{out_node} {model_name}\n'''
 
     def model_lines(self):
+        clo = self.init_data["CLO"]
+        chi = self.init_data["CHI"]
         s1tsw = self.init_data["S1TSW"]
         s0tsw = self.init_data["S0TSW"]
-        s1vlo = self.init_data["S1VLO"]
+        s0vlo = self.init_data["S0VLO"]
         s0vhi = self.init_data["S0VHI"]
+        s1vlo = self.init_data["S1VLO"]
+        s1vhi = self.init_data["S1VHI"]
+        s0rlo = self.init_data["S0RLO"]
+        s0rhi = self.init_data["S0RHI"]
+        s1rlo = self.init_data["S1RLO"]
+        s1rhi = self.init_data["S1RHI"]
+        rload = self.init_data["RLOAD"]
+        cload = self.init_data["CLOAD"]
+        delay = self.init_data["DELAY"]
         # Calculation of the resistances
         # Voltage reference is 1.1*output_voltage
-        modparams = f'S1TSW={s1tsw} S0TSW={s0tsw} S1VLO={s1vlo} S0VHI={s0vhi} \
-S0RHI=1e6 S1RHI=1 S0RLO=1 S1RLO=1e6'
-        return f'.MODEL BD{self.name} DIG {modparams}\n'
+        modparams = f'''+ CLO={clo} CHI={chi}
++ S0RLO={s0rlo} S0RHI={s0rhi} S0TSW={s0tsw}
++ S0VLO={s0vlo} S0VHI={s0vhi}
++ S1RLO={s1rlo} S1RHI={s1rhi} S1TSW={s1tsw}
++ S1VLO={s1vlo} S1VHI={s1vhi}
++ RLOAD={rload}
++ CLOAD={cload}
++ DELAY={delay}'''
+
+        return f'''.MODEL BD{self.name} DIG (
+{modparams})\n
+'''
+
 
 ################################################################################
 
@@ -650,7 +673,7 @@ class OperationalAmplifier(SubcircuitBased):
         if init_data["model_type"]=="Low-pass filter":
             init_data["model_name"] = "op_amp_2"
         init_data["model_path"] = included_models_path + "op-amp.lib"
-        self.nodes = [nodes["+"], nodes["-"], nodes["Out"]]
+        self.nodes = [nodes["non_inv"], nodes["inv"], nodes["Out"]]
         rf = init_data['Rf']
         cf = init_data['Cf']
         gain = init_data['gain']
@@ -661,7 +684,7 @@ class Comparator(SubcircuitBased):
     def __init__(self, elem_type, name, nodes, init_data):
         init_data["model_name"] = "comparator"
         init_data["model_path"] = included_models_path + "comparator.lib"
-        self.nodes = [nodes["+"], nodes["-"], nodes["Out"]]
+        self.nodes = [nodes["non_inv"], nodes["inv"], nodes["Out"]]
         params = f"PARAMS: VOUT={init_data['output_voltage']}"
         super().__init__(elem_type, name, self.nodes, init_data, params)
 

@@ -1,28 +1,13 @@
 * Comparator Model
-* Ideal model. Utilizes the Generic Switch and Current-Controlled Voltage Source components to produce the output voltage, which
-* is the one set by the VOUT parameter.
 
 .SUBCKT comparator non_inv inv out
 +PARAMS: VOUT=5
 
-* VCC
-V_VCC vcc 0 {VOUT}
+B_COMP out 0 V={IF(V(op)>=0, VOUT, 0)} smoothbsrc=0
++ rcconst = {GLOBAL_TS*1e-5}
 
-* Resistances
-R_VCC vcc n1 1
-R_OUT n1 0 2
-
-* The output voltage is given by a current-controlled voltage source.
-H_VOUT out 0 V_IMEAS 4
-
-* Current measurement voltage source (0V)
-V_IMEAS imeas 0 0
-
-* Generic Switch and its blank model.
-* Any voltage higher than 1e-5 V closes the switch.
-* RON is in parallel with R_OUT, resulting in a 1ohm resistance. The current crossing the switch is therefore (V_VCC/2)/2, thus a transconductance
-* of 4 is needed for the current-controlled voltage source
-SW_COMPVCC n1 imeas SWV OFF CONTROL={V(non_inv, inv)}
-.MODEL SWV SWITCH ON=1e-5 OFF=0 ROFF=1e6 RON=2
+B_OPAMP op 0 V={1e9*(V(non_inv)-V(inv))} smoothbsrc=1
++ rcconst = {GLOBAL_TS*1e-5}
+R_OPAMP op 0 1e5
 
 .ENDS comparator

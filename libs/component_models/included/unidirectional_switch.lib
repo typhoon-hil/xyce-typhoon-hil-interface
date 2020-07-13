@@ -4,15 +4,17 @@
 +PARAMS: R_ON=1e-4 VD_ON=0
 
 * Gate aux resistor
-R_auxGATE gate 0 1
+R_auxGATE gate 0 1e6
 
 * Snubber
 V_SNB source mid_snb 0
 R_SNB mid_snb mid_node 1e5
 
-SW_UNI source mid_node UNIDIR OFF CONTROL={IF(V(gate)>0.95, 1, IF(I(V_SNB) > 0, 1, 0))}
-B_DROP mid_node drain V={IF((V(gate)>0.98), 0, IF(V(source)-V(drain)<VD_ON, V(source)-V(drain), VD_ON))} smoothbsrc=1
-+ rcconst = {GLOBAL_TS*1e-9}
+SW_UNI source mid_node UNIDIR OFF CONTROL={IF(V(gate)>0.99, 1, IF(I(V_SNB) > 0, 1, 0))}
+*B_DROP mid_node drain V={IF((V(gate)>0.98), 0, IF(V(source)-V(drain)<VD_ON, V(source)-V(drain), VD_ON))} smoothbsrc=1
+*+ rcconst = {GLOBAL_TS*1e-4}
+
+V_DROP mid_node drain 0
 
 .MODEL UNIDIR VSWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF=1e5 ON=0.99 OFF=0.01
 

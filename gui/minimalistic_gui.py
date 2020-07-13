@@ -55,16 +55,19 @@ def available_variables(csv_file, cir_file):
 class Ui_XyceOutput(object):
     def setupUi(self, XyceOutput):
         XyceOutput.setObjectName("XyceOutput")
-        XyceOutput.resize(619, 613)
-        XyceOutput.setMinimumSize(QtCore.QSize(575, 586))
+        XyceOutput.resize(600, 600)
+        XyceOutput.setMinimumSize(QtCore.QSize(400, 400))
         XyceOutput.setLayoutDirection(QtCore.Qt.LeftToRight)
         XyceOutput.setModal(False)
         self.gridLayout = QtWidgets.QGridLayout(XyceOutput)
         self.gridLayout.setObjectName("gridLayout")
         self.textBrowser = QtWidgets.QTextBrowser(XyceOutput)
-        self.textBrowser.setMinimumSize(QtCore.QSize(351, 291))
+        self.textBrowser.setMinimumSize(QtCore.QSize(350, 350))
         self.textBrowser.setObjectName("textBrowser")
-        self.gridLayout.addWidget(self.textBrowser, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.textBrowser, 0, 0, 1, 3)
+        self.abortButton = QtWidgets.QPushButton('Abort', XyceOutput)
+        self.abortButton.setToolTip('Abort the simulation.')
+        self.gridLayout.addWidget(self.abortButton, 1, 2, 1, 1)
 
         self.retranslateUi(XyceOutput)
         QtCore.QMetaObject.connectSlotsByName(XyceOutput)
@@ -89,6 +92,8 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         # QProcess used later to run Xyce and display output inside the window
         self.process = QtCore.QProcess(self)
         self.plotprocess = QtCore.QProcess(self)
+        # Abort button
+        self.abortButton.clicked.connect(self.abort_sim)
         # QProcess emits 'readyRead' signal when there is readable data
         self.process.readyRead.connect(self.read_ready)
         self.process.finished.connect(self.proc_finished)
@@ -165,20 +170,42 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
 
     def proc_finished(self):
-        # Reset Start Simulation button when Xyce has finished or was canceled
+
         if self.process.exitCode() == 0:
             if not "Xyce Abort" in self.textBrowser.toPlainText():
                 self.plot_data_path = "xyce_out.csv"
                 available_variables(self.plot_data_path,
                                     self.xyce_file_path)
                 self.textBrowser.append("""<body>
-                    <h2 style='color:green;'>Simulation finished successfully.<br>
-                    Opening the Signal Analyzer tool...</h2>
+                    <h2 style='color:green;'>Simulation finished successfully.</h2>
                     </body>""")
-                if "too small on" in self.textBrowser.toPlainText():
+                if "step too small" in self.textBrowser.toPlainText():
                     self.textBrowser.append("""<body>
-                        <h2 style='color:red;'>Simulation ended with errors.</h2>
+                        <h2 style='color:red;'>Simulation aborted due to convergence errors.</h2>
                         </body>""")
+                self.plot_data()
+            else:
+                self.textBrowser.append("""<body>
+                    <h2 style='color:red;'>Simulation ended with errors.</h2>
+                    </body>""")
+        # When Qt kills a process, this is the returned exitCode
+        # Runs when the Abort button is clicked
+        elif self.process.exitCode() == 62097:
+            self.plot_data_path = "xyce_out.csv"
+            available_variables(self.plot_data_path,
+                                self.xyce_file_path)
+            self.textBrowser.append("""<body>
+                <h2 style='color:orange;'>Simulation aborted by the user.</h2>
+                </body>""")
+            self.plot_data()
+        elif self.process.exitCode() == 1:
+            if "step too small" in self.textBrowser.toPlainText():
+                self.textBrowser.append("""<body>
+                    <h2 style='color:red;'>Simulation aborted due to convergence errors.</h2>
+                    </body>""")
+                self.plot_data_path = "xyce_out.csv"
+                available_variables(self.plot_data_path,
+                                    self.xyce_file_path)
                 self.plot_data()
             else:
                 self.textBrowser.append("""<body>
@@ -186,7 +213,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
                     </body>""")
         else:
             self.textBrowser.append("""<body>
-                <h2 style='color:red;'>Simulation ended with errors.</h2>
+                <h2 style='color:red;'>The Xyce Simulator process was terminated.</h2>
                 </body>""")
 
     def on_close_window(self):
@@ -203,31 +230,30 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         else:
             self.cir_folder = "/".join(self.xyce_file_path.split("/")[0:-1])
         self.params_path = self.cir_folder + "/xyce_params.t"
-        # Write the parameters to a file
+        # Write the parameters to a filea
         with open(self.params_path,"w") as f:
             f.writelines([  f"t_step = {self.sim_params_dict['max_ts']}\n",
                             f"total_time = {self.sim_params_dict['sim_time']}\n"
                             f"decimation = {float(self.sim_params_dict['max_ts'])}\n"])
         # Xyce simulation command
         command = f'xyce -prf "{self.params_path}" "{self.xyce_file_path}"\n'
-        # Start the process by entering the Cygwin environment
-        self.process.start('cmd')
+        # Start the Xyce process
+        self.process.start(command)
 
-        # Xyce simulation command
-        self.process.write((command+"quit").encode('utf-8'))
-        # Close the write channel and send the written lines
-        self.process.closeWriteChannel()
-
+    def abort_sim(self):
+        self.process.kill()
 
     def plot_data(self):
-
+        self.textBrowser.append("""<body>
+            <h2 style='color:green;'>Opening the Signal Analyzer tool...</h2>
+            </body>""")
         command = f'typhoon_hil.cmd sa --data_file "{os.getcwd()}\\xyce_out.csv"'
         self.plotprocess.startDetached(command)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    sim_params = {'max_ts':'1e-6','sim_time':'1ms'}
-    mainwindow = XyceOutput(r"json_file_path.json", sim_params)
+    sim_params = {'max_ts':'1e-7','sim_time':'15ms'}
+    mainwindow = XyceOutput(r"D:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Sandia\example_spicemodels Target files\example_spicemodels.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

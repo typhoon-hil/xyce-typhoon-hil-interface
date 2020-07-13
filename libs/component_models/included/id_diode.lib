@@ -8,8 +8,10 @@ V_SNB anode mid_snb 0
 R_SNB mid_snb cathode 1e5
 
 SW_DIODE anode mid_node IDDIODE OFF CONTROL={IF(I(V_SNB) > 0, 1, 0)}
-B_DROP mid_node cathode V={IF(V(anode)-V(cathode)<VD_ON, V(anode)-V(cathode), VD_ON)} smoothbsrc=1
-+ rcconst = {GLOBAL_TS*1e-9}
+*B_DROP mid_node cathode V={IF(V(anode)-V(cathode)<VD_ON, V(anode)-V(cathode), VD_ON)} smoothbsrc=1
+*+ rcconst = {GLOBAL_TS*1e-9}
+
+V_DROP mid_node cathode 0
 
 .MODEL IDDIODE VSWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF=1e5 ON=0.99 OFF=0.01
 
