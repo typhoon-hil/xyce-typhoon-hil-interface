@@ -1,6 +1,6 @@
 //
-// Saved by sw version: 2020.1 SP2
-// Save timestamp: 13-Jul-2020 @ 03:50:49 PM
+// Saved by sw version: 2020.2
+// Save timestamp: 26-Jul-2020 @ 12:03:02 PM
 //
 
 library "xyce_lib" {
@@ -26,6 +26,17 @@ library "xyce_lib" {
         user_real_type_precision = "default"
         sys_cpu_optimization = "high"
         user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
     }
 
     component Subsystem Root {
@@ -120,25 +131,25 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/cc_switch_high.svg')
                         ctrl_name_prop = mdl.prop(item_handle, "ctrl_name")
                         ctrl_name = mdl.get_property_value(ctrl_name_prop)
-
+                    
                         try:
-
+                    
                             logic = mdl.prop(item_handle, "logic")
-
+                    
                             if mdl.get_property_value(logic) == "Active Low":
                                 if not ctrl_name == "None":
                                     mdl.set_component_icon_image(item_handle, 'Xyce/cc_switch_low_selectedcur.svg')
@@ -151,20 +162,20 @@ library "xyce_lib" {
                                    mdl.set_component_icon_image(item_handle, 'Xyce/cc_switch_high_selectedcur.svg')
                                    mdl.set_color(item_handle, "blue")
                                    mdl.disp_component_icon_text(item_handle, " " + ctrl_name, relpos_x = 0.5, relpos_y = 0.87, size = 8)
-
+                    
                         except: pass
                     ENDCODE
 
                     CODE init
                         def update_current_measurements():
                             i_list = []
-
+                    
                             for item in mdl.get_items():
                                 try: # Not every component has a type
                                     if mdl.get_component_type_name(item) == "Current Measurement":
                                         i_list.append(item.fqn.split(".")[0])
                                 except AttributeError: pass
-
+                    
                             for item in mdl.get_items():
                                 try: # Not every component has a type
                                     if mdl.get_component_type_name(item) == "Current-Controlled Switch":
@@ -175,7 +186,7 @@ library "xyce_lib" {
                                             mdl.set_property_value(ctrl_name_prop, "None")
                                             mdl.refresh_icon(item)
                                 except AttributeError: pass
-
+                    
                         update_current_measurements()
                     ENDCODE
                 }
@@ -278,22 +289,22 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/vc_switch_high.svg')
-
+                    
                         try:
                             logic = mdl.prop(item_handle, "logic")
-
+                    
                             if mdl.get_property_value(logic) == "Active Low":
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vc_switch_low.svg')
                         except: pass
@@ -416,20 +427,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-
+                    
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -441,20 +452,20 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-
+                    
                             def parse_file(self):
                                 choose_file = QFileDialog()
-
+                    
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-
-
+                    
+                    
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-
-
+                    
+                    
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -491,17 +502,17 @@ library "xyce_lib" {
                                         else:
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-
+                    
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-
+                    
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-
+                    
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -513,14 +524,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-
+                    
                         mdl.set_component_icon_image(item_handle, 'Xyce/mesfet_nchannel.svg')
-
+                    
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-
+                    
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -539,7 +550,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-
+                    
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -670,20 +681,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-
+                    
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -695,18 +706,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-
+                    
                             def parse_file(self):
                                 choose_file = QFileDialog()
-
+                    
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-
+                    
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-
+                    
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -743,17 +754,17 @@ library "xyce_lib" {
                                         else:
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-
+                    
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-
+                    
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-
+                    
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -765,14 +776,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-
+                    
                         mdl.set_component_icon_image(item_handle, 'Xyce/bjt_npn.svg')
-
+                    
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-
+                    
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -791,7 +802,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-
+                    
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -922,20 +933,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-
+                    
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -947,18 +958,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-
+                    
                             def parse_file(self):
                                 choose_file = QFileDialog()
-
+                    
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-
+                    
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-
+                    
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -995,17 +1006,17 @@ library "xyce_lib" {
                                         else:
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-
+                    
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-
+                    
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-
+                    
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -1017,14 +1028,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-
+                    
                         mdl.set_component_icon_image(item_handle, 'Xyce/jfet_nchannel.svg')
-
+                    
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-
+                    
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -1043,7 +1054,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-
+                    
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -1174,20 +1185,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-
+                    
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -1199,12 +1210,12 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-
+                    
                             def parse_file(self):
                                 choose_file = QFileDialog()
-
+                    
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-
+                    
                                 if file:
                                     try:
                                         XyceSim_handle = mdl.get_item('XyceSim1')
@@ -1216,7 +1227,7 @@ library "xyce_lib" {
                                     return True
                                 else:
                                     return False
-
+                    
                             def parse_models(self, file, rel_file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -1228,7 +1239,7 @@ library "xyce_lib" {
                                 # Find individual models
                                 nmos_models = re.compile(r"^\.MODEL ([\S]*)\s+NMOS",flags = re.I)
                                 pmos_models = re.compile(r"^\.MODEL ([\S]*)\s+PMOS",flags = re.I)
-
+                    
                                 # Models should not be added if inside a subcircuit definition
                                 with io.open(file) as lib:
                                     in_sub_flag = False
@@ -1254,17 +1265,17 @@ library "xyce_lib" {
                                         else:
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-
+                    
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-
+                    
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-
+                    
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -1276,14 +1287,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-
+                    
                         mdl.set_component_icon_image(item_handle, 'Xyce/mosfet_nmos.svg')
-
+                    
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-
+                    
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -1302,7 +1313,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-
+                    
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -1412,20 +1423,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-
+                    
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -1437,18 +1448,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-
+                    
                             def parse_file(self):
                                 choose_file = QFileDialog()
-
+                    
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-
+                    
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-
+                    
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -1460,7 +1471,7 @@ library "xyce_lib" {
                                 # Find individual models
                                 diode_models = re.compile(r"^\.MODEL ([.\S]*)\s+(?:D|d)", flags = re.I)
                                 # Models should not be added if inside a subcircuit definition
-
+                    
                                 with io.open(file) as lib:
                                     in_sub_flag = False
                                     for line in lib:
@@ -1481,17 +1492,17 @@ library "xyce_lib" {
                                             # Detect end of the subcircuit and update flag
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-
+                    
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-
+                    
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-
+                    
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -1503,14 +1514,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-
+                    
                         mdl.set_component_icon_image(item_handle, 'Xyce/diode.svg')
-
+                    
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-
+                    
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -1529,7 +1540,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-
+                    
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -1605,14 +1616,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
@@ -1620,7 +1631,7 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-
+                    
                         mdl.set_component_icon_image(item_handle, 'Xyce/diode.svg')
                     ENDCODE
 
@@ -1713,14 +1724,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
@@ -1728,7 +1739,7 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-
+                    
                         mdl.set_component_icon_image(item_handle, 'Xyce/mosfet_nmos.svg')
                     ENDCODE
 
@@ -1811,19 +1822,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/inductor.svg')
-
+                    
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -1852,7 +1863,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-
+                    
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -1868,7 +1879,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-
+                    
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -1893,11 +1904,11 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-
+                    
                         L_prop = mdl.prop(item_handle, "L")
-
+                    
                         L_text, color = get_text(L_prop, "H")
-
+                    
                         if not ignore == True:
                             mdl.set_color(item_handle, color)
                             mdl.disp_component_icon_text(item_handle, L_text, relpos_y = 0.2, size = 8)
@@ -1973,19 +1984,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/resistor.svg')
-
+                    
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -2014,7 +2025,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-
+                    
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -2030,7 +2041,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-
+                    
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -2055,10 +2066,10 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-
+                    
                         R_prop = mdl.prop(item_handle, "R")
                         R_text, color = get_text(R_prop, "Ω")
-
+                    
                         if not ignore == True:
                             mdl.set_color(item_handle, color)
                             mdl.disp_component_icon_text(item_handle, R_text, relpos_y = 0.2, size = 8)
@@ -2166,20 +2177,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-
+                    
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -2191,18 +2202,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-
+                    
                             def parse_file(self):
                                 choose_file = QFileDialog()
-
+                    
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-
+                    
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-
+                    
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -2235,17 +2246,17 @@ library "xyce_lib" {
                                             # Detect end of the subcircuit and update flag
                                             if re.match(r".ENDS", line):
                                                 in_sub_flag = False
-
+                    
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-
+                    
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-
+                    
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -2257,14 +2268,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-
+                    
                         mdl.set_component_icon_image(item_handle, 'Xyce/memristor.svg')
-
+                    
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-
+                    
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -2283,7 +2294,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-
+                    
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -2364,19 +2375,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/capacitor.svg')
-
+                    
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -2405,7 +2416,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-
+                    
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -2421,7 +2432,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-
+                    
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -2446,11 +2457,11 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-
+                    
                         C_prop = mdl.prop(item_handle, "C")
-
+                    
                         C_text, color = get_text(C_prop, "F")
-
+                    
                         if not ignore == True:
                             mdl.set_color(item_handle, color)
                             mdl.disp_component_icon_text(item_handle, C_text, relpos_y = 0.12, size = 8)
@@ -2659,7 +2670,7 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
@@ -2670,13 +2681,13 @@ library "xyce_lib" {
                         update_availability(mdl)
                         update_coupled(mdl)
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
                         from copy import deepcopy
                         import ast
-
+                    
                         # First inductor added  #
                         # Create namespace vars #
                         try: mdl.get_ns_var("coupled_dict")
@@ -2684,23 +2695,23 @@ library "xyce_lib" {
                         try: mdl.get_ns_var("handle_dict")
                         except: mdl.set_ns_var("handle_dict", {})
                         # # # # # # # # # # # # #
-
+                    
                         # Make invisible
                         mdl.hide_property(mdl.prop(item_handle, "coupled_dict"))
                         mdl.hide_property(mdl.prop(item_handle, "handle_dict"))
-
+                    
                         handle_dict = mdl.get_ns_var("handle_dict")
                         coupled_dict = mdl.get_ns_var("coupled_dict")
-
+                    
                         L_prop = mdl.prop(item_handle, "L")
                         L = mdl.get_property_value(L_prop)
-
+                    
                         ind_name = mdl.get_fqn(item_handle).split(".")[0]
-
+                    
                         this_ind_dict = {ind_name:L}
                         coupled_dict.update({ind_name:this_ind_dict})
                         handle_dict.update({item_handle.item_fqid:ind_name})
-
+                    
                         # The following lines are needed for opening saved schematics
                         # Saves the data as invisible ComboBox entries
                         # If the inductor is not the first one added:
@@ -2709,7 +2720,7 @@ library "xyce_lib" {
                             hdict_prop = mdl.prop(item_handle, "handle_dict")
                             mdl.set_property_combo_values(cdict_prop, [str(coupled_dict)])
                             mdl.set_property_combo_values(hdict_prop, [str(handle_dict)])
-
+                    
                         def add_inductor(mdl, item_handle):
                             this_ind_name = mdl.get_fqn(item_handle).split(".")[0]
                             # Prop handles
@@ -2724,7 +2735,7 @@ library "xyce_lib" {
                             selected_ind = mdl.get_property_disp_value(available_prop)
                             # Mutual inductance
                             mut_ind_value = mdl.get_property_disp_value(mutual_ind_prop)
-
+                    
                             if not selected_ind == "None":
                                 # Update coupled_dict with the new entry.
                                 this_dict = coupled_dict.get(this_ind_name)
@@ -2734,7 +2745,7 @@ library "xyce_lib" {
                                 selected_ind_dict.update({this_ind_name:mut_ind_value})
                                 # Update all necessary Combos
                                 #coupled_list.append(selected_ind)
-
+                    
                         def load_from_combo():
                             try: mdl.get_ns_var("loaded")
                             # When loading a schematic, the namespace variable is empty
@@ -2752,7 +2763,7 @@ library "xyce_lib" {
                                 mdl.info("after " + str(coupled_dict))
                                 handle_dict.update(saved_h)
                                 mdl.set_ns_var("loaded", True)
-
+                    
                         def handle_copied_component():
                             nonlocal this_ind_dict
                             ind_fqid = item_handle.item_fqid
@@ -2763,21 +2774,21 @@ library "xyce_lib" {
                                 ind_name = mdl.get_fqn(item_handle).split(".")[0]
                                 L_prop = mdl.prop(item_handle, "L")
                                 L = mdl.get_property_value(L_prop)
-
+                    
                                 # Take advantage later of dictionary mutability
                                 this_ind_dict = {ind_name:L}
                                 coupled_dict.update({ind_name:this_ind_dict})
                                 handle_dict.update({item_handle.item_fqid:ind_name})
                             except:
                                 mdl.info("not copied")
-
+                    
                         def get_list_of_inds(mdl):
                             # Every schematic item handle
                             items = mdl.get_items()
                             # This list will be filled with inductor handles
                             list_of_inductors = []
                             list_of_ind_names = []
-
+                    
                             for item in items:
                                 try:
                                     if mdl.get_component_type_name(item) == "Coupled Inductor":
@@ -2787,7 +2798,7 @@ library "xyce_lib" {
                                         list_of_inductors.append(item)
                                         list_of_ind_names.append(this_ind_name)
                                 except: pass
-
+                    
                             # The component could have been renamed
                             for ind in list_of_inductors:
                                 cur_name = mdl.get_fqn(ind).split(".")[0]
@@ -2804,7 +2815,7 @@ library "xyce_lib" {
                                         try:
                                             other_ind_dict.update({cur_name:other_ind_dict.pop(old_name)})
                                         except KeyError: pass
-
+                    
                             # Take the opportunity to update coupled_dict to contain only
                             # existing inductors
                             coupled_dict_inductors = list(coupled_dict.keys())
@@ -2818,20 +2829,20 @@ library "xyce_lib" {
                                     for k in list(cur_coupled.keys()):
                                         if k not in list_of_ind_names:
                                             cur_coupled.pop(k)
-
+                    
                             # Do the same with handle_dict
                             handle_dict_inductors = list(handle_dict.keys())
                             for ind in handle_dict_inductors:
                                 # If the entry doesn't exist in the schematic, pop it
                                 if ind not in [i.item_fqid for i in list_of_inductors]:
                                     handle_dict.pop(ind)
-
+                    
                             for ind in list_of_inductors:
                                 # Update save combos
                                 update_dict_combos(ind)
-
+                    
                             return (list_of_inductors, list_of_ind_names)
-
+                    
                         def update_availability(mdl):
                             # Get the inductor handles
                             list_of_inductors, list_of_ind_names = get_list_of_inds(mdl)
@@ -2846,10 +2857,10 @@ library "xyce_lib" {
                                 for coupled in cur_coupled:
                                     av_inds.remove(coupled)
                                 mdl.set_property_combo_values(av_prop, av_inds)
-
+                    
                                 # Refresh drawing
                                 mdl.refresh_icon(ind)
-
+                    
                         def update_coupled(mdl):
                             list_of_inductors, list_of_ind_names = get_list_of_inds(mdl)
                             for ind in list_of_inductors:
@@ -2863,39 +2874,39 @@ library "xyce_lib" {
                                     # Remove self
                                     cur_coupled.remove(cur_ind_name)
                                 except: pass
-
+                    
                                 # Update the ComboBox
                                 mdl.set_property_combo_values(coupled_prop, cur_coupled)
                                 mdl.set_property_combo_values(select_coupled_prop, cur_coupled)
-
+                    
                         def get_coupling_coef(mdl, item_handle):
                             # Prop handles
                             select_coupled_prop = mdl.prop(item_handle, "select_coupled")
                             change_mutual = mdl.prop(item_handle, "change_mutual")
-
+                    
                             ind_name = mdl.get_fqn(item_handle).split(".")[0]
                             selected_ind = mdl.get_property_disp_value(select_coupled_prop)
                             coup_coef = coupled_dict.get(ind_name,{}).get(selected_ind)
                             mdl.set_property_disp_value(change_mutual, coup_coef)
-
+                    
                         def update_coupling_coef(mdl, item_handle):
                             # Prop handles
                             select_coupled_prop = mdl.prop(item_handle, "select_coupled")
                             change_mutual_prop = mdl.prop(item_handle, "change_mutual")
-
+                    
                             ind_name = mdl.get_fqn(item_handle).split(".")[0]
                             new_value = mdl.get_property_disp_value(change_mutual_prop)
                             selected_ind = mdl.get_property_disp_value(select_coupled_prop)
-
+                    
                             # Update coupled dict entries
                             coupled_dict.get(selected_ind,{}).update({ind_name:new_value})
                             coupled_dict.get(ind_name,{}).update({selected_ind:new_value})
-
-
+                    
+                    
                         def remove_inductor(mdl, item_handle):
                             # Prop handles
                             select_coupled_prop = mdl.prop(item_handle, "select_coupled")
-
+                    
                             ind_name = mdl.get_fqn(item_handle).split(".")[0]
                             selected_ind = mdl.get_property_disp_value(select_coupled_prop)
                             if not selected_ind == "None":
@@ -2903,26 +2914,26 @@ library "xyce_lib" {
                                 coupled_dict.get(ind_name,{}).pop(selected_ind)
                                 # Also remove this inductor from the dict of the selected inductor
                                 coupled_dict.get(selected_ind,{}).pop(ind_name)
-
+                    
                             # Update schematic
                             update_coupled(mdl)
                             update_availability(mdl)
-
+                    
                         def self_ind_update(mdl, item_handle):
                             L_prop = mdl.prop(item_handle, "L")
                             L = mdl.get_property_value(L_prop)
-
+                    
                             ind_name = handle_dict.get(item_handle.item_fqid)
                             this_ind_dict.update({ind_name:L})
-
+                    
                         def update_dict_combos(ind_handle):
                             # Update Combos of other inductors
                             c_prop = mdl.prop(ind_handle, "coupled_dict")
                             h_prop = mdl.prop(ind_handle, "handle_dict")
                             mdl.set_property_combo_values(c_prop, [str(coupled_dict)])
                             mdl.set_property_combo_values(h_prop, [str(handle_dict)])
-
-
+                    
+                    
                         update_availability(mdl)
                     ENDCODE
 
@@ -2949,18 +2960,18 @@ library "xyce_lib" {
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/not_coupled_inductor.svg')
-
+                    
                         try:
                             handle_dict = mdl.get_ns_var("handle_dict")
                             coupled_dict = mdl.get_ns_var("coupled_dict")
                             this_ind = handle_dict.get(item_handle.item_fqid)
                             this_dict = coupled_dict.get(this_ind,{})
-
+                    
                             if len(this_dict.keys()) > 1:
                                 mdl.set_component_icon_image(item_handle, 'Xyce/coupled_inductor.svg')
                             else:
                                 mdl.set_component_icon_image(item_handle, 'Xyce/not_coupled_inductor.svg')
-
+                    
                         except: pass
                     ENDCODE
 
@@ -3059,14 +3070,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
@@ -3182,27 +3193,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_exp.svg')
-
+                            
                                 V1 = mdl.prop(item_handle, "V1")
                                 V2 = mdl.prop(item_handle, "V2")
                                 min = mdl.get_property_value(V1)
                                 max = mdl.get_property_value(V2)
-
+                            
                                 min_text = f"{min} V"
                                 max_text = f"{max} V"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -3317,27 +3328,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_pulse.svg')
-
+                            
                                 V1 = mdl.prop(item_handle, "V1")
                                 V2 = mdl.prop(item_handle, "V2")
                                 min = mdl.get_property_value(V1)
                                 max = mdl.get_property_value(V2)
-
+                            
                                 min_text = f"{min} V"
                                 max_text = f"{max} V"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -3404,24 +3415,24 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_dc.svg')
-
+                            
                                 voltage = mdl.prop(item_handle, "voltage")
                                 vdc = mdl.get_property_value(voltage)
-
+                            
                                 vdc_text = f"{vdc} V"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, vdc_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                             ENDCODE
@@ -3526,27 +3537,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_ac.svg')
-
+                            
                                 VA = mdl.prop(item_handle, "VA")
                                 FREQ = mdl.prop(item_handle, "FREQ")
                                 amplitude = mdl.get_property_value(VA)
                                 frequency = mdl.get_property_value(FREQ)
-
+                            
                                 amp_text = f"{amplitude} V"
                                 freq_text = f"{frequency} Hz"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, freq_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, amp_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -3637,27 +3648,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_triangular.svg')
-
+                            
                                 VMIN = mdl.prop(item_handle, "vmin")
                                 VMAX = mdl.prop(item_handle, "vmax")
                                 min = mdl.get_property_value(VMIN)
                                 max = mdl.get_property_value(VMAX)
-
+                            
                                 min_text = f"{min} V"
                                 max_text = f"{max} V"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -3769,27 +3780,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_exp.svg')
-
+                            
                                 V1 = mdl.prop(item_handle, "V1")
                                 V2 = mdl.prop(item_handle, "V2")
                                 min = mdl.get_property_value(V1)
                                 max = mdl.get_property_value(V2)
-
+                            
                                 min_text = f"{min} A"
                                 max_text = f"{max} A"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -3895,27 +3906,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_ac.svg')
-
+                            
                                 VA = mdl.prop(item_handle, "VA")
                                 FREQ = mdl.prop(item_handle, "FREQ")
                                 amplitude = mdl.get_property_value(VA)
                                 frequency = mdl.get_property_value(FREQ)
-
+                            
                                 amp_text = f"{amplitude} A"
                                 freq_text = f"{frequency} Hz"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, freq_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, amp_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -3978,24 +3989,24 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_dc.svg')
-
+                            
                                 current = mdl.prop(item_handle, "current")
                                 idc = mdl.get_property_value(current)
-
+                            
                                 idc_text = f"{idc} A"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, idc_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                             ENDCODE
@@ -4109,27 +4120,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                            
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-
+                            
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_pulse.svg')
-
+                            
                                 V1 = mdl.prop(item_handle, "V1")
                                 V2 = mdl.prop(item_handle, "V2")
                                 min = mdl.get_property_value(V1)
                                 max = mdl.get_property_value(V2)
-
+                            
                                 min_text = f"{min} A"
                                 max_text = f"{max} A"
-
+                            
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -4231,24 +4242,24 @@ library "xyce_lib" {
 
                         CODE open
                             from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                        
                             dialog = RegularComponentPropertiesDialog(
                                 component=component,
                                 property_container=component.masks[-1],
                                 current_diagram=current_diagram
                             )
                             dialog.exec_()
-
+                        
                         ENDCODE
 
                         CODE define_icon
                             mdl.set_component_icon_image(item_handle, 'Xyce/vccs.svg')
-
+                        
                             transc_prop = mdl.prop(item_handle, "transc")
                             transc = mdl.get_property_value(transc_prop)
-
+                        
                             text = f" gm = {transc}"
-
+                        
                             mdl.set_color(item_handle, "blue")
                             mdl.disp_component_icon_text(item_handle, text, relpos_x = 0.5, relpos_y = 0.87, size = 8)
                         ENDCODE
@@ -4333,22 +4344,22 @@ library "xyce_lib" {
 
                         CODE open
                             from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                        
                             dialog = RegularComponentPropertiesDialog(
                                 component=component,
                                 property_container=component.masks[-1],
                                 current_diagram=current_diagram
                             )
                             dialog.exec_()
-
+                        
                         ENDCODE
 
                         CODE define_icon
                             ctrl_name_prop = mdl.prop(item_handle, "ctrl_name")
                             ctrl_name = mdl.get_property_disp_value(ctrl_name_prop)
-
+                        
                             mdl.set_component_icon_image(item_handle, 'Xyce/cccs.svg')
-
+                        
                             if not ctrl_name == "None":
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cccs_active.svg')
                                 mdl.set_color(item_handle, "blue")
@@ -4358,13 +4369,13 @@ library "xyce_lib" {
                         CODE init
                             def update_current_measurements():
                                 i_list = []
-
+                        
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current Measurement":
                                             i_list.append(item.fqn.split(".")[0])
                                     except AttributeError: pass
-
+                        
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current-Controlled Current Source":
@@ -4375,7 +4386,7 @@ library "xyce_lib" {
                                                 mdl.set_property_value(ctrl_name_prop, "None")
                                                 mdl.refresh_icon(item)
                                     except AttributeError: pass
-
+                        
                             update_current_measurements()
                         ENDCODE
                     }
@@ -4459,22 +4470,22 @@ library "xyce_lib" {
 
                         CODE open
                             from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                        
                             dialog = RegularComponentPropertiesDialog(
                                 component=component,
                                 property_container=component.masks[-1],
                                 current_diagram=current_diagram
                             )
                             dialog.exec_()
-
+                        
                         ENDCODE
 
                         CODE define_icon
                             ctrl_name_prop = mdl.prop(item_handle, "ctrl_name")
                             ctrl_name = mdl.get_property_disp_value(ctrl_name_prop)
-
+                        
                             mdl.set_component_icon_image(item_handle, 'Xyce/ccvs.svg')
-
+                        
                             if not ctrl_name == "None":
                                 mdl.set_component_icon_image(item_handle, 'Xyce/ccvs_active.svg')
                                 mdl.set_color(item_handle, "blue")
@@ -4484,13 +4495,13 @@ library "xyce_lib" {
                         CODE init
                             def update_current_measurements():
                                 i_list = []
-
+                        
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current Measurement":
                                             i_list.append(item.fqn.split(".")[0])
                                     except AttributeError: pass
-
+                        
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current-Controlled Voltage Source":
@@ -4500,14 +4511,14 @@ library "xyce_lib" {
                                             if displayed_ctrl not in i_list:
                                                 mdl.set_property_value(ctrl_name_prop, "None")
                                     except AttributeError: pass
-
+                        
                             def refresh_all_ccvs_icons():
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current-Controlled Voltage Source":
                                             mdl.refresh_icon(item)
                                     except AttributeError: pass
-
+                        
                             update_current_measurements()
                         ENDCODE
                     }
@@ -4616,24 +4627,24 @@ library "xyce_lib" {
 
                         CODE open
                             from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                        
                             dialog = RegularComponentPropertiesDialog(
                                 component=component,
                                 property_container=component.masks[-1],
                                 current_diagram=current_diagram
                             )
                             dialog.exec_()
-
+                        
                         ENDCODE
 
                         CODE define_icon
                             mdl.set_component_icon_image(item_handle, 'Xyce/vcvs.svg')
-
+                        
                             gain_prop = mdl.prop(item_handle, "gain")
                             gain = mdl.get_property_value(gain_prop)
-
+                        
                             text = f" g = {gain}"
-
+                        
                             mdl.set_color(item_handle, "blue")
                             mdl.disp_component_icon_text(item_handle, text, relpos_x = 0.5, relpos_y = 0.87, size = 8)
                         ENDCODE
@@ -4797,19 +4808,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/lossy_tl.svg')
-
+                    
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -4838,7 +4849,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-
+                    
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -4854,7 +4865,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-
+                    
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -4879,10 +4890,10 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-
+                    
                         len_prop = mdl.prop(item_handle, "LEN")
                         len_text, color = get_text(len_prop, "m")
-
+                    
                         if not ignore == True:
                             mdl.set_color(item_handle, color)
                             mdl.disp_component_icon_text(item_handle, len_text, relpos_x = 0.5, relpos_y = 0.5, size = 8)
@@ -4976,19 +4987,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/lumped_tl.svg')
-
+                    
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -5017,7 +5028,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-
+                    
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -5033,7 +5044,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-
+                    
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -5058,13 +5069,13 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-
+                    
                         len_prop = mdl.prop(item_handle, "LEN")
                         lumps_prop = mdl.prop(item_handle, "LUMPS")
-
+                    
                         len_text, color_len = get_text(len_prop, "m")
                         lumps_text, color_lumps = get_text(lumps_prop, "")
-
+                    
                         if not ignore == True:
                             mdl.set_color(item_handle, color_len)
                             mdl.disp_component_icon_text(item_handle, len_text, relpos_x = 0.5, relpos_y = 0.11, size = 8)
@@ -5164,19 +5175,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/ideal_tl.svg')
-
+                    
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -5205,7 +5216,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-
+                    
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -5221,7 +5232,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-
+                    
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -5246,13 +5257,13 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-
+                    
                         TD_prop = mdl.prop(item_handle, "TD")
                         Z0_prop = mdl.prop(item_handle, "Z0")
-
+                    
                         TD_text, color1 = get_text(TD_prop, "s")
                         Z0_text, color2 = get_text(Z0_prop, "Ω")
-
+                    
                         if not ignore == True:
                             mdl.set_color(item_handle, color1)
                             mdl.disp_component_icon_text(item_handle, TD_text, relpos_x = 0.7, relpos_y = 0.5, size = 8, trim_factor = 0.4)
@@ -5508,14 +5519,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
@@ -5526,17 +5537,17 @@ library "xyce_lib" {
                         def new_filter_cap():
                             fp_prop = mdl.prop(item_handle, "fp")
                             fp = mdl.get_property_value(fp_prop)
-
+                    
                             Rf_prop = mdl.prop(item_handle, "Rf")
                             Rf = mdl.get_property_value(Rf_prop)
-
+                    
                             try:
                                 pi = 3.14159265359
                                 cap = 1/(2*pi*fp*Rf)
-
+                    
                                 Cf = mdl.prop(item_handle, "Cf")
                                 mdl.set_property_value(Cf, cap)
-
+                    
                             except ZeroDivisionError:
                                 mdl.info("Filter resistor and capacitor cannot be set to zero.")
                                 mdl.set_property_value(fp_prop, fp)
@@ -5695,14 +5706,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
@@ -5838,14 +5849,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
@@ -6015,20 +6026,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-
+                    
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -6040,18 +6051,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-
+                    
                             def parse_file(self):
                                 choose_file = QFileDialog()
-
+                    
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-
+                    
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-
+                    
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -6075,14 +6086,14 @@ library "xyce_lib" {
                                             # Detect end of the subcircuit and update flag
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-
+                    
                                     mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), subcircuit_model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-
+                    
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-
+                    
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -6103,7 +6114,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-
+                    
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -6239,14 +6250,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE init
@@ -6254,13 +6265,13 @@ library "xyce_lib" {
                         from PyQt5.QtWidgets import QWidget, QFileDialog, QDialog, QApplication
                         from PyQt5 import QtCore, QtGui, QtWidgets
                         import os, sys, csv, io, re
-
-
+                    
+                    
                         mdl.disable_property(mdl.prop(item_handle, "configure_positions"))
-
+                    
                         models_pin_info = {}
                         positions = []
-
+                    
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -6272,18 +6283,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-
+                    
                             def parse_file(self):
                                 choose_file = QFileDialog()
-
+                    
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-
+                    
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-
+                    
                             def parse_models(self, file):
                                 subcircuit_model_list = []
                                 # Find subcircuit-based models
@@ -6306,15 +6317,15 @@ library "xyce_lib" {
                                             # Detect end of the subcircuit and update flag
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-
+                    
                                     mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), subcircuit_model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
                                     mdl.set_property_disp_value(mdl.prop(item_handle, "model_name"), subcircuit_model_list[0])
-
+                    
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-
+                    
                         def parse_models_loadfile(item_handle):
                             file = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
                             selected_model = mdl.get_property_value(mdl.prop(item_handle, "selected_model"))
@@ -6341,24 +6352,24 @@ library "xyce_lib" {
                                                 # Detect end of the subcircuit and update flag
                                                 if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                     in_sub_flag = False
-
+                    
                                 except FileNotFoundError:
                                     mdl.disable_property(mdl.prop(item_handle, "configure_positions"))
-
+                    
                                 mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), subcircuit_model_list)
-
-
+                    
+                    
                                 if selected_model in subcircuit_model_list:
                                    mdl.set_property_value(mdl.prop(item_handle, "pin_order"), ",".join(models_pin_info[selected_model]))
                                 #mdl.info(mdl.get_property_value(mdl.prop(item_handle, "pin_order")))
-
+                    
                         def update_component(item_handle):
                             model_name_prop = mdl.prop(item_handle, "model_name")
                             selected_model = mdl.get_property_value(model_name_prop)
                             # component = mdl.get_item(name=mdl.get_fqn(item_handle).split(".")[0])
                             component = item_handle
                             # items = mdl.get_items(parent=component)
-
+                    
                             items = mdl.get_items(item_handle)
                             # container_handle passes Category when opening library.
                             # This deletes all components inside the category
@@ -6372,8 +6383,8 @@ library "xyce_lib" {
                                     mdl.delete_item(it)
                                 except:
                                     pass
-
-
+                    
+                    
                             if not selected_model == "None":
                                 mdl.set_property_value(mdl.prop(item_handle, "selected_model"), selected_model)
                                 parse_models_loadfile(item_handle)
@@ -6432,7 +6443,7 @@ library "xyce_lib" {
                                         before_junc = junc
                                         offset += 75
                                     count += 1
-
+                    
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -6440,7 +6451,7 @@ library "xyce_lib" {
                                 return ex.parse_models(filename)
                             except FileNotFoundError:
                                 mdl.info("Warning: " + mdl.get_fqn(item_handle).split(".")[0] + " model file not found!")
-
+                    
                         # Terminal position configuration window
                         class Ui_TerminalPositions(object):
                             def setupUi(self, TerminalPositions):
@@ -6452,7 +6463,7 @@ library "xyce_lib" {
                                 self.buttonBox.setGeometry(QtCore.QRect(110, 390, 161, 32))
                                 self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
                                 self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
-                                self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('Isso')
+                                self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText('OK')
                                 self.buttonBox.setObjectName("buttonBox")
                                 self.groupBox = QtWidgets.QGroupBox(TerminalPositions)
                                 self.groupBox.setGeometry(QtCore.QRect(10, 10, 361, 111))
@@ -6529,12 +6540,12 @@ library "xyce_lib" {
                                 self.toolButton_idx_down.setGeometry(QtCore.QRect(330, 230, 21, 21))
                                 self.toolButton_idx_down.setText("")
                                 self.toolButton_idx_down.setObjectName("toolButton_idx_down")
-
+                    
                                 self.retranslateUi(TerminalPositions)
                                 self.buttonBox.accepted.connect(TerminalPositions.accept)
                                 self.buttonBox.rejected.connect(TerminalPositions.reject)
                                 QtCore.QMetaObject.connectSlotsByName(TerminalPositions)
-
+                    
                             def retranslateUi(self, TerminalPositions):
                                 _translate = QtCore.QCoreApplication.translate
                                 TerminalPositions.setWindowTitle(_translate("TerminalPositions", "Terminal positions configuration"))
@@ -6548,21 +6559,21 @@ library "xyce_lib" {
                                 self.groupBox_2.setTitle(_translate("TerminalPositions", "New positions"))
                                 self.label_2.setText(_translate("TerminalPositions", "Change index"))
                                 self.label_missing_terms.setText(_translate("TerminalPositions", "Some terminals are not yet configured"))
-
+                    
                         class TerminalPositionsDialog(QDialog, Ui_TerminalPositions):
                             def __init__(self):
                                 super().__init__()
                                 self.setupUi(self)
                                 self.added_terminals = []
-
+                    
                                 # Some extra configs
                                 self.toolButton_idx_up.setArrowType(QtCore.Qt.UpArrow)
                                 self.toolButton_idx_down.setArrowType(QtCore.Qt.DownArrow)
                                 self.label_missing_terms.setStyleSheet("color: red")
-
+                    
                                 # Must configure everything before OK is available
                                 self.buttonBox.buttons()[0].setEnabled(False)
-
+                    
                                 # Connect button functions
                                 self.pushButton_left.clicked.connect(self.add_to_list_left)
                                 self.pushButton_right.clicked.connect(self.add_to_list_right)
@@ -6570,13 +6581,13 @@ library "xyce_lib" {
                                 self.pushButton_down.clicked.connect(self.add_to_list_down)
                                 self.toolButton_idx_up.clicked.connect(self.index_up)
                                 self.toolButton_idx_down.clicked.connect(self.index_down)
-
+                    
                                 # Connect QListWidget clicks
                                 self.listWidget_up.itemClicked.connect(self.clicked_on_list_up)
                                 self.listWidget_down.itemClicked.connect(self.clicked_on_list_down)
                                 self.listWidget_left.itemClicked.connect(self.clicked_on_list_left)
                                 self.listWidget_right.itemClicked.connect(self.clicked_on_list_right)
-
+                    
                             def test_ok_available(self, inlist):
                                 if len(self.added_terminals) == self.comboBox.count():
                                     self.buttonBox.buttons()[0].setEnabled(True)
@@ -6590,38 +6601,38 @@ library "xyce_lib" {
                                         else:
                                             self.comboBox.setCurrentIndex(i)
                                         i = i + 1
-
+                    
                             def add_to_combo(self, terminals):
                                 self.comboBox.addItems(terminals)
-
+                    
                             def display_selected_model(self, model):
                                 self.groupBox.setTitle("Configure positions for model " + model)
-
+                    
                             def get_lists(self):
                                 rg_left = range(self.listWidget_left.count())
                                 left_list = [str(self.listWidget_left.item(i).text()) for i in rg_left]
-
+                    
                                 rg_right = range(self.listWidget_right.count())
                                 right_list = [str(self.listWidget_right.item(i).text()) for i in rg_right]
-
+                    
                                 rg_up = range(self.listWidget_up.count())
                                 up_list = [str(self.listWidget_up.item(i).text()) for i in rg_up]
-
+                    
                                 rg_down = range(self.listWidget_down.count())
                                 down_list = [str(self.listWidget_down.item(i).text()) for i in rg_down]
-
+                    
                                 return {"left":left_list, "right":right_list,
                                                     "top":up_list, "bottom":down_list}
-
+                    
                             def return_dict(self):
                                 return self.get_lists()
-
+                    
                             def in_list_check(self):
-
+                    
                                 terminal = self.comboBox.currentText()
                                 lists = self.get_lists()
                                 inlist = False
-
+                    
                                 for pos in lists:
                                     if terminal in lists[pos]:
                                         inlist = True
@@ -6642,37 +6653,37 @@ library "xyce_lib" {
                                             item = self.listWidget_down.findItems(terminal, QtCore.Qt.MatchExactly)[0]
                                             row = self.listWidget_down.row(item)
                                             self.listWidget_down.takeItem(row)
-
+                    
                                 return (terminal, inlist)
-
+                    
                             def add_to_list_left(self, position):
                                 terminal, inlist = self.in_list_check()
                                 self.listWidget_left.addItem(terminal)
                                 if terminal not in self.added_terminals:
                                     self.added_terminals.append(terminal)
                                 self.test_ok_available(inlist)
-
+                    
                             def add_to_list_right(self, position):
                                 terminal, inlist = self.in_list_check()
                                 self.listWidget_right.addItem(terminal)
                                 if terminal not in self.added_terminals:
                                     self.added_terminals.append(terminal)
                                 self.test_ok_available(inlist)
-
+                    
                             def add_to_list_up(self, position):
                                 terminal, inlist = self.in_list_check()
                                 self.listWidget_up.addItem(terminal)
                                 if terminal not in self.added_terminals:
                                     self.added_terminals.append(terminal)
                                 self.test_ok_available(inlist)
-
+                    
                             def add_to_list_down(self, position):
                                 terminal, inlist = self.in_list_check()
                                 self.listWidget_down.addItem(terminal)
                                 if terminal not in self.added_terminals:
                                     self.added_terminals.append(terminal)
                                 self.test_ok_available(inlist)
-
+                    
                             def index_up(self):
                                 selected_term = self.comboBox.currentText()
                                 if self.listWidget_left.findItems(selected_term, QtCore.Qt.MatchExactly):
@@ -6690,7 +6701,7 @@ library "xyce_lib" {
                                     list_widget.setCurrentRow(currentRow - 1)
                                 else:
                                     list_widget.setCurrentRow(0)
-
+                    
                             def index_down(self):
                                 selected_term = self.comboBox.currentText()
                                 if self.listWidget_left.findItems(selected_term, QtCore.Qt.MatchExactly):
@@ -6708,31 +6719,31 @@ library "xyce_lib" {
                                     list_widget.setCurrentRow(currentRow + 1)
                                 else:
                                     list_widget.setCurrentRow(list_widget.count()-1)
-
+                    
                             def clicked_on_list_left(self):
                                 row = self.listWidget_left.currentRow()
                                 term = self.listWidget_left.item(row).text()
                                 idx = self.comboBox.findText(term, QtCore.Qt.MatchExactly)
                                 self.comboBox.setCurrentIndex(idx)
-
+                    
                             def clicked_on_list_right(self):
                                 row = self.listWidget_right.currentRow()
                                 term = self.listWidget_right.item(row).text()
                                 idx = self.comboBox.findText(term, QtCore.Qt.MatchExactly)
                                 self.comboBox.setCurrentIndex(idx)
-
+                    
                             def clicked_on_list_up(self):
                                 row = self.listWidget_up.currentRow()
                                 term = self.listWidget_up.item(row).text()
                                 idx = self.comboBox.findText(term, QtCore.Qt.MatchExactly)
                                 self.comboBox.setCurrentIndex(idx)
-
+                    
                             def clicked_on_list_down(self):
                                 row = self.listWidget_down.currentRow()
                                 term = self.listWidget_down.item(row).text()
                                 idx = self.comboBox.findText(term, QtCore.Qt.MatchExactly)
                                 self.comboBox.setCurrentIndex(idx)
-
+                    
                         class Ui_ViewNetlist(object):
                             def setupUi(self, ViewNetlist):
                                 ViewNetlist.setObjectName("ViewNetlist")
@@ -6744,21 +6755,21 @@ library "xyce_lib" {
                                 self.gridLayout.addWidget(self.textBrowser_netlist, 0, 0, 2, 1)
                                 spacerItem = QtWidgets.QSpacerItem(20, 384, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
                                 self.gridLayout.addItem(spacerItem, 1, 1, 1, 1)
-
+                    
                                 self.retranslateUi(ViewNetlist)
                                 QtCore.QMetaObject.connectSlotsByName(ViewNetlist)
-
+                    
                             def retranslateUi(self, ViewNetlist):
                                 _translate = QtCore.QCoreApplication.translate
                                 ViewNetlist.setWindowTitle(_translate("ViewNetlist", "View netlist"))
-
+                    
                         class NetlistWindow(QDialog, Ui_ViewNetlist):
                             def __init__(self):
                                 super().__init__()
                                 self.setupUi(self)
                                 self.show_netlist()
-
-
+                    
+                    
                             def show_netlist(self):
                                 self.textBrowser_netlist.clear()
                                 selected_model = mdl.get_property_disp_value(mdl.prop(item_handle, "model_name"))
@@ -6771,15 +6782,15 @@ library "xyce_lib" {
                                     self.textBrowser_netlist.append(line[:-1])
                                 curs = self.textBrowser_netlist.textCursor()
                                 self.textBrowser_netlist.moveCursor(QtGui.QTextCursor.Start)
-
+                    
                             def get_model_lines(self):
-
+                    
                                 file = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
                                 selected_model = mdl.get_property_disp_value(mdl.prop(item_handle, "model_name"))
-
+                    
                                 regex_model = re.compile(fr"^\.SUBCKT {selected_model} ", flags = re.I)
                                 model_lines = []
-
+                    
                                 try:
                                     with open(file) as lib:
                                         in_model_flag = False
@@ -6796,14 +6807,14 @@ library "xyce_lib" {
                                                     in_model_flag = False
                                                 else:
                                                     model_lines.append(line)
-
+                    
                                     return model_lines
-
+                    
                                 except FileNotFoundError:
                                     mdl.info("Model file not found")
                                     return ["Model file not found."]
-
-
+                    
+                    
                         def configuration_availability(item_handle):
                             model_name_prop = mdl.prop(item_handle, "model_name")
                             configure_prop = mdl.prop(item_handle, "configure_positions")
@@ -6813,7 +6824,7 @@ library "xyce_lib" {
                                 configure_terminal_positions(item_handle)
                             else:
                                 mdl.info("Please confirm of cancel the model change before configuring the terminal positions.")
-
+                    
                         def configure_terminal_positions(item_handle):
                             pin_pos_dict = {}
                             pin_pos_list = []
@@ -6830,26 +6841,26 @@ library "xyce_lib" {
                             # Run the GUI and get the new terminal positons
                             if conf.exec_():
                                 new_term_positions = conf.return_dict()
-
+                    
                                 # Update terminal positions
-
+                    
                                 # Get all port handles
                                 port_handles = []
                                 # component = mdl.get_item(name=mdl.get_fqn(item_handle).split(".")[0])
                                 # all_handles = mdl.get_items(component)
                                 all_handles = mdl.get_items(item_handle)
-
+                    
                                 for h in all_handles:
                                     try:
                                         if h.item_type == "port":
                                             port_handles.append(h)
                                     except: pass
-
-
+                    
+                    
                                 # Go through every terminal of the new_term_positions dict and compare
                                 # to the each port name (in port_handles). If the name is the same, set
                                 # the port position as the key of the dict (up, down, left, right)
-
+                    
                                 for key in new_term_positions:
                                     for term_name in new_term_positions[key]:
                                         for ph in port_handles:
@@ -6858,32 +6869,32 @@ library "xyce_lib" {
                                                 new_pos = (key, new_term_positions[key].index(term_name) + 1)
                                                 mdl.set_port_properties(ph, terminal_position = new_pos)
                                                 pin_pos_dict.update({term_name:(new_pos[0],str(new_pos[1]))})
-
+                    
                             for term in terminals:
                                 pin_pos_list.append(pin_pos_dict[term][0])
                                 pin_idx_list.append(pin_pos_dict[term][1])
-
-
+                    
+                    
                             mdl.set_property_value(mdl.prop(item_handle, "pin_positions"), ",".join(pin_pos_list))
                             mdl.set_property_value(mdl.prop(item_handle, "pin_idx"), ",".join(pin_idx_list))
-
+                    
                         def view_netlist():
                             netlistwindow = NetlistWindow()
                             netlistwindow.exec_()
-
-
+                    
+                    
                         parse_models_loadfile(item_handle)
                         #mdl.set_property_value(a)
                     ENDCODE
 
                     CODE define_icon
                         import builtins
-
+                    
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-
+                    
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -6907,7 +6918,7 @@ library "xyce_lib" {
                         selected_model = mdl.get_property_value(mdl.prop(item_handle, "selected_model"))
                         # HEADER STOP
                         import builtins
-
+                    
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -6944,7 +6955,7 @@ library "xyce_lib" {
                         label = "Simulation time"
                         widget = edit
                         type = generic
-                        default_value = "0.04ms"
+                        default_value = "0.1ms"
                         no_evaluate
                     }
 
@@ -6952,7 +6963,7 @@ library "xyce_lib" {
                         label = "Maximum time-step"
                         widget = edit
                         type = generic
-                        default_value = "1"
+                        default_value = "1e-7"
                         no_evaluate
                     }
 
@@ -6980,46 +6991,46 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                        
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog, QDialog, QApplication
                         from PyQt5 import QtCore, QtGui, QtWidgets
                         import sys, os, re
-
+                        
                         keep_open = {}
-
-                        def sim_with_xyce():
-
+                        
+                        def sim_with_xyce(ih):
+                        
                             sim_params_dict = {}
-
-                            sim_time = mdl.get_property_disp_value(mdl.prop(item_handle, "sim_time"))
-                            max_ts = mdl.get_property_disp_value(mdl.prop(item_handle, "max_ts"))
-
+                        
+                            sim_time = mdl.get_property_disp_value(mdl.prop(ih, "sim_time"))
+                            max_ts = mdl.get_property_disp_value(mdl.prop(ih, "max_ts"))
+                        
                             sim_params_dict['sim_time'] = sim_time
                             sim_params_dict['max_ts'] = max_ts
-
+                        
                             # Export to JSON to the Target Files folder
                             mdl.export_model_to_json()
-
+                        
                             # Get the path to the exported JSON
                             mdlfile = mdl.get_model_file_path()
                             mdlfile_name = mdlfile.split('\\')[-1].split('.')[0]
                             mdlfile_folder = '/'.join(mdlfile.split('\\')[0:-1])
                             mdlfile_target_folder = mdlfile_folder + '/' + mdlfile_name + ' Target files'
                             json_file_path = mdlfile_target_folder + '/' + mdlfile_name + '.json'
-
+                        
                             # Xyce converter path
-                            xycesim_path = mdl.get_property_disp_value(mdl.prop(item_handle, "tse2xyce_path"))
-
+                            xycesim_path = mdl.get_property_disp_value(mdl.prop(ih, "tse2xyce_path"))
+                        
                             if json_file_path:
                                 os.chdir(xycesim_path)
                                 sys.path.append(xycesim_path)
@@ -7030,12 +7041,10 @@ library "xyce_lib" {
                                 mainwindow = XyceOutput(json_file_path, sim_params_dict)
                                 mainwindow.show()
                                 keep_open.update({'xycewin':mainwindow})
-
-                        def start_sim(item_handle):
-                            for item in mdl.get_items(item_type="masked_component"):
-                                mdl.refresh_icon(item)
-                            sim_with_xyce()
-
+                        
+                        def start_sim(ih):
+                            sim_with_xyce(ih)
+                        
                         def open_sa():
                             if keep_open.get('xycewin'):
                                 keep_open['xycewin'].plot_data()
@@ -7107,22 +7116,22 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/node_id_test.svg')
-
+                    
                         node_id = mdl.get_property_value(mdl.prop(item_handle, "node_id"))
                         mdl.set_color(item_handle, "green")
-
+                    
                         mdl.disp_component_icon_text(item_handle, node_id, relpos_x = 0.5, relpos_y = 0.85, size = 6)
                     ENDCODE
                 }
@@ -7328,14 +7337,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
@@ -7346,12 +7355,12 @@ library "xyce_lib" {
                 }
             }
             [
-                position = 7776, 8200
+                position = 7784, 8224
                 size = 64, 64
             ]
 
-            component Subsystem Inverter {
-                layout = dynamic
+            component Subsystem NOT {
+                layout = static
                 component el_short "Short Circuit" {
                 }
                 [
@@ -7359,7 +7368,7 @@ library "xyce_lib" {
                 ]
 
                 port in {
-                    position = left:auto
+                    position = left center
                     kind = pe
                 }
                 [
@@ -7368,7 +7377,7 @@ library "xyce_lib" {
                 ]
 
                 port out {
-                    position = right:auto
+                    position = right center
                     kind = pe
                 }
                 [
@@ -7381,7 +7390,7 @@ library "xyce_lib" {
                 connect in "Short Circuit.p_node" as Connection1
 
                 mask {
-                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Logic Inverter</p></body></html>"
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">NOT logic</p></body></html>"
 
                     CHI {
                         label = "CHI"
@@ -7457,12 +7466,11 @@ library "xyce_lib" {
                     }
 
                     S0VHI {
-                        label = "S0VHI"
+                        label = "Maximum low-state input voltage"
                         widget = edit
                         type = generic
                         default_value = "0.1"
-                        nonvisible
-                        no_evaluate
+                        unit = "V"
                     }
 
                     S0VLO {
@@ -7511,12 +7519,11 @@ library "xyce_lib" {
                     }
 
                     S1VLO {
-                        label = "S1VLO"
+                        label = "Minimum high-state input voltage"
                         widget = edit
                         type = generic
                         default_value = "0.9"
-                        nonvisible
-                        no_evaluate
+                        unit = "V"
                     }
 
                     type {
@@ -7530,27 +7537,27 @@ library "xyce_lib" {
                     }
 
                     output_voltage {
-                        label = "output_voltage"
+                        label = "Output Voltage"
                         widget = edit
                         type = generic
-                        default_value = "1"
-                        nonvisible
-                        no_evaluate
+                        default_value = "3.3"
+                        unit = "V"
                     }
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-
+                    
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-
+                    
                     ENDCODE
 
                     CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/behavioral_inverter.svg')
                     ENDCODE
 
                     CODE init
@@ -7558,7 +7565,1663 @@ library "xyce_lib" {
                 }
             }
             [
-                position = 7904, 8200
+                position = 7944, 8080
+                size = 64, 64
+            ]
+
+            component Subsystem AND {
+                layout = static
+                component el_short "Short Circuit" {
+                }
+                [
+                    position = 7912, 7992
+                ]
+
+                component el_short "Short Circuit1" {
+                }
+                [
+                    position = 7912, 8112
+                ]
+
+                port in1 {
+                    position = -32.0, -16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 7992
+                    hide_name = True
+                ]
+
+                port out {
+                    position = right center
+                    kind = pe
+                }
+                [
+                    position = 8080, 8056
+                    hide_name = True
+                    scale = -1, 1
+                ]
+
+                port in2 {
+                    position = -32.0, 16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 8112
+                    hide_name = True
+                ]
+
+                junction Junction1 pe
+                [
+                    position = 8000, 8056
+                ]
+
+                connect in1 "Short Circuit.p_node" as Connection1
+                connect in2 "Short Circuit1.p_node" as Connection3
+                connect "Short Circuit.n_node" Junction1 as Connection4
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 7992
+                ]
+                connect Junction1 out as Connection5
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 8064
+                ]
+                connect "Short Circuit1.n_node" Junction1 as Connection6
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">AND logic</p></body></html>"
+
+                    CHI {
+                        label = "CHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLO {
+                        label = "CLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLOAD {
+                        label = "CLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    DELAY {
+                        label = "Delay"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "s"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    RLOAD {
+                        label = "RLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "1e4"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RHI {
+                        label = "S0RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RLO {
+                        label = "S0RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0TSW {
+                        label = "S0TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0VHI {
+                        label = "Maximum low-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        unit = "V"
+                    }
+
+                    S0VLO {
+                        label = "S0VLO"
+                        widget = edit
+                        type = generic
+                        default_value = "-100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RHI {
+                        label = "S1RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RLO {
+                        label = "S1RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1TSW {
+                        label = "S1TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VHI {
+                        label = "S1VHI"
+                        widget = edit
+                        type = generic
+                        default_value = "100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VLO {
+                        label = "Minimum high-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.9"
+                        unit = "V"
+                    }
+
+                    type {
+                        label = "type"
+                        widget = combo
+                        combo_values = "AND"
+                        type = string
+                        default_value = "AND"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    output_voltage {
+                        label = "Output Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "3.3"
+                        unit = "V"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/behavioral_and.svg')
+                    ENDCODE
+
+                    CODE init
+                    ENDCODE
+                }
+            }
+            [
+                position = 7944, 8176
+                size = 64, 64
+            ]
+
+            component Subsystem NAND {
+                layout = static
+                component el_short "Short Circuit" {
+                }
+                [
+                    position = 7912, 7992
+                ]
+
+                component el_short "Short Circuit1" {
+                }
+                [
+                    position = 7912, 8112
+                ]
+
+                port in1 {
+                    position = -32.0, -16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 7992
+                    hide_name = True
+                ]
+
+                port out {
+                    position = right center
+                    kind = pe
+                }
+                [
+                    position = 8080, 8056
+                    hide_name = True
+                    scale = -1, 1
+                ]
+
+                port in2 {
+                    position = -32.0, 16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 8112
+                    hide_name = True
+                ]
+
+                junction Junction1 pe
+                [
+                    position = 8000, 8056
+                ]
+
+                connect in1 "Short Circuit.p_node" as Connection1
+                connect in2 "Short Circuit1.p_node" as Connection3
+                connect "Short Circuit.n_node" Junction1 as Connection4
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 7992
+                ]
+                connect Junction1 out as Connection5
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 8064
+                ]
+                connect "Short Circuit1.n_node" Junction1 as Connection6
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">NAND logic</p></body></html>"
+
+                    CHI {
+                        label = "CHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLO {
+                        label = "CLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLOAD {
+                        label = "CLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    DELAY {
+                        label = "Delay"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "s"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    RLOAD {
+                        label = "RLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "1e4"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RHI {
+                        label = "S0RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RLO {
+                        label = "S0RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0TSW {
+                        label = "S0TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0VHI {
+                        label = "Maximum low-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        unit = "V"
+                    }
+
+                    S0VLO {
+                        label = "S0VLO"
+                        widget = edit
+                        type = generic
+                        default_value = "-100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RHI {
+                        label = "S1RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RLO {
+                        label = "S1RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1TSW {
+                        label = "S1TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VHI {
+                        label = "S1VHI"
+                        widget = edit
+                        type = generic
+                        default_value = "100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VLO {
+                        label = "Minimum high-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.9"
+                        unit = "V"
+                    }
+
+                    type {
+                        label = "type"
+                        widget = combo
+                        combo_values = "NAND"
+                        type = string
+                        default_value = "NAND"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    output_voltage {
+                        label = "Output Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "3.3"
+                        unit = "V"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/behavioral_nand.svg')
+                    ENDCODE
+
+                    CODE init
+                    ENDCODE
+                }
+            }
+            [
+                position = 8056, 8176
+                size = 64, 64
+            ]
+
+            component Subsystem OR {
+                layout = static
+                component el_short "Short Circuit" {
+                }
+                [
+                    position = 7912, 7992
+                ]
+
+                component el_short "Short Circuit1" {
+                }
+                [
+                    position = 7912, 8112
+                ]
+
+                port in1 {
+                    position = -32.0, -16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 7992
+                    hide_name = True
+                ]
+
+                port out {
+                    position = right center
+                    kind = pe
+                }
+                [
+                    position = 8080, 8056
+                    hide_name = True
+                    scale = -1, 1
+                ]
+
+                port in2 {
+                    position = -32.0, 16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 8112
+                    hide_name = True
+                ]
+
+                junction Junction1 pe
+                [
+                    position = 8000, 8056
+                ]
+
+                connect in1 "Short Circuit.p_node" as Connection1
+                connect in2 "Short Circuit1.p_node" as Connection3
+                connect "Short Circuit.n_node" Junction1 as Connection4
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 7992
+                ]
+                connect Junction1 out as Connection5
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 8064
+                ]
+                connect "Short Circuit1.n_node" Junction1 as Connection6
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">OR logic</p></body></html>"
+
+                    CHI {
+                        label = "CHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLO {
+                        label = "CLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLOAD {
+                        label = "CLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    DELAY {
+                        label = "Delay"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "s"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    RLOAD {
+                        label = "RLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "1e4"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RHI {
+                        label = "S0RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RLO {
+                        label = "S0RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0TSW {
+                        label = "S0TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0VHI {
+                        label = "Maximum low-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        unit = "V"
+                    }
+
+                    S0VLO {
+                        label = "S0VLO"
+                        widget = edit
+                        type = generic
+                        default_value = "-100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RHI {
+                        label = "S1RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RLO {
+                        label = "S1RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1TSW {
+                        label = "S1TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VHI {
+                        label = "S1VHI"
+                        widget = edit
+                        type = generic
+                        default_value = "100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VLO {
+                        label = "Minimum high-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.9"
+                        unit = "V"
+                    }
+
+                    type {
+                        label = "type"
+                        widget = combo
+                        combo_values = "OR"
+                        type = string
+                        default_value = "OR"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    output_voltage {
+                        label = "Output Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "3.3"
+                        unit = "V"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/behavioral_or.svg')
+                    ENDCODE
+
+                    CODE init
+                    ENDCODE
+                }
+            }
+            [
+                position = 7944, 8272
+                size = 64, 64
+            ]
+
+            component Subsystem NOR {
+                layout = static
+                component el_short "Short Circuit" {
+                }
+                [
+                    position = 7912, 7992
+                ]
+
+                component el_short "Short Circuit1" {
+                }
+                [
+                    position = 7912, 8112
+                ]
+
+                port in1 {
+                    position = -32.0, -16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 7992
+                    hide_name = True
+                ]
+
+                port out {
+                    position = right center
+                    kind = pe
+                }
+                [
+                    position = 8080, 8056
+                    hide_name = True
+                    scale = -1, 1
+                ]
+
+                port in2 {
+                    position = -32.0, 16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 8112
+                    hide_name = True
+                ]
+
+                junction Junction1 pe
+                [
+                    position = 8000, 8056
+                ]
+
+                connect in1 "Short Circuit.p_node" as Connection1
+                connect in2 "Short Circuit1.p_node" as Connection3
+                connect "Short Circuit.n_node" Junction1 as Connection4
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 7992
+                ]
+                connect Junction1 out as Connection5
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 8064
+                ]
+                connect "Short Circuit1.n_node" Junction1 as Connection6
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">NOR logic</p></body></html>"
+
+                    CHI {
+                        label = "CHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLO {
+                        label = "CLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLOAD {
+                        label = "CLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    DELAY {
+                        label = "Delay"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "s"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    RLOAD {
+                        label = "RLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "1e4"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RHI {
+                        label = "S0RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RLO {
+                        label = "S0RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0TSW {
+                        label = "S0TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0VHI {
+                        label = "Maximum low-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        unit = "V"
+                    }
+
+                    S0VLO {
+                        label = "S0VLO"
+                        widget = edit
+                        type = generic
+                        default_value = "-100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RHI {
+                        label = "S1RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RLO {
+                        label = "S1RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1TSW {
+                        label = "S1TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VHI {
+                        label = "S1VHI"
+                        widget = edit
+                        type = generic
+                        default_value = "100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VLO {
+                        label = "Minimum high-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.9"
+                        unit = "V"
+                    }
+
+                    type {
+                        label = "type"
+                        widget = combo
+                        combo_values = "NOR"
+                        type = string
+                        default_value = "NOR"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    output_voltage {
+                        label = "Output Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "3.3"
+                        unit = "V"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/behavioral_nor.svg')
+                    ENDCODE
+
+                    CODE init
+                    ENDCODE
+                }
+            }
+            [
+                position = 8056, 8272
+                size = 64, 64
+            ]
+
+            component Subsystem XOR {
+                layout = static
+                component el_short "Short Circuit" {
+                }
+                [
+                    position = 7912, 7992
+                ]
+
+                component el_short "Short Circuit1" {
+                }
+                [
+                    position = 7912, 8112
+                ]
+
+                port in1 {
+                    position = -32.0, -16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 7992
+                    hide_name = True
+                ]
+
+                port out {
+                    position = right center
+                    kind = pe
+                }
+                [
+                    position = 8080, 8056
+                    hide_name = True
+                    scale = -1, 1
+                ]
+
+                port in2 {
+                    position = -32.0, 16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 8112
+                    hide_name = True
+                ]
+
+                junction Junction1 pe
+                [
+                    position = 8000, 8056
+                ]
+
+                connect in1 "Short Circuit.p_node" as Connection1
+                connect in2 "Short Circuit1.p_node" as Connection3
+                connect "Short Circuit.n_node" Junction1 as Connection4
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 7992
+                ]
+                connect Junction1 out as Connection5
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 8064
+                ]
+                connect "Short Circuit1.n_node" Junction1 as Connection6
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">XOR logic</p></body></html>"
+
+                    CHI {
+                        label = "CHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLO {
+                        label = "CLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLOAD {
+                        label = "CLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    DELAY {
+                        label = "Delay"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "s"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    RLOAD {
+                        label = "RLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "1e4"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RHI {
+                        label = "S0RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RLO {
+                        label = "S0RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0TSW {
+                        label = "S0TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0VHI {
+                        label = "Maximum low-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        unit = "V"
+                    }
+
+                    S0VLO {
+                        label = "S0VLO"
+                        widget = edit
+                        type = generic
+                        default_value = "-100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RHI {
+                        label = "S1RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RLO {
+                        label = "S1RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1TSW {
+                        label = "S1TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VHI {
+                        label = "S1VHI"
+                        widget = edit
+                        type = generic
+                        default_value = "100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VLO {
+                        label = "Minimum high-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.9"
+                        unit = "V"
+                    }
+
+                    type {
+                        label = "type"
+                        widget = combo
+                        combo_values = "XOR"
+                        type = string
+                        default_value = "XOR"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    output_voltage {
+                        label = "Output Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "3.3"
+                        unit = "V"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/behavioral_xor.svg')
+                    ENDCODE
+
+                    CODE init
+                    ENDCODE
+                }
+            }
+            [
+                position = 7944, 8368
+                size = 64, 64
+            ]
+
+            component Subsystem XNOR {
+                layout = static
+                component el_short "Short Circuit" {
+                }
+                [
+                    position = 7912, 7992
+                ]
+
+                component el_short "Short Circuit1" {
+                }
+                [
+                    position = 7912, 8112
+                ]
+
+                port in1 {
+                    position = -32.0, -16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 7992
+                    hide_name = True
+                ]
+
+                port out {
+                    position = right center
+                    kind = pe
+                }
+                [
+                    position = 8080, 8056
+                    hide_name = True
+                    scale = -1, 1
+                ]
+
+                port in2 {
+                    position = -32.0, 16.0
+                    kind = pe
+                }
+                [
+                    position = 7776, 8112
+                    hide_name = True
+                ]
+
+                junction Junction1 pe
+                [
+                    position = 8000, 8056
+                ]
+
+                connect in1 "Short Circuit.p_node" as Connection1
+                connect in2 "Short Circuit1.p_node" as Connection3
+                connect "Short Circuit.n_node" Junction1 as Connection4
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 7992
+                ]
+                connect Junction1 out as Connection5
+                [
+                    position = 0, 0
+                    breakpoints = 8000, 8064
+                ]
+                connect "Short Circuit1.n_node" Junction1 as Connection6
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">XNOR logic</p></body></html>"
+
+                    CHI {
+                        label = "CHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLO {
+                        label = "CLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLOAD {
+                        label = "CLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    DELAY {
+                        label = "Delay"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "s"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    RLOAD {
+                        label = "RLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "1e4"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RHI {
+                        label = "S0RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RLO {
+                        label = "S0RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0TSW {
+                        label = "S0TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0VHI {
+                        label = "Maximum low-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        unit = "V"
+                    }
+
+                    S0VLO {
+                        label = "S0VLO"
+                        widget = edit
+                        type = generic
+                        default_value = "-100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RHI {
+                        label = "S1RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RLO {
+                        label = "S1RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1TSW {
+                        label = "S1TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VHI {
+                        label = "S1VHI"
+                        widget = edit
+                        type = generic
+                        default_value = "100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VLO {
+                        label = "Minimum high-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.9"
+                        unit = "V"
+                    }
+
+                    type {
+                        label = "type"
+                        widget = combo
+                        combo_values = "NXOR"
+                        type = string
+                        default_value = "NXOR"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    output_voltage {
+                        label = "Output Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "3.3"
+                        unit = "V"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/behavioral_xnor.svg')
+                    ENDCODE
+
+                    CODE init
+                    ENDCODE
+                }
+            }
+            [
+                position = 8056, 8368
+                size = 64, 64
+            ]
+
+            component Subsystem BUFFER {
+                layout = static
+                component el_short "Short Circuit" {
+                }
+                [
+                    position = 7904, 8064
+                ]
+
+                port in {
+                    position = left center
+                    kind = pe
+                }
+                [
+                    position = 7768, 8064
+                    hide_name = True
+                ]
+
+                port out {
+                    position = right center
+                    kind = pe
+                }
+                [
+                    position = 8040, 8064
+                    hide_name = True
+                    scale = -1, 1
+                ]
+
+                connect "Short Circuit.n_node" out as Connection2
+                connect in "Short Circuit.p_node" as Connection1
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">BUFFER logic</p></body></html>"
+
+                    CHI {
+                        label = "CHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLO {
+                        label = "CLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    CLOAD {
+                        label = "CLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    DELAY {
+                        label = "Delay"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "s"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    RLOAD {
+                        label = "RLOAD"
+                        widget = edit
+                        type = generic
+                        default_value = "1e4"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RHI {
+                        label = "S0RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0RLO {
+                        label = "S0RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0TSW {
+                        label = "S0TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S0VHI {
+                        label = "Maximum low-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        unit = "V"
+                    }
+
+                    S0VLO {
+                        label = "S0VLO"
+                        widget = edit
+                        type = generic
+                        default_value = "-100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RHI {
+                        label = "S1RHI"
+                        widget = edit
+                        type = generic
+                        default_value = "0.1"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1RLO {
+                        label = "S1RLO"
+                        widget = edit
+                        type = generic
+                        default_value = "1000"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1TSW {
+                        label = "S1TSW"
+                        widget = edit
+                        type = generic
+                        default_value = "{GLOBAL_TS*1e-4}"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VHI {
+                        label = "S1VHI"
+                        widget = edit
+                        type = generic
+                        default_value = "100"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    S1VLO {
+                        label = "Minimum high-state input voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0.9"
+                        unit = "V"
+                    }
+
+                    type {
+                        label = "type"
+                        widget = combo
+                        combo_values = "BUF"
+                        type = string
+                        default_value = "BUF"
+                        nonvisible
+                        no_evaluate
+                    }
+
+                    output_voltage {
+                        label = "Output Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "3.3"
+                        unit = "V"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/behavioral_buffer.svg')
+                    ENDCODE
+
+                    CODE init
+                    ENDCODE
+                }
+            }
+            [
+                position = 8056, 8080
                 size = 64, 64
             ]
         }

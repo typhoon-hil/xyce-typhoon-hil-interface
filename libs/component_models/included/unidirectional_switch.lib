@@ -16,6 +16,6 @@ SW_UNI source mid_node UNIDIR OFF CONTROL={IF(V(gate)>0.99, 1, IF(I(V_SNB) > 0, 
 
 V_DROP mid_node drain 0
 
-.MODEL UNIDIR VSWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF=1e5 ON=0.99 OFF=0.01
+.MODEL UNIDIR VSWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF=1e5 VON=0.99 VOFF=0.01
 
 .ENDS unidir_switch

@@ -230,7 +230,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         else:
             self.cir_folder = "/".join(self.xyce_file_path.split("/")[0:-1])
         self.params_path = self.cir_folder + "/xyce_params.t"
-        # Write the parameters to a filea
+        # Write the parameters to a file
         with open(self.params_path,"w") as f:
             f.writelines([  f"t_step = {self.sim_params_dict['max_ts']}\n",
                             f"total_time = {self.sim_params_dict['sim_time']}\n"
@@ -247,13 +247,17 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         self.textBrowser.append("""<body>
             <h2 style='color:green;'>Opening the Signal Analyzer tool...</h2>
             </body>""")
-        command = f'typhoon_hil.cmd sa --data_file "{os.getcwd()}\\xyce_out.csv"'
-        self.plotprocess.startDetached(command)
-
+        # Starts windows command prompt in the THCC drive, otherwise the typhoon_hil.cmd
+        # batch can result in errors.
+        try:
+            thcc_folder = os.environ["TYPHOONPATH"]
+            self.plotprocess.startDetached(f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file "{os.getcwd()}\\xyce_out.csv"')
+        except KeyError:
+            self.plotprocess.startDetached(f'cmd /c pushd "C:" & typhoon_hil sa --data_file "{os.getcwd()}\\xyce_out.csv"')
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     sim_params = {'max_ts':'1e-7','sim_time':'15ms'}
-    mainwindow = XyceOutput(r"D:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Sandia\example_spicemodels Target files\example_spicemodels.json", sim_params)
+    mainwindow = XyceOutput(r"path_to.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

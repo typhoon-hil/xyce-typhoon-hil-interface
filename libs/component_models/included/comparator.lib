@@ -7,7 +7,10 @@ B_COMP out 0 V={IF(V(op)>=0, VOUT, 0)} smoothbsrc=0
 + rcconst = {GLOBAL_TS*1e-5}
 
 B_OPAMP op 0 V={1e9*(V(non_inv)-V(inv))} smoothbsrc=1
-+ rcconst = {GLOBAL_TS*1e-5}
-R_OPAMP op 0 1e5
++ rcconst = {GLOBAL_TS*1e-6}
+R_OPAMP op 0 1e7
+
+R_non_inv non_inv 0 1e7
+R_inv inv 0 1e7
 
 .ENDS comparator

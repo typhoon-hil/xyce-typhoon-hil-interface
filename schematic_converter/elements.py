@@ -578,7 +578,7 @@ class BehavioralDigitalDevice(Element):
 
         return f'''V_PN_{self.name} PWRNODE{self.name} 0 {float(ouput_voltage)}
 U_{self.name} {self.device_type}({num_inputs}) PWRNODE{self.name} 0 \
-{" ".join(in_nodes)} n_{out_node} {model_name}\n'''
+{" ".join(in_nodes)} n_{out_node} {model_name} IC1=FALSE\n'''
 
     def model_lines(self):
         clo = self.init_data["CLO"]
