@@ -1,5 +1,6 @@
 import re, os
 from math import sqrt
+import ast
 
 included_models_path = os.getcwd() + "/libs/component_models/included/"
 
@@ -123,28 +124,28 @@ class CoupledInductor(TwoTerminal):
     type = "L"
     instance_counter = 0
     # L<name> <+ node> <- node> [model name] <value> [IC=<initial value>]
-    def __init__(self, elem_type, name, nodes, init_data, coupled_dict):
+    def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
-        self.value = init_data.get("L")
         self.params = "IC=" + init_data.get("IC")
+        self.value = init_data.get("L")
+        self.xyce_couplings_dict = ast.literal_eval(init_data.get("xyce_couplings_dict"))
         CoupledInductor.lines = []
         CoupledInductor.instance_counter += 1
 
+        # xyce_couplings_dict is the same for every inductor
         # The first instance creates the mutual inductor (K) lines
         if CoupledInductor.instance_counter == 1:
             # Get the list of coupled inductors
-            inductor_names = list(coupled_dict.keys())
-            for ind in inductor_names:
+            for ind_name in self.xyce_couplings_dict:
                 # Get the list of inductors coupled to the current inductor
-                this_ind_dict = coupled_dict.get(ind)
-                for key, val in this_ind_dict.items():
-                    # Disconsider the self inductance
-                    if not key == ind:
+                this_ind_couplings = self.xyce_couplings_dict.get(ind_name)
+                for coupled_to_ind_name, value in this_ind_couplings.items():
+                    if not coupled_to_ind_name == ind_name:
                         # Calculate the coupling coefficient
-                        m12 = float(this_ind_dict.get(key))
-                        l1 = float(this_ind_dict.get(ind))
-                        l2 = float(coupled_dict.get(key).get(key))
-                        coef = m12/sqrt(l1*l2)
+                        l_mutual = float(this_ind_couplings.get(coupled_to_ind_name))
+                        l_self = float(this_ind_couplings.get(ind_name))
+                        l_other = float(self.xyce_couplings_dict.get(coupled_to_ind_name).get(coupled_to_ind_name))
+                        coef = l_mutual/sqrt(l_self*l_other)
                         # Invalid coefficient values
                         if coef > 1:
                             coef = 1
@@ -152,15 +153,22 @@ class CoupledInductor(TwoTerminal):
                         elif coef < -1:
                             coef = -1
                             print("Resulting coefficient lower than -1.")
-                        # Pop mirrored entry
-                        coupled_dict.get(key).pop(ind)
                         # Define mutual inductor lines
-                        mutual_name = (ind[:1] + ind[-1:] + key[:1] + key[-1:])
+                        mutual_name = (ind_name + coupled_to_ind_name)
+                        mutual_name_reversed = (coupled_to_ind_name + ind_name)
                         mutual_name.replace(" ","")
-                        CoupledInductor.lines.append(f'k{mutual_name}'\
-                        f'{" L_"+ind.replace(" ","_")} '\
-                        f'{"L_"+key.replace(" ","_")}'\
-                        f' {coef}\n')
+                        mutual_name_reversed.replace(" ","")
+
+                        equivalent_line = False
+                        for line in CoupledInductor.lines:
+                            if "k"+mutual_name_reversed in line:
+                                equivalent_line = True
+
+                        if not equivalent_line:
+                            CoupledInductor.lines.append(f'k{mutual_name}'\
+                            f'{" L_"+coupled_to_ind_name.replace(" ","_")} '\
+                            f'{"L_"+ind_name.replace(" ","_")}'\
+                            f' {coef}\n')
 
 class Resistor(TwoTerminal):
     type = "R"

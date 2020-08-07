@@ -90,12 +90,12 @@ def tse2xyce(jsonfile):
         # Get the element type and the relevant data
         elem_type, elem_data = get_elem_data(elem)
         # Treat coupled inductors
-        if elem_type == "L_coupled":
-            # Do this once. Every coupled ind contains all the information.
-            try: coupled_dict
-            except:
-                coupled_dict = elem["masks"][0]["vars"]["coupled_dict"]
-            elem_data.update({"coupled_dict":coupled_dict})
+        # if elem_type == "L_coupled":
+        #     # Do this once. Every coupled ind contains all the information.
+        #     try: coupled_dict
+        #     except:
+        #         coupled_dict = elem["masks"][0]["vars"]["coupled_dict"]
+        #     elem_data.update({"coupled_dict":coupled_dict})
         # Use the type and data to instantiate the correct class
         this_element = Element.pick_correct_subclass(elem_type, elem_data)
         # If a proper class is available
@@ -141,7 +141,6 @@ def tse2xyce(jsonfile):
                 if term in n["terminals"]:
                     node_ids.update({str(n["id"]):identificator})
 
-
     # Convert the lists to proper strings
     measurements = " ".join(measurements)
     meas_aliases = ",".join(meas_aliases)
@@ -182,5 +181,9 @@ def tse2xyce(jsonfile):
     # Program speed test
     print(f"Total conversion time: {time.time()-t0} seconds")
 
+    # Prepare for another conversion
+    # Reset the instance counter for coupled inductors
+    CoupledInductor.instance_counter = 0
+
 if __name__ == "__main__":
-    tse2xyce(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\test Target files\test.json")
+    tse2xyce(r"path_to.json")

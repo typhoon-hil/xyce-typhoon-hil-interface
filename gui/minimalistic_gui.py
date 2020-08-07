@@ -257,7 +257,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    sim_params = {'max_ts':'1e-7','sim_time':'15ms'}
+    sim_params = {'max_ts':'1e-6','sim_time':'1ms'}
     mainwindow = XyceOutput(r"path_to.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())
