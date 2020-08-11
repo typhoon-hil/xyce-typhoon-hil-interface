@@ -2552,14 +2552,14 @@ library "xyce_lib" {
                         label = "Primary turns (N1)"
                         widget = edit
                         type = generic
-                        default_value = "0"
+                        default_value = "1"
                     }
 
                     n2 {
                         label = "Secondary turns (N2)"
                         widget = edit
                         type = generic
-                        default_value = "0"
+                        default_value = "1"
                     }
 
                     CODE init
@@ -3852,7 +3852,7 @@ library "xyce_lib" {
                         ]
 
                         port n_node {
-                            position = left center
+                            position = right center
                             kind = pe
                         }
                         [
@@ -3863,7 +3863,7 @@ library "xyce_lib" {
                         ]
 
                         port p_node {
-                            position = right center
+                            position = left center
                             kind = pe
                         }
                         [
@@ -3977,7 +3977,7 @@ library "xyce_lib" {
                         ]
 
                         port n_node {
-                            position = left center
+                            position = right center
                             kind = pe
                         }
                         [
@@ -3988,7 +3988,7 @@ library "xyce_lib" {
                         ]
 
                         port p_node {
-                            position = right center
+                            position = left center
                             kind = pe
                         }
                         [
@@ -4103,7 +4103,7 @@ library "xyce_lib" {
                         ]
 
                         port p_node {
-                            position = right center
+                            position = left center
                             kind = pe
                         }
                         [
@@ -4113,7 +4113,7 @@ library "xyce_lib" {
                         ]
 
                         port n_node {
-                            position = left center
+                            position = right center
                             kind = pe
                         }
                         [
@@ -4182,7 +4182,7 @@ library "xyce_lib" {
                         ]
 
                         port p_node {
-                            position = right center
+                            position = left center
                             kind = pe
                         }
                         [
@@ -4192,7 +4192,7 @@ library "xyce_lib" {
                         ]
 
                         port n_node {
-                            position = left center
+                            position = right center
                             kind = pe
                         }
                         [
@@ -4356,7 +4356,7 @@ library "xyce_lib" {
 
                     port p_node {
                         label = "+"
-                        position = right center
+                        position = left center
                         kind = pe
                     }
                     [
@@ -4366,7 +4366,7 @@ library "xyce_lib" {
 
                     port n_node {
                         label = "-"
-                        position = left center
+                        position = right center
                         kind = pe
                     }
                     [
@@ -4435,7 +4435,7 @@ library "xyce_lib" {
 
                     port p_node {
                         label = "+"
-                        position = right center
+                        position = left center
                         kind = pe
                     }
                     [
@@ -4445,7 +4445,7 @@ library "xyce_lib" {
 
                     port n_node {
                         label = "-"
-                        position = left center
+                        position = right center
                         kind = pe
                     }
                     [

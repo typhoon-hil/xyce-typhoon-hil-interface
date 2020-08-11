@@ -1,10 +1,11 @@
 * Operational Amplifier Model 1 - Ideal
 
 .SUBCKT op_amp_1 non_inv inv out
++PARAMS: GAIN=10000
 
-B_OPAMP out 0 V={1e8*(V(non_inv)-V(inv))} smoothbsrc=0
+B_OPAMP out 0 V={GAIN*(V(non_inv)-V(inv))} smoothbsrc=1
 + rcconst = {GLOBAL_TS*1e-5}
-R_OPAMP out 0 1e5
+R_OPAMP out 0 1e6
 
 .ENDS op_amp_1
 
@@ -23,7 +24,7 @@ E_Gain n_1 n_2 non_inv inv {GAIN}
 * LP filter
 R_Rf n_1 n_3 {RES_FILTER}
 C_Cf n_3 n_2 {CAP_FILTER}
-R_RGND n_2 0 1
+R_RGND n_2 0 1e6
 
 * Output buffer
 E_Eout n_4 0 n_3 n_2 1

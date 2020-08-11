@@ -179,7 +179,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
                 self.textBrowser.append("""<body>
                     <h2 style='color:green;'>Simulation finished successfully.</h2>
                     </body>""")
-                if "step too small" in self.textBrowser.toPlainText():
+                if any(err_str in self.textBrowser.toPlainText() for err_str in ["step too small", "Maximum number of local error test failures"]):
                     self.textBrowser.append("""<body>
                         <h2 style='color:red;'>Simulation aborted due to convergence errors.</h2>
                         </body>""")

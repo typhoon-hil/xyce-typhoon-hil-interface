@@ -156,8 +156,8 @@ class CoupledInductor(TwoTerminal):
                         # Define mutual inductor lines
                         mutual_name = (ind_name + coupled_to_ind_name)
                         mutual_name_reversed = (coupled_to_ind_name + ind_name)
-                        mutual_name.replace(" ","")
-                        mutual_name_reversed.replace(" ","")
+                        mutual_name = mutual_name.replace(" ","")
+                        mutual_name_reversed = mutual_name_reversed.replace(" ","")
 
                         equivalent_line = False
                         for line in CoupledInductor.lines:
