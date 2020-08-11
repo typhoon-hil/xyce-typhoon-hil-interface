@@ -1,0 +1,929 @@
+version = 4.2
+
+//
+// Saved by sw version: 2020.2
+// Save timestamp: 11-Aug-2020 @ 02:25:13 PM
+//
+
+model "buck_control" {
+    configuration {
+        hil_device = "HIL402"
+        hil_configuration_id = 1
+        simulation_method = exact
+        simulation_time_step = auto
+        simulation_discret_scaling = 1.0
+        dsp_timer_periods = 100e-6, 50e-3
+        ss_calc_method = "systematic elimination"
+        enb_pole_shift = True
+        enb_gds_oversampling = True
+        show_modes = False
+        device_ao_limit_enable = False
+        cpl_stb = False
+        enb_dep_sw_detect = False
+        code_section = "internal memory"
+        data_section = "internal memory"
+        sys_sp_rate_1 = 0.0001
+        sys_sp_rate_2 = 0.05
+        sys_real_type_precision = "default"
+        user_real_type_precision = "default"
+        sys_cpu_optimization = "high"
+        user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
+    }
+
+    component Subsystem Root {
+        component "xyce_lib/Unidirectional Switch" S {
+            r_on = "1e-4"
+        }
+        [
+            position = 8360, 8216
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Capacitor" Co {
+            C = "Co"
+        }
+        [
+            position = 8824, 8304
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Inductor" "Ideal Inductor1" {
+            L = "L"
+        }
+        [
+            position = 8632, 8216
+            scale = -1, 1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" Ro {
+            R = "Ro"
+        }
+        [
+            position = 8944, 8312
+            rotation = left
+            scale = -1, 1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Diode" D {
+        }
+        [
+            position = 8520, 8304
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/DC Voltage Source" "DC Voltage Source1" {
+        }
+        [
+            position = 8240, 8304
+            rotation = left
+            size = 64, 64
+        ]
+
+        component src_ground gnd1 {
+        }
+        [
+            position = 9160, 8448
+        ]
+
+        component "core/Current Measurement" io {
+        }
+        [
+            position = 8744, 8216
+            size = 64, 32
+        ]
+
+        component "core/Voltage Measurement" vo {
+        }
+        [
+            position = 9072, 8312
+            rotation = right
+            size = 64, 32
+        ]
+
+        component Subsystem "PI Controller" {
+            layout = dynamic
+            component "xyce_lib/Operational Amplifier" "Proportional OpAmp" {
+            }
+            [
+                position = 7968, 8024
+                scale = 1, -1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Operational Amplifier" "Integral OpAmp" {
+            }
+            [
+                position = 7968, 8352
+                scale = 1, -1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Resistor" Rp1 {
+                R = "Rp1"
+            }
+            [
+                position = 7808, 8008
+                rotation = down
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Resistor" Rp2 {
+                R = "Rp2"
+            }
+            [
+                position = 7968, 7928
+                rotation = down
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Resistor" Rp_out {
+                R = "Rp_out"
+            }
+            [
+                position = 8112, 8024
+                rotation = down
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component src_ground gnd1 {
+            }
+            [
+                position = 7888, 8128
+            ]
+
+            component "xyce_lib/Ideal Resistor" Ri {
+                R = "Ri"
+            }
+            [
+                position = 7824, 8336
+                rotation = down
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Capacitor" Ci {
+                C = "Ci"
+            }
+            [
+                position = 7968, 8264
+                rotation = down
+                size = 64, 64
+            ]
+
+            component src_ground gnd2 {
+            }
+            [
+                position = 7888, 8456
+            ]
+
+            component "xyce_lib/Ideal Resistor" Ri_out {
+                R = "Ri_out"
+            }
+            [
+                position = 8128, 8352
+                rotation = down
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Operational Amplifier" "Sum OpAmp" {
+            }
+            [
+                position = 8320, 8192
+                scale = 1, -1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Operational Amplifier" "Inverter OpAmp" {
+            }
+            [
+                position = 8576, 8208
+                scale = 1, -1
+                size = 64, 64
+            ]
+
+            component src_ground gnd3 {
+            }
+            [
+                position = 8256, 8280
+            ]
+
+            component "xyce_lib/Ideal Resistor" Rsum {
+                R = "Rsum"
+            }
+            [
+                position = 8320, 8112
+                rotation = down
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Resistor" Rinv2 {
+                R = "Rinv2"
+            }
+            [
+                position = 8576, 8128
+                rotation = down
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Resistor" Rinv1 {
+                R = "Rinv1"
+            }
+            [
+                position = 8432, 8192
+                rotation = down
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component src_ground gnd4 {
+            }
+            [
+                position = 8496, 8280
+            ]
+
+            port error {
+                position = left:1
+                kind = pe
+            }
+            [
+                position = 7704, 8184
+                hide_name = True
+            ]
+
+            port out {
+                position = right:1
+                kind = pe
+            }
+            [
+                position = 8704, 8208
+                rotation = down
+                hide_name = True
+            ]
+
+            junction Junction1 pe
+            [
+                position = 8504, 8192
+            ]
+
+            junction Junction4 pe
+            [
+                position = 8376, 8192
+            ]
+
+            junction Junction5 pe
+            [
+                position = 7888, 8336
+            ]
+
+            junction Junction6 pe
+            [
+                position = 8056, 8352
+            ]
+
+            junction Junction7 pe
+            [
+                position = 8184, 8176
+            ]
+
+            junction Junction8 pe
+            [
+                position = 8256, 8176
+            ]
+
+            junction Junction9 pe
+            [
+                position = 8048, 8024
+            ]
+
+            junction Junction10 pe
+            [
+                position = 7888, 8008
+            ]
+
+            junction Junction11 pe
+            [
+                position = 7760, 8184
+            ]
+
+            junction Junction12 pe
+            [
+                position = 8656, 8208
+            ]
+
+            connect Rinv1.p_node Junction1 as Connection2
+            connect Junction1 "Inverter OpAmp.inv" as Connection3
+            connect Rinv2.n_node Junction1 as Connection4
+            connect gnd4.node "Inverter OpAmp.non_inv" as Connection13
+            connect Rinv1.n_node Junction4 as Connection15
+            connect Junction4 "Sum OpAmp.Out" as Connection16
+            connect Rsum.p_node Junction4 as Connection17
+            connect "Sum OpAmp.non_inv" gnd3.node as Connection18
+            connect "Integral OpAmp.non_inv" gnd2.node as Connection21
+            connect Ri.p_node Junction5 as Connection22
+            connect Junction5 "Integral OpAmp.inv" as Connection23
+            connect Ci.p_node Junction5 as Connection24
+            connect "Integral OpAmp.Out" Junction6 as Connection25
+            connect Junction6 Ri_out.n_node as Connection26
+            connect Ci.n_node Junction6 as Connection27
+            connect Ri_out.p_node Junction7 as Connection29
+            [
+                breakpoints = 8184, 8352; 8184, 8232
+            ]
+            connect Rp_out.p_node Junction7 as Connection31
+            connect Junction7 Junction8 as Connection32
+            connect Junction8 "Sum OpAmp.inv" as Connection33
+            connect Rsum.n_node Junction8 as Connection34
+            connect Rp_out.n_node Junction9 as Connection36
+            connect Junction9 "Proportional OpAmp.Out" as Connection37
+            connect Rp2.p_node Junction9 as Connection38
+            connect Rp1.p_node Junction10 as Connection40
+            connect Junction10 "Proportional OpAmp.inv" as Connection41
+            connect Rp2.n_node Junction10 as Connection42
+            connect "Proportional OpAmp.non_inv" gnd1.node as Connection43
+            connect error Junction11 as Connection45
+            connect Junction11 Rp1.n_node as Connection46
+            connect Ri.n_node Junction11 as Connection47
+            connect Junction12 Rinv2.p_node as Connection50
+            [
+                breakpoints = 8656, 8208; 8656, 8208
+            ]
+            connect out Junction12 as Connection51
+            connect Junction12 "Inverter OpAmp.Out" as Connection52
+            [
+                breakpoints = 8656, 8208; 8656, 8208
+            ]
+        }
+        [
+            position = 9808, 8240
+            size = 88, 88
+        ]
+
+        component "xyce_lib/NodeID" NodeID2 {
+            node_id = "s_gate"
+        }
+        [
+            position = 10032, 8240
+            rotation = left
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/Operational Amplifier" "Error OpAmp" {
+        }
+        [
+            position = 9632, 8240
+            scale = 1, -1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" Rerr {
+            R = "Rerr"
+        }
+        [
+            position = 9632, 8160
+            rotation = down
+            scale = -1, 1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Voltage-Controlled Voltage Source" v_sens {
+        }
+        [
+            position = 9184, 8304
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" Rsens {
+            R = "Rsens"
+        }
+        [
+            position = 9440, 8184
+            rotation = down
+            scale = -1, 1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" Rref {
+            R = "Rref"
+        }
+        [
+            position = 9440, 8272
+            rotation = down
+            scale = -1, 1
+            size = 64, 64
+        ]
+
+        component Subsystem "PWM Generator" {
+            layout = dynamic
+            component "xyce_lib/Operational Amplifier" "Tri OpAmp" {
+            }
+            [
+                position = 8168, 8208
+                scale = 1, -1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Capacitor" Ctri {
+                C = "Ctri"
+            }
+            [
+                position = 8168, 8128
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Resistor" Rtri {
+                R = "Rtri"
+            }
+            [
+                position = 8040, 8192
+                size = 64, 64
+            ]
+
+            component src_ground gnd5 {
+            }
+            [
+                position = 8112, 8336
+            ]
+
+            component "xyce_lib/Pulse Voltage Source" Clock {
+                PER = "1/f_sw"
+                PW = "0.5/f_sw"
+                V1 = "-5"
+                V2 = "5"
+            }
+            [
+                position = 7944, 8240
+                rotation = left
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ideal Comparator" "Ideal Comparator1" {
+                output_voltage = "1"
+            }
+            [
+                position = 8368, 8112
+                scale = 1, -1
+                size = 64, 64
+            ]
+
+            port comp_in {
+                position = left:1
+                kind = pe
+            }
+            [
+                position = 8240, 8048
+                hide_name = True
+            ]
+
+            port gate_out {
+                position = right:1
+                kind = pe
+            }
+            [
+                position = 8488, 8112
+                rotation = down
+                hide_name = True
+            ]
+
+            junction Junction19 pe
+            [
+                position = 8112, 8288
+            ]
+
+            junction Junction20 pe
+            [
+                position = 8112, 8192
+            ]
+
+            junction Junction24 pe
+            [
+                position = 8288, 8128
+            ]
+
+            connect gnd5.node Junction19 as Connection102
+            connect "Tri OpAmp.non_inv" Junction19 as Connection104
+            connect Junction20 Ctri.p_node as Connection106
+            [
+                breakpoints = 8104, 8192; 8112, 8192; 8112, 8128
+            ]
+            connect "Tri OpAmp.inv" Junction20 as Connection107
+            connect Rtri.p_node Junction20 as Connection133
+            [
+                breakpoints = 8088, 8192
+            ]
+            connect Ctri.n_node Junction24 as Connection136
+            [
+                breakpoints = 8240, 8128; 8240, 8128; 8240, 8128
+            ]
+            connect "Ideal Comparator1.non_inv" Junction24 as Connection138
+            connect comp_in "Ideal Comparator1.inv" as Connection145
+            [
+                breakpoints = 8272, 8048
+            ]
+            connect "Ideal Comparator1.Out" gate_out as Connection146
+            connect "Tri OpAmp.Out" Junction24 as Connection147
+            [
+                breakpoints = 8288, 8208; 8288, 8208; 8288, 8208; 8288, 8208; 8288, 8128; 8288, 8128; 8288, 8128; 8288, 8128; 8288, 8128
+            ]
+            connect Junction19 Clock.n_node as Connection149
+            [
+                breakpoints = 8112, 8288; 8112, 8288; 8112, 8288; 8088, 8288; 7944, 8288; 7944, 8288; 7944, 8288
+            ]
+            connect Clock.p_node Rtri.n_node as Connection150
+            [
+                breakpoints = 7944, 8192
+            ]
+        }
+        [
+            position = 9960, 8240
+            size = 48, 48
+        ]
+
+        component "core/Voltage Measurement" vref {
+        }
+        [
+            position = 9384, 8352
+            rotation = left
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID3 {
+            node_id = "s_gate"
+        }
+        [
+            position = 8400, 8144
+            rotation = left
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/XyceSim" XyceSim1 {
+            max_ts = "5e-7"
+            sim_time = "20ms"
+        }
+        [
+            position = 9096, 8072
+            size = 112, 56
+        ]
+
+        component "xyce_lib/Pulse Voltage Source" v_reference {
+            PER = "0.02"
+            PW = "0.01"
+            V1 = "Vo_ref"
+            V2 = "Vo_ref/2"
+        }
+        [
+            position = 9312, 8352
+            rotation = right
+            size = 64, 64
+        ]
+
+        junction Junction1 pe
+        [
+            position = 8824, 8216
+        ]
+
+        junction Junction3 pe
+        [
+            position = 8824, 8400
+        ]
+
+        junction Junction4 pe
+        [
+            position = 8520, 8400
+        ]
+
+        junction Junction7 pe
+        [
+            position = 8944, 8400
+        ]
+
+        junction Junction10 pe
+        [
+            position = 9488, 8224
+        ]
+
+        junction Junction17 pe
+        [
+            position = 9576, 8224
+        ]
+
+        junction Junction20 pe
+        [
+            position = 9688, 8240
+        ]
+
+        junction Junction29 pe
+        [
+            position = 9072, 8400
+        ]
+
+        junction Junction35 pe
+        [
+            position = 8944, 8216
+        ]
+
+        junction Junction36 pe
+        [
+            position = 9072, 8216
+        ]
+
+        junction Junction38 pe
+        [
+            position = 8520, 8216
+        ]
+
+        junction Junction39 pe
+        [
+            position = 9384, 8272
+        ]
+
+        junction Junction40 pe
+        [
+            position = 9384, 8400
+        ]
+
+        junction Junction42 pe
+        [
+            position = 9312, 8400
+        ]
+
+        junction Junction43 pe
+        [
+            position = 9160, 8400
+        ]
+
+        junction Junction44 pe
+        [
+            position = 9184, 8400
+        ]
+
+        connect Junction1 Co.p_node as Connection3
+        connect Co.n_node Junction3 as Connection13
+        connect D.p_node Junction4 as Connection16
+        connect "Ideal Inductor1.n_node" io.p_node as Connection23
+        connect io.n_node Junction1 as Connection24
+        connect Junction3 Junction7 as Connection28
+        connect Junction7 Ro.n_node as Connection29
+        [
+            breakpoints = 8944, 8400
+        ]
+        connect Junction10 Rsens.p_node as Connection49
+        connect Rerr.n_node Junction17 as Connection140
+        connect Junction17 Junction10 as Connection141
+        [
+            breakpoints = 9576, 8224
+        ]
+        connect "Error OpAmp.inv" Junction17 as Connection142
+        connect Rerr.p_node Junction20 as Connection148
+        [
+            breakpoints = 9688, 8160
+        ]
+        connect "Error OpAmp.Out" Junction20 as Connection150
+        connect "PI Controller.out" "PWM Generator.comp_in" as Connection151
+        connect v_sens.p_node Rsens.n_node as Connection310
+        connect vo.n_node Junction29 as Connection314
+        connect Junction29 Junction7 as Connection315
+        connect Junction3 Junction4 as Connection327
+        [
+            breakpoints = 8824, 8400; 8552, 8400
+        ]
+        connect Junction35 Ro.p_node as Connection342
+        [
+            breakpoints = 8944, 8216
+        ]
+        connect Junction36 vo.p_node as Connection344
+        [
+            breakpoints = 9072, 8216
+        ]
+        connect Junction35 Junction36 as Connection345
+        [
+            breakpoints = 8944, 8216; 9072, 8216
+        ]
+        connect Junction36 v_sens.p_ctrl as Connection352
+        [
+            breakpoints = 9072, 8216; 9072, 8216
+        ]
+        connect Junction1 Junction35 as Connection353
+        [
+            breakpoints = 8824, 8216; 8824, 8216; 8944, 8216
+        ]
+        connect "DC Voltage Source1.p_node" S.drain as Connection363
+        [
+            breakpoints = 8312, 8216
+        ]
+        connect NodeID3.node S.gate as Connection364
+        connect D.n_node Junction38 as Connection366
+        connect Junction38 "Ideal Inductor1.p_node" as Connection367
+        [
+            breakpoints = 8520, 8216; 8568, 8216
+        ]
+        connect S.src Junction38 as Connection368
+        connect Junction20 "PI Controller.error" as Connection369
+        [
+            breakpoints = 9688, 8240; 9688, 8240; 9728, 8240
+        ]
+        connect "PWM Generator.gate_out" NodeID2.node as Connection370
+        connect Rref.p_node Junction10 as Connection374
+        [
+            breakpoints = 9488, 8272
+        ]
+        connect Rref.n_node Junction39 as Connection401
+        connect Junction39 vref.n_node as Connection402
+        connect v_reference.n_node Junction39 as Connection403
+        connect "Error OpAmp.non_inv" Junction40 as Connection405
+        [
+            breakpoints = 9576, 8256; 9576, 8400
+        ]
+        connect Junction40 vref.p_node as Connection406
+        connect v_reference.p_node Junction42 as Connection410
+        connect Junction42 Junction40 as Connection411
+        connect "DC Voltage Source1.n_node" Junction4 as Connection414
+        [
+            breakpoints = 8240, 8400; 8240, 8400; 8240, 8400; 8240, 8400; 8512, 8400; 8512, 8400
+        ]
+        connect v_sens.n_ctrl Junction43 as Connection415
+        connect Junction43 Junction29 as Connection416
+        connect gnd1.node Junction43 as Connection417
+        connect v_sens.n_node Junction44 as Connection418
+        connect Junction44 Junction42 as Connection419
+        [
+            breakpoints = 9184, 8400
+        ]
+        connect Junction43 Junction44 as Connection420
+    }
+
+    default {
+        "core/Current Measurement" {
+            bw_limit = "False"
+            frequency = "10e3"
+            comparator_enable = "False"
+            operator = "greater"
+            threshold = "0"
+            cmp_abs_value = "False"
+            feed_forward = "false"
+            sig_output = "False"
+            execution_rate = "100e-6"
+            addr = "0"
+            nd_msr_estimation = "false"
+            dev_cpl_msr = "false"
+            host_device = "0"
+            output_to_device = "0"
+            dev_cpl_index = "0"
+            dev_cpl_var_nb = "0"
+            visible = "True"
+            override_signal_name = "False"
+            signal_name = ""
+        }
+
+        "xyce_lib/DC Voltage Source" {
+            voltage = "100"
+        }
+
+        "xyce_lib/Ideal Capacitor" {
+            C = "100e-6"
+            IC = "0"
+        }
+
+        "xyce_lib/Ideal Comparator" {
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/Ideal Diode" {
+            r_on = "1e-4"
+        }
+
+        "xyce_lib/Ideal Inductor" {
+            L = "10e-6"
+            IC = "0"
+        }
+
+        "xyce_lib/Ideal Resistor" {
+            R = "100"
+        }
+
+        "xyce_lib/NodeID" {
+            node_id = "names"
+        }
+
+        "xyce_lib/Operational Amplifier" {
+            model_type = "Ideal"
+            gain = "1000000"
+            Rf = "1000"
+            Cf = "1.5915494309188487e-05"
+            fp = "10"
+        }
+
+        "xyce_lib/Pulse Voltage Source" {
+            V1 = "-1"
+            V2 = "1"
+            TD = "0"
+            TR = "0"
+            TF = "0"
+            PW = "0.0125"
+            PER = "0.025"
+        }
+
+        "xyce_lib/Unidirectional Switch" {
+            r_on = "0"
+        }
+
+        "core/Voltage Measurement" {
+            bw_limit = "False"
+            frequency = "10e3"
+            comparator_enable = "False"
+            operator = "greater"
+            threshold = "0"
+            cmp_abs_value = "False"
+            feed_forward = "false"
+            sig_output = "False"
+            execution_rate = "100e-6"
+            addr = "0"
+            nd_msr_estimation = "false"
+            dev_cpl_msr = "false"
+            host_device = "0"
+            output_to_device = "0"
+            dev_cpl_index = "0"
+            dev_cpl_var_nb = "0"
+            visible = "True"
+            override_signal_name = "False"
+            signal_name = ""
+        }
+
+        "xyce_lib/Voltage-Controlled Voltage Source" {
+            gain = "1"
+        }
+
+        "xyce_lib/XyceSim" {
+            sim_time = "0.1ms"
+            max_ts = "1e-7"
+            start_sim = "Start simulation"
+            open_sa = "Plot"
+        }
+    }
+
+    CODE model_init
+        # Numpy module is imported as 'np'
+        # Scipy module is imported as 'sp'
+        # The Schematic API is imported as 'mdl'
+        # To get the model file path, use 'mdl.get_model_file_path()'
+        # To print information to the console, use info()
+        
+        # Buck
+        Ro = 1
+        Co = 500e-6
+        L = 3e-3
+        f_sw = 10000
+        Vo_ref = 60
+        
+        # Sensor
+        Rsens = 100
+        # Voltage reference
+        Rref = 100
+        # Error
+        Rerr = 50
+        
+        #### PI Controller
+        # Proportional
+        Rp1 = 1
+        Rp2 = 50
+        Rp_out = 1
+        # Integral
+        Ri = 200
+        Ci = 80e-5
+        Ri_out = 1
+        # Sum
+        Rsum = 1
+        # Inverter
+        Rinv1 = 1
+        Rinv2 = 1
+        #########
+        
+        # PWM Generator
+        Rtri = 2000
+        Ctri = 1.25e-7
+    ENDCODE
+}

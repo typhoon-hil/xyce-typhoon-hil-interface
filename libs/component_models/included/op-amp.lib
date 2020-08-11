@@ -1,32 +1,30 @@
 * Operational Amplifier Model 1 - Ideal
 
-.SUBCKT op_amp_1 in+ in- out
+.SUBCKT op_amp_1 non_inv inv out
++PARAMS: GAIN=10000
 
-* Input impedance
-R_Rin in+ in- 10M
-
-* Differential amplifier
-E_Gain out 0 in+ in- 1G
+B_OPAMP out 0 V={GAIN*(V(non_inv)-V(inv))} smoothbsrc=1
++ rcconst = {GLOBAL_TS*1e-5}
+R_OPAMP out 0 1e6
 
 .ENDS op_amp_1
 
-
 * Operational Amplifier Model 2 - LP Filter
 
-.SUBCKT op_amp_2 in+ in- out
+.SUBCKT op_amp_2 non_inv inv out
 +PARAMS: INPUT_IMP=1e9 OUTPUT_IMP=1e-3 RES_FILTER=100 GAIN=10000
 +CAP_FILTER=1e-6
 
 * Input impedance
-R_Rin in+ in- {INPUT_IMP}
+R_Rin non_inv inv {INPUT_IMP}
 
 * Differential amplifier
-E_Gain n_1 n_2 in+ in- {GAIN}
+E_Gain n_1 n_2 non_inv inv {GAIN}
 
 * LP filter
 R_Rf n_1 n_3 {RES_FILTER}
 C_Cf n_3 n_2 {CAP_FILTER}
-R_RGND n_2 0 1
+R_RGND n_2 0 1e6
 
 * Output buffer
 E_Eout n_4 0 n_3 n_2 1
