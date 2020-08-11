@@ -1,11 +1,11 @@
 version = 4.2
 
 //
-// Saved by sw version: 2020.1 SP1
-// Save timestamp: 03-Jun-2020 @ 11:57:37 AM
+// Saved by sw version: 2020.2
+// Save timestamp: 11-Aug-2020 @ 12:40:39 PM
 //
 
-model "dual_active_bridge" {
+model "DAB" {
     configuration {
         hil_device = "HIL402"
         hil_configuration_id = 1
@@ -28,6 +28,17 @@ model "dual_active_bridge" {
         user_real_type_precision = "default"
         sys_cpu_optimization = "high"
         user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
     }
 
     component Subsystem Root {
@@ -86,8 +97,7 @@ model "dual_active_bridge" {
         ]
 
         component "xyce_lib/Transformer" Transformer1 {
-            n1 = "10"
-            n2 = "1"
+            n2 = "10"
         }
         [
             position = 7976, 8320
@@ -154,7 +164,7 @@ model "dual_active_bridge" {
             R = "0.00001"
         }
         [
-            position = 8536, 8024
+            position = 8544, 8024
             size = 64, 64
         ]
 
@@ -162,7 +172,7 @@ model "dual_active_bridge" {
             R = "0.5"
         }
         [
-            position = 8904, 8328
+            position = 8864, 8328
             rotation = right
             size = 64, 64
         ]
@@ -242,7 +252,7 @@ model "dual_active_bridge" {
         component "core/Voltage Measurement" Vm2 {
         }
         [
-            position = 9048, 8328
+            position = 9008, 8328
             rotation = right
             size = 64, 32
         ]
@@ -265,100 +275,100 @@ model "dual_active_bridge" {
             node_id = "s_Q1Q4"
         }
         [
-            position = 7472, 8080
+            position = 7504, 8096
             rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID2 {
             node_id = "s_Q2Q3"
         }
         [
-            position = 7712, 8080
+            position = 7744, 8096
             rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID3 {
             node_id = "s_Q1Q4"
         }
         [
-            position = 7712, 8496
+            position = 7744, 8520
             rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID4 {
             node_id = "s_Q2Q3"
         }
         [
-            position = 7472, 8504
+            position = 7504, 8528
             rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID5 {
             node_id = "s_Q5Q8"
         }
         [
-            position = 8280, 8104
-            rotation = right
+            position = 8304, 8080
+            rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID6 {
             node_id = "s_Q6Q7"
         }
         [
-            position = 8520, 8120
-            rotation = right
+            position = 8552, 8088
+            rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID7 {
             node_id = "s_Q5Q8"
         }
         [
-            position = 8528, 8552
-            rotation = right
+            position = 8544, 8504
+            rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID8 {
             node_id = "s_Q6Q7"
         }
         [
-            position = 8280, 8536
-            rotation = right
+            position = 8312, 8504
+            rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID9 {
             node_id = "s_Q1Q4"
         }
         [
-            position = 7776, 8664
+            position = 7808, 8672
             rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID10 {
             node_id = "s_Q2Q3"
         }
         [
-            position = 7872, 8664
+            position = 7904, 8672
             rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component src_ground gnd2 {
@@ -371,20 +381,20 @@ model "dual_active_bridge" {
             node_id = "s_Q5Q8"
         }
         [
-            position = 8048, 8664
+            position = 8080, 8672
             rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/NodeID" NodeID12 {
             node_id = "s_Q6Q7"
         }
         [
-            position = 8144, 8664
+            position = 8176, 8672
             rotation = left
             hide_name = True
-            size = 16, 16
+            size = 32, 32
         ]
 
         component "xyce_lib/Pulse Voltage Source" s14 {
@@ -515,12 +525,12 @@ model "dual_active_bridge" {
 
         junction Junction17 pe
         [
-            position = 8904, 8024
+            position = 8864, 8024
         ]
 
         junction Junction18 pe
         [
-            position = 8904, 8592
+            position = 8864, 8592
         ]
 
         junction Junction19 pe
@@ -622,8 +632,6 @@ model "dual_active_bridge" {
         [
             breakpoints = 7424, 8040; 7424, 8040; 7664, 8040; 7664, 8040; 7664, 8040
         ]
-        connect NodeID1.node Q1.gate as Connection1205
-        connect NodeID2.node Q3.gate as Connection1206
         connect Q2.gate NodeID4.node as Connection1207
         connect Q4.gate NodeID3.node as Connection1208
         connect Q6.gate NodeID8.node as Connection1209
@@ -651,6 +659,8 @@ model "dual_active_bridge" {
             breakpoints = 7776, 8816
         ]
         connect s23.n_node Junction22 as Connection1230
+        connect Q1.gate NodeID1.node as Connection1231
+        connect Q3.gate NodeID2.node as Connection1232
     }
 
     default {
@@ -695,7 +705,7 @@ model "dual_active_bridge" {
         }
 
         "xyce_lib/NodeID" {
-            node_id = "name"
+            node_id = "names"
         }
 
         "xyce_lib/Pulse Voltage Source" {
@@ -709,8 +719,8 @@ model "dual_active_bridge" {
         }
 
         "xyce_lib/Transformer" {
-            n1 = "0"
-            n2 = "0"
+            n1 = "1"
+            n2 = "1"
         }
 
         "xyce_lib/Unidirectional Switch" {
@@ -741,9 +751,8 @@ model "dual_active_bridge" {
         }
 
         "xyce_lib/XyceSim" {
-            tse2xyce_path = "path"
-            sim_time = "0.04ms"
-            max_ts = "1"
+            sim_time = "0.1ms"
+            max_ts = "1e-7"
             start_sim = "Start simulation"
             open_sa = "Plot"
         }

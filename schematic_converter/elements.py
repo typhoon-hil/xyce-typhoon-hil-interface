@@ -649,9 +649,8 @@ class IdealDiode(SubcircuitBased):
         init_data["model_name"] = "id_diode"
         init_data["model_path"] = included_models_path + "id_diode.lib"
         self.nodes = [nodes["p_node"], nodes["n_node"]]
-        vd_on = init_data['vd_on']
         r_on = init_data['r_on']
-        params = f"R_ON={r_on} VD_ON={vd_on}"
+        params = f"R_ON={r_on}"
         super().__init__(elem_type, name, self.nodes, init_data, params)
 
 class UnidirectionalSwitch(SubcircuitBased):
@@ -659,9 +658,8 @@ class UnidirectionalSwitch(SubcircuitBased):
         init_data["model_name"] = "unidir_switch"
         init_data["model_path"] = included_models_path + "unidirectional_switch.lib"
         self.nodes = [nodes["drain"], nodes["gate"], nodes["src"]]
-        vd_on = init_data['vd_on']
         r_on = init_data['r_on']
-        params = f"R_ON={r_on} VD_ON={vd_on}"
+        params = f"R_ON={r_on}"
         super().__init__(elem_type, name, self.nodes, init_data, params)
 
 class IdealTransformer2W(SubcircuitBased):

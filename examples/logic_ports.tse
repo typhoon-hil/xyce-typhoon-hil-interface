@@ -1,0 +1,761 @@
+version = 4.2
+
+//
+// Saved by sw version: 2020.2
+// Save timestamp: 11-Aug-2020 @ 02:27:54 PM
+//
+
+model "behavioral_test" {
+    configuration {
+        hil_device = "HIL402"
+        hil_configuration_id = 1
+        simulation_method = exact
+        simulation_time_step = auto
+        simulation_discret_scaling = 1.0
+        dsp_timer_periods = 100e-6, 50e-3
+        ss_calc_method = "systematic elimination"
+        enb_pole_shift = True
+        enb_gds_oversampling = True
+        show_modes = False
+        device_ao_limit_enable = False
+        cpl_stb = False
+        enb_dep_sw_detect = False
+        code_section = "internal memory"
+        data_section = "internal memory"
+        sys_sp_rate_1 = 0.0001
+        sys_sp_rate_2 = 0.05
+        sys_real_type_precision = "default"
+        user_real_type_precision = "default"
+        sys_cpu_optimization = "high"
+        user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
+    }
+
+    component Subsystem Root {
+        component "xyce_lib/XyceSim" XyceSim1 {
+            max_ts = "1e-5"
+            sim_time = "10ms"
+        }
+        [
+            position = 9200, 8112
+            size = 112, 56
+        ]
+
+        component src_ground gnd1 {
+        }
+        [
+            position = 8768, 8528
+        ]
+
+        component "xyce_lib/Pulse Voltage Source" SourceA {
+            PER = "1e-3"
+            PW = "0.5e-3"
+            V1 = "0"
+        }
+        [
+            position = 8680, 8416
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "core/Voltage Measurement" vA {
+        }
+        [
+            position = 8624, 8416
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "core/Voltage Measurement" v_and {
+        }
+        [
+            position = 9216, 8256
+            size = 64, 32
+        ]
+
+        component "xyce_lib/AND" AND1 {
+        }
+        [
+            position = 9112, 8256
+            size = 64, 64
+        ]
+
+        component "xyce_lib/NAND" NAND1 {
+        }
+        [
+            position = 9112, 8360
+            size = 64, 64
+        ]
+
+        component "xyce_lib/NOR" NOR1 {
+        }
+        [
+            position = 9544, 8360
+            size = 64, 64
+        ]
+
+        component "xyce_lib/NOT" NOT1 {
+        }
+        [
+            position = 9112, 8560
+            size = 64, 64
+        ]
+
+        component "xyce_lib/OR" OR1 {
+        }
+        [
+            position = 9544, 8264
+            size = 64, 64
+        ]
+
+        component "xyce_lib/XOR" XOR1 {
+        }
+        [
+            position = 9544, 8456
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Pulse Voltage Source" SourceB {
+            PER = "1e-3"
+            PW = "0.5e-3"
+            TD = "0.25e-3"
+            V1 = "0"
+        }
+        [
+            position = 8896, 8416
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/NodeID" NodeID1 {
+            node_id = "A"
+        }
+        [
+            position = 8720, 8328
+            rotation = left
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID2 {
+            node_id = "B"
+        }
+        [
+            position = 8936, 8328
+            rotation = left
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "core/Voltage Measurement" vB {
+        }
+        [
+            position = 8840, 8416
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID3 {
+            node_id = "A"
+        }
+        [
+            position = 9032, 8240
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID4 {
+            node_id = "B"
+        }
+        [
+            position = 9032, 8272
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component src_ground gnd2 {
+        }
+        [
+            position = 9296, 8256
+            rotation = left
+        ]
+
+        component "xyce_lib/BUFFER" BUFFER1 {
+        }
+        [
+            position = 9112, 8456
+            size = 64, 64
+        ]
+
+        component "core/Voltage Measurement" v_nand {
+        }
+        [
+            position = 9216, 8360
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID5 {
+            node_id = "A"
+        }
+        [
+            position = 9032, 8344
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID6 {
+            node_id = "B"
+        }
+        [
+            position = 9032, 8376
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component src_ground gnd3 {
+        }
+        [
+            position = 9296, 8360
+            rotation = left
+        ]
+
+        component "core/Voltage Measurement" v_buf {
+        }
+        [
+            position = 9216, 8456
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID7 {
+            node_id = "A"
+        }
+        [
+            position = 9032, 8456
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component src_ground gnd4 {
+        }
+        [
+            position = 9296, 8456
+            rotation = left
+        ]
+
+        component "core/Voltage Measurement" v_not {
+        }
+        [
+            position = 9224, 8560
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID9 {
+            node_id = "A"
+        }
+        [
+            position = 9032, 8560
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component src_ground gnd5 {
+        }
+        [
+            position = 9296, 8560
+            rotation = left
+        ]
+
+        component "core/Voltage Measurement" v_or {
+        }
+        [
+            position = 9648, 8264
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID11 {
+            node_id = "A"
+        }
+        [
+            position = 9464, 8248
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID12 {
+            node_id = "B"
+        }
+        [
+            position = 9464, 8280
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component src_ground gnd6 {
+        }
+        [
+            position = 9728, 8264
+            rotation = left
+        ]
+
+        component "core/Voltage Measurement" v_nor {
+        }
+        [
+            position = 9648, 8360
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID13 {
+            node_id = "A"
+        }
+        [
+            position = 9464, 8344
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID14 {
+            node_id = "B"
+        }
+        [
+            position = 9464, 8376
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component src_ground gnd7 {
+        }
+        [
+            position = 9728, 8360
+            rotation = left
+        ]
+
+        component "core/Voltage Measurement" v_xor {
+        }
+        [
+            position = 9648, 8456
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID15 {
+            node_id = "A"
+        }
+        [
+            position = 9464, 8440
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID16 {
+            node_id = "B"
+        }
+        [
+            position = 9464, 8472
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component src_ground gnd8 {
+        }
+        [
+            position = 9728, 8456
+            rotation = left
+        ]
+
+        component "core/Voltage Measurement" v_xnor {
+        }
+        [
+            position = 9648, 8552
+            size = 64, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID17 {
+            node_id = "A"
+        }
+        [
+            position = 9464, 8536
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component "xyce_lib/NodeID" NodeID18 {
+            node_id = "B"
+        }
+        [
+            position = 9464, 8568
+            rotation = right
+            hide_name = True
+            size = 32, 32
+        ]
+
+        component src_ground gnd9 {
+        }
+        [
+            position = 9736, 8552
+            rotation = left
+        ]
+
+        component "xyce_lib/XNOR" XNOR1 {
+        }
+        [
+            position = 9544, 8552
+            size = 64, 64
+        ]
+
+        junction Junction4 pe
+        [
+            position = 8680, 8328
+        ]
+
+        junction Junction6 pe
+        [
+            position = 8896, 8328
+        ]
+
+        junction Junction7 pe
+        [
+            position = 8840, 8488
+        ]
+
+        junction Junction8 pe
+        [
+            position = 8680, 8488
+        ]
+
+        junction Junction9 pe
+        [
+            position = 8768, 8488
+        ]
+
+        connect Junction4 SourceA.p_node as Connection74
+        [
+            breakpoints = 8680, 8352; 8680, 8352; 8680, 8352; 8680, 8352
+        ]
+        connect NodeID1.node Junction4 as Connection75
+        connect NodeID2.node Junction6 as Connection80
+        connect Junction6 SourceB.p_node as Connection81
+        connect SourceB.n_node Junction7 as Connection83
+        connect vB.n_node Junction7 as Connection85
+        connect Junction8 SourceA.n_node as Connection88
+        [
+            breakpoints = 8680, 8488; 8680, 8488; 8680, 8488; 8680, 8488
+        ]
+        connect vA.n_node Junction8 as Connection89
+        connect Junction7 Junction9 as Connection91
+        [
+            breakpoints = 8840, 8488
+        ]
+        connect Junction9 Junction8 as Connection92
+        [
+            breakpoints = 8680, 8488
+        ]
+        connect gnd1.node Junction9 as Connection93
+        connect v_and.p_node AND1.out as Connection96
+        connect v_and.n_node gnd2.node as Connection97
+        connect NodeID3.node AND1.in1 as Connection98
+        connect NodeID4.node AND1.in2 as Connection99
+        connect v_nand.n_node gnd3.node as Connection100
+        connect v_buf.n_node gnd4.node as Connection101
+        connect v_not.n_node gnd5.node as Connection102
+        connect v_or.n_node gnd6.node as Connection103
+        connect v_nor.n_node gnd7.node as Connection104
+        connect v_xor.n_node gnd8.node as Connection105
+        connect v_xnor.n_node gnd9.node as Connection106
+        connect NodeID6.node NAND1.in2 as Connection107
+        connect NodeID5.node NAND1.in1 as Connection108
+        connect NodeID7.node BUFFER1.in as Connection109
+        connect BUFFER1.out v_buf.p_node as Connection110
+        connect NAND1.out v_nand.p_node as Connection111
+        connect v_not.p_node NOT1.out as Connection112
+        connect NodeID9.node NOT1.in as Connection113
+        connect NodeID11.node OR1.in1 as Connection114
+        connect NodeID12.node OR1.in2 as Connection115
+        connect NodeID13.node NOR1.in1 as Connection116
+        connect NodeID14.node NOR1.in2 as Connection117
+        connect NodeID15.node XOR1.in1 as Connection118
+        connect NodeID16.node XOR1.in2 as Connection119
+        connect OR1.out v_or.p_node as Connection122
+        connect NOR1.out v_nor.p_node as Connection123
+        connect XOR1.out v_xor.p_node as Connection124
+        connect XNOR1.out v_xnor.p_node as Connection125
+        [
+            breakpoints = 9608, 8552
+        ]
+        connect XNOR1.in2 NodeID18.node as Connection126
+        connect NodeID17.node XNOR1.in1 as Connection127
+        connect Junction6 vB.p_node as Connection138
+        [
+            breakpoints = 8896, 8328; 8864, 8328
+        ]
+        connect Junction4 vA.p_node as Connection137
+        [
+            breakpoints = 8680, 8328; 8624, 8328
+        ]
+    }
+
+    default {
+        "xyce_lib/AND" {
+            CHI = "0"
+            CLO = "0"
+            CLOAD = "0"
+            DELAY = "0"
+            RLOAD = "1e4"
+            S0RHI = "1000"
+            S0RLO = "0.1"
+            S0TSW = "{GLOBAL_TS*1e-4}"
+            S0VHI = "0.1"
+            S0VLO = "-100"
+            S1RHI = "0.1"
+            S1RLO = "1000"
+            S1TSW = "{GLOBAL_TS*1e-4}"
+            S1VHI = "100"
+            S1VLO = "0.9"
+            type = "AND"
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/BUFFER" {
+            CHI = "0"
+            CLO = "0"
+            CLOAD = "0"
+            DELAY = "0"
+            RLOAD = "1e4"
+            S0RHI = "1000"
+            S0RLO = "0.1"
+            S0TSW = "{GLOBAL_TS*1e-4}"
+            S0VHI = "0.1"
+            S0VLO = "-100"
+            S1RHI = "0.1"
+            S1RLO = "1000"
+            S1TSW = "{GLOBAL_TS*1e-4}"
+            S1VHI = "100"
+            S1VLO = "0.9"
+            type = "BUF"
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/NAND" {
+            CHI = "0"
+            CLO = "0"
+            CLOAD = "0"
+            DELAY = "0"
+            RLOAD = "1e4"
+            S0RHI = "1000"
+            S0RLO = "0.1"
+            S0TSW = "{GLOBAL_TS*1e-4}"
+            S0VHI = "0.1"
+            S0VLO = "-100"
+            S1RHI = "0.1"
+            S1RLO = "1000"
+            S1TSW = "{GLOBAL_TS*1e-4}"
+            S1VHI = "100"
+            S1VLO = "0.9"
+            type = "NAND"
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/NOR" {
+            CHI = "0"
+            CLO = "0"
+            CLOAD = "0"
+            DELAY = "0"
+            RLOAD = "1e4"
+            S0RHI = "1000"
+            S0RLO = "0.1"
+            S0TSW = "{GLOBAL_TS*1e-4}"
+            S0VHI = "0.1"
+            S0VLO = "-100"
+            S1RHI = "0.1"
+            S1RLO = "1000"
+            S1TSW = "{GLOBAL_TS*1e-4}"
+            S1VHI = "100"
+            S1VLO = "0.9"
+            type = "NOR"
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/NOT" {
+            CHI = "0"
+            CLO = "0"
+            CLOAD = "0"
+            DELAY = "0"
+            RLOAD = "1e4"
+            S0RHI = "1000"
+            S0RLO = "0.1"
+            S0TSW = "{GLOBAL_TS*1e-4}"
+            S0VHI = "0.1"
+            S0VLO = "-100"
+            S1RHI = "0.1"
+            S1RLO = "1000"
+            S1TSW = "{GLOBAL_TS*1e-4}"
+            S1VHI = "100"
+            S1VLO = "0.9"
+            type = "INV"
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/NodeID" {
+            node_id = "names"
+        }
+
+        "xyce_lib/OR" {
+            CHI = "0"
+            CLO = "0"
+            CLOAD = "0"
+            DELAY = "0"
+            RLOAD = "1e4"
+            S0RHI = "1000"
+            S0RLO = "0.1"
+            S0TSW = "{GLOBAL_TS*1e-4}"
+            S0VHI = "0.1"
+            S0VLO = "-100"
+            S1RHI = "0.1"
+            S1RLO = "1000"
+            S1TSW = "{GLOBAL_TS*1e-4}"
+            S1VHI = "100"
+            S1VLO = "0.9"
+            type = "OR"
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/Pulse Voltage Source" {
+            V1 = "-1"
+            V2 = "1"
+            TD = "0"
+            TR = "0"
+            TF = "0"
+            PW = "0.0125"
+            PER = "0.025"
+        }
+
+        "core/Voltage Measurement" {
+            bw_limit = "False"
+            frequency = "10e3"
+            comparator_enable = "False"
+            operator = "greater"
+            threshold = "0"
+            cmp_abs_value = "False"
+            feed_forward = "false"
+            sig_output = "False"
+            execution_rate = "100e-6"
+            addr = "0"
+            nd_msr_estimation = "false"
+            dev_cpl_msr = "false"
+            host_device = "0"
+            output_to_device = "0"
+            dev_cpl_index = "0"
+            dev_cpl_var_nb = "0"
+            visible = "True"
+            override_signal_name = "False"
+            signal_name = ""
+        }
+
+        "xyce_lib/XNOR" {
+            CHI = "0"
+            CLO = "0"
+            CLOAD = "0"
+            DELAY = "0"
+            RLOAD = "1e4"
+            S0RHI = "1000"
+            S0RLO = "0.1"
+            S0TSW = "{GLOBAL_TS*1e-4}"
+            S0VHI = "0.1"
+            S0VLO = "-100"
+            S1RHI = "0.1"
+            S1RLO = "1000"
+            S1TSW = "{GLOBAL_TS*1e-4}"
+            S1VHI = "100"
+            S1VLO = "0.9"
+            type = "NXOR"
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/XOR" {
+            CHI = "0"
+            CLO = "0"
+            CLOAD = "0"
+            DELAY = "0"
+            RLOAD = "1e4"
+            S0RHI = "1000"
+            S0RLO = "0.1"
+            S0TSW = "{GLOBAL_TS*1e-4}"
+            S0VHI = "0.1"
+            S0VLO = "-100"
+            S1RHI = "0.1"
+            S1RLO = "1000"
+            S1TSW = "{GLOBAL_TS*1e-4}"
+            S1VHI = "100"
+            S1VLO = "0.9"
+            type = "XOR"
+            output_voltage = "3.3"
+        }
+
+        "xyce_lib/XyceSim" {
+            sim_time = "0.1ms"
+            max_ts = "1e-7"
+            start_sim = "Start simulation"
+            open_sa = "Plot"
+        }
+    }
+
+    CODE model_init
+        # Numpy module is imported as 'np'
+        # Scipy module is imported as 'sp'
+        # The Schematic API is imported as 'mdl'
+        # To get the model file path, use 'mdl.get_model_file_path()'
+        # To print information to the console, use info()
+    
+        # Flyback
+        R_out = 5
+        C_out = 500e-6
+    
+        # Sensor
+        Rsens = 100
+        # Voltage reference
+        Rref = 100
+        # Error
+        Rerr = 100
+    
+        #### PI Controller
+        # Proportional
+        Rp1 = 100
+        Rp2 = 10
+        Rp_out = 1
+        # Integral
+        Ri = 100e2
+        Ci = 10e-6
+        Ri_out = 1
+        # Sum
+        Rsum = 1
+        # Inverter
+        Rinv1 = 1
+        Rinv2 = 1
+        #########
+    
+        # PWM Generator
+        Rtri = 2000
+        Ctri = 1.25e-8
+    ENDCODE
+}
