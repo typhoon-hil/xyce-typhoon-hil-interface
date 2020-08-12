@@ -1217,18 +1217,10 @@ library "xyce_lib" {
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
 
                                 if file:
-                                    try:
-                                        XyceSim_handle = mdl.get_item('XyceSim1')
-                                        tse2xyce_path = mdl.get_property_value(mdl.prop(XyceSim_handle,"tse2xyce_path"))
-                                        rel_file = os.path.relpath(file, "/".join(tse2xyce_path.split("/")[:-1]))
-                                        self.parse_models(file, rel_file)
-                                    except:
-                                        mdl.info("Please add a XyceSim1-named XyceSim block and set the path")
-                                    return True
-                                else:
-                                    return False
+                                    self.parse_models(file)
 
-                            def parse_models(self, file, rel_file):
+
+                            def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
                                 # 3-pin MOSFETs (No temperature terminals)
@@ -1280,7 +1272,7 @@ library "xyce_lib" {
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
                             try:
-                                return ex.parse_models(filename, filename)
+                                return ex.parse_models(filename)
                             except FileNotFoundError:
                                 mdl.info("Warning: " + mdl.get_fqn(item_handle).split(".")[0] + " model file not found!")
                     ENDCODE

@@ -2,7 +2,7 @@ version = 4.2
 
 //
 // Saved by sw version: 2020.2
-// Save timestamp: 11-Aug-2020 @ 02:25:13 PM
+// Save timestamp: 12-Aug-2020 @ 06:21:09 PM
 //
 
 model "buck_control" {
@@ -63,7 +63,7 @@ model "buck_control" {
             L = "L"
         }
         [
-            position = 8632, 8216
+            position = 8672, 8216
             scale = -1, 1
             size = 64, 64
         ]
@@ -98,13 +98,6 @@ model "buck_control" {
         }
         [
             position = 9160, 8448
-        ]
-
-        component "core/Current Measurement" io {
-        }
-        [
-            position = 8744, 8216
-            size = 64, 32
         ]
 
         component "core/Voltage Measurement" vo {
@@ -601,11 +594,6 @@ model "buck_control" {
             size = 64, 64
         ]
 
-        junction Junction1 pe
-        [
-            position = 8824, 8216
-        ]
-
         junction Junction3 pe
         [
             position = 8824, 8400
@@ -681,11 +669,13 @@ model "buck_control" {
             position = 9184, 8400
         ]
 
-        connect Junction1 Co.p_node as Connection3
+        junction Junction45 pe
+        [
+            position = 8824, 8216
+        ]
+
         connect Co.n_node Junction3 as Connection13
         connect D.p_node Junction4 as Connection16
-        connect "Ideal Inductor1.n_node" io.p_node as Connection23
-        connect io.n_node Junction1 as Connection24
         connect Junction3 Junction7 as Connection28
         connect Junction7 Ro.n_node as Connection29
         [
@@ -726,10 +716,6 @@ model "buck_control" {
         connect Junction36 v_sens.p_ctrl as Connection352
         [
             breakpoints = 9072, 8216; 9072, 8216
-        ]
-        connect Junction1 Junction35 as Connection353
-        [
-            breakpoints = 8824, 8216; 8824, 8216; 8944, 8216
         ]
         connect "DC Voltage Source1.p_node" S.drain as Connection363
         [
@@ -774,31 +760,18 @@ model "buck_control" {
             breakpoints = 9184, 8400
         ]
         connect Junction43 Junction44 as Connection420
+        connect Junction35 Junction45 as Connection422
+        [
+            breakpoints = 8944, 8216; 8944, 8216
+        ]
+        connect Junction45 Co.p_node as Connection423
+        [
+            breakpoints = 8824, 8216; 8824, 8216; 8824, 8216
+        ]
+        connect "Ideal Inductor1.n_node" Junction45 as Connection424
     }
 
     default {
-        "core/Current Measurement" {
-            bw_limit = "False"
-            frequency = "10e3"
-            comparator_enable = "False"
-            operator = "greater"
-            threshold = "0"
-            cmp_abs_value = "False"
-            feed_forward = "false"
-            sig_output = "False"
-            execution_rate = "100e-6"
-            addr = "0"
-            nd_msr_estimation = "false"
-            dev_cpl_msr = "false"
-            host_device = "0"
-            output_to_device = "0"
-            dev_cpl_index = "0"
-            dev_cpl_var_nb = "0"
-            visible = "True"
-            override_signal_name = "False"
-            signal_name = ""
-        }
-
         "xyce_lib/DC Voltage Source" {
             voltage = "100"
         }
@@ -895,9 +868,9 @@ model "buck_control" {
         # Buck
         Ro = 1
         Co = 500e-6
-        L = 3e-3
+        L = 400e-6
         f_sw = 10000
-        Vo_ref = 60
+        Vo_ref = 40
         
         # Sensor
         Rsens = 100
@@ -908,12 +881,12 @@ model "buck_control" {
         
         #### PI Controller
         # Proportional
-        Rp1 = 1
-        Rp2 = 50
+        Rp1 = 10000
+        Rp2 = 10
         Rp_out = 1
         # Integral
-        Ri = 200
-        Ci = 80e-5
+        Ri = 6000
+        Ci = 10e-6
         Ri_out = 1
         # Sum
         Rsum = 1
