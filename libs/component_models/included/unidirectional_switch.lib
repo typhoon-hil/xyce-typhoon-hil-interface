@@ -4,7 +4,7 @@
 +PARAMS: R_ON=1e-4 VD_ON=0
 
 * Gate aux resistor
-R_auxGATE gate 0 1e6
+R_auxGATE gate 0 0.1
 
 * Snubber
 V_SNB source mid_snb 0

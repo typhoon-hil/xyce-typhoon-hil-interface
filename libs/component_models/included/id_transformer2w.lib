@@ -1,15 +1,17 @@
 * Ideal two winding transformer model
 
 .SUBCKT id_transformer2w prm_1 prm_2 sec_1 sec_2
-+PARAMS: N1=1 N2=1 TS={IF(GLOBAL_TS > 1e-6, 1e-6, GLOBAL_TS*1e-4)}
++PARAMS: N1=1 N2=1 TS={GLOBAL_TS*1e-3}
 
-B_prim prm_1 prm_2 I={I(Vaux)*N1/N2} smoothbsrc=1
-+ rcconst = {TS}
+B_prim prm_1 prm_2 I={I(Vaux)*N1/N2}
 
 B_sec midnode sec_2 V={V(prm_1,prm_2)*N2/N1} smoothbsrc=1
 + rcconst = {TS}
 
 Vaux midnode sec_1 0
+
+*Rp prm_2 prm_1 1e2
+*Rs sec_2 sec_1 1e2
 
 Rprim prm_2 0 1e6
 Rsec sec_2 0 1e6

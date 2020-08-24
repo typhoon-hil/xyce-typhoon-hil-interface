@@ -17,6 +17,7 @@ def determine_elem(libfqn):
         "Sources.Controlled Sources.Current-Controlled Current Source":"CCCS",
         "Sources.Ground":"GND",
         "Electronics.Operational Amplifier":"OPAMP",
+        "Electronics.Model-based OpAmp":"OPAMP_MODEL",
         "Electronics.Ideal Comparator":"COMP",
         "Electronics.Pulse Width Modulator":"PWM",
         "Measurements.Current Measurement":"I_meas",

@@ -2627,12 +2627,11 @@ library "xyce_lib" {
                         no_evaluate
                     }
 
-                    mutual_inductance {
-                        label = "Mutual Inductance"
+                    coupling_coefficient {
+                        label = "Coupling coefficient"
                         widget = edit
                         type = generic
-                        default_value = "0"
-                        unit = "H"
+                        default_value = "1"
                     }
 
                     add {
@@ -2659,12 +2658,11 @@ library "xyce_lib" {
                         ENDCODE
                     }
 
-                    current_mutual_inductance {
-                        label = "Current mutual inductance"
+                    current_coupling_coefficient {
+                        label = "Current coupling coefficient"
                         widget = edit
                         type = generic
                         default_value = "0"
-                        unit = "H"
 
                         CODE property_value_edited
                             edited_current_coupling_box_value(container_handle, new_value)
@@ -2919,10 +2917,10 @@ library "xyce_lib" {
                             inductors_dict_prop = mdl.prop(this_ind_mask, "inductors_dict")
                             inductors_dict = ast.literal_eval(mdl.get_property_value(inductors_dict_prop))
                             create_coupling_prop = mdl.prop(this_ind_mask, "create_coupling")
-                            mutual_inductance_prop = mdl.prop(this_ind_mask, "mutual_inductance")
+                            coupling_coefficient_prop = mdl.prop(this_ind_mask, "coupling_coefficient")
                             add_prop = mdl.prop(this_ind_mask, "add")
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
-                            current_mutual_inductance_prop = mdl.prop(this_ind_mask, "current_mutual_inductance")
+                            current_coupling_coefficient_prop = mdl.prop(this_ind_mask, "current_coupling_coefficient")
                             change_prop = mdl.prop(this_ind_mask, "change")
                             remove_prop = mdl.prop(this_ind_mask, "remove")
 
@@ -2944,21 +2942,21 @@ library "xyce_lib" {
                                 # If a coupling has just been edited
                                 if edited:
                                     coupind_fqid = mdl.get_item(edited).item_fqid
-                                    mdl.set_property_disp_value(current_mutual_inductance_prop, coupled_to_dict[coupind_fqid])
+                                    mdl.set_property_disp_value(current_coupling_coefficient_prop, coupled_to_dict[coupind_fqid])
                                     mdl.set_property_disp_value(select_coupled_prop, edited)
                                     mdl.disable_property(change_prop)
                                 elif names_of_the_coupled_inductors:
                                     mdl.set_property_value(select_coupled_prop, names_of_the_coupled_inductors[0])
                                     coupind_fqid = mdl.get_item(names_of_the_coupled_inductors[0]).item_fqid
-                                    mdl.set_property_disp_value(current_mutual_inductance_prop, coupled_to_dict[coupind_fqid])
+                                    mdl.set_property_disp_value(current_coupling_coefficient_prop, coupled_to_dict[coupind_fqid])
                                     mdl.disable_property(change_prop)
                                 mdl.enable_property(remove_prop)
-                                mdl.enable_property(current_mutual_inductance_prop)
+                                mdl.enable_property(current_coupling_coefficient_prop)
                             # If this inductor is not coupled to others
                             else:
                                 mdl.set_property_combo_values(select_coupled_prop, ['None'])
-                                mdl.set_property_disp_value(current_mutual_inductance_prop, "0")
-                                mdl.disable_property(current_mutual_inductance_prop)
+                                mdl.set_property_disp_value(current_coupling_coefficient_prop, "0")
+                                mdl.disable_property(current_coupling_coefficient_prop)
                                 mdl.disable_property(change_prop)
                                 mdl.disable_property(remove_prop)
 
@@ -2968,13 +2966,13 @@ library "xyce_lib" {
                                 mdl.set_property_value(create_coupling_prop, names_of_available_inductors[0])
                                 mdl.set_property_disp_value(create_coupling_prop, names_of_available_inductors[0])
                                 mdl.enable_property(add_prop)
-                                mdl.enable_property(mutual_inductance_prop)
+                                mdl.enable_property(coupling_coefficient_prop)
                             else:
                                 mdl.set_property_combo_values(create_coupling_prop, ["No inductors available"])
                                 mdl.set_property_value(create_coupling_prop, "No inductors available")
                                 mdl.set_property_disp_value(create_coupling_prop, "No inductors available")
                                 mdl.disable_property(add_prop)
-                                mdl.disable_property(mutual_inductance_prop)
+                                mdl.disable_property(coupling_coefficient_prop)
 
                         def add_coupling(mask_handle):
                             this_ind_mask = mask_handle
@@ -2984,7 +2982,7 @@ library "xyce_lib" {
                             couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
                             create_coupling_prop = mdl.prop(this_ind_mask, "create_coupling")
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
-                            mutual_inductance_prop = mdl.prop(this_ind_mask, "mutual_inductance")
+                            coupling_coefficient_prop = mdl.prop(this_ind_mask, "coupling_coefficient")
                             # Name of the inductor currently selected to be added
                             selected_ind = mdl.get_property_disp_value(create_coupling_prop)
                             # Current select_coupled values
@@ -2996,15 +2994,15 @@ library "xyce_lib" {
                                 coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
                                 counterpart_coupled_to_dict = couplings_dict.get(ind_handle.item_fqid)
                                 # Create the first dict entries if there are no couplings for ind_handle yet
-                                mutual_inductance_value = mdl.get_property_disp_value(mutual_inductance_prop)
+                                coupling_coefficient_value = mdl.get_property_disp_value(coupling_coefficient_prop)
                                 if coupled_to_dict:
-                                    coupled_to_dict.update({ind_handle.item_fqid:mutual_inductance_value})
+                                    coupled_to_dict.update({ind_handle.item_fqid:coupling_coefficient_value})
                                 else:
-                                    coupled_to_dict = {ind_handle.item_fqid:mutual_inductance_value}
+                                    coupled_to_dict = {ind_handle.item_fqid:coupling_coefficient_value}
                                 if counterpart_coupled_to_dict:
-                                    counterpart_coupled_to_dict.update({this_ind.item_fqid:mutual_inductance_value})
+                                    counterpart_coupled_to_dict.update({this_ind.item_fqid:coupling_coefficient_value})
                                 else:
-                                    counterpart_coupled_to_dict = {this_ind.item_fqid:mutual_inductance_value}
+                                    counterpart_coupled_to_dict = {this_ind.item_fqid:coupling_coefficient_value}
 
                                 couplings_dict.update({this_ind.item_fqid:coupled_to_dict})
                                 couplings_dict.update({ind_handle.item_fqid:counterpart_coupled_to_dict})
@@ -3028,13 +3026,13 @@ library "xyce_lib" {
                             couplings_dict_prop = mdl.prop(this_ind_mask, "couplings_dict")
                             couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
-                            current_mutual_inductance_prop = mdl.prop(this_ind_mask, "current_mutual_inductance")
+                            current_coupling_coefficient_prop = mdl.prop(this_ind_mask, "current_coupling_coefficient")
                             change_prop = mdl.prop(this_ind_mask, "change")
 
                             coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
                             displayed_ind = mdl.get_property_disp_value(select_coupled_prop)
                             coupind_fqid = mdl.get_item(displayed_ind).item_fqid
-                            mdl.set_property_disp_value(current_mutual_inductance_prop, coupled_to_dict[coupind_fqid])
+                            mdl.set_property_disp_value(current_coupling_coefficient_prop, coupled_to_dict[coupind_fqid])
                             mdl.disable_property(change_prop)
 
                         def remove_coupling(mask_handle):
@@ -3074,12 +3072,12 @@ library "xyce_lib" {
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
                             displayed_ind = mdl.get_property_disp_value(select_coupled_prop)
                             ind_handle = mdl.get_item(displayed_ind)
-                            current_mutual_inductance_prop = mdl.prop(this_ind_mask, "current_mutual_inductance")
+                            current_coupling_coefficient_prop = mdl.prop(this_ind_mask, "current_coupling_coefficient")
 
                             coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
                             counterpart_coupled_to_dict = couplings_dict.get(ind_handle.item_fqid)
 
-                            new_value = mdl.get_property_disp_value(current_mutual_inductance_prop)
+                            new_value = mdl.get_property_disp_value(current_coupling_coefficient_prop)
 
                             coupled_to_dict.update({ind_handle.item_fqid:new_value})
                             counterpart_coupled_to_dict.update({this_ind.item_fqid:new_value})
@@ -3102,11 +3100,11 @@ library "xyce_lib" {
                             couplings_dict_prop = mdl.prop(this_ind_mask, "couplings_dict")
                             couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
-                            current_mutual_inductance_prop = mdl.prop(this_ind_mask, "current_mutual_inductance")
+                            current_coupling_coefficient_prop = mdl.prop(this_ind_mask, "current_coupling_coefficient")
                             change_prop = mdl.prop(this_ind_mask, "change")
 
                             displayed_ind = mdl.get_property_disp_value(select_coupled_prop)
-                            displayed_coupling_value = mdl.get_property_disp_value(current_mutual_inductance_prop)
+                            displayed_coupling_value = mdl.get_property_disp_value(current_coupling_coefficient_prop)
                             coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
 
                             ind_handle = mdl.get_item(displayed_ind)

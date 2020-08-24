@@ -63,6 +63,8 @@ class Element:
             return CurrentSource(elem_type, **elem_data)
         if elem_type == "OPAMP":
             return OperationalAmplifier(elem_type, **elem_data)
+        if elem_type == "OPAMP_MODEL":
+            return ModelBasedOperationalAmplifier(elem_type, **elem_data)
         if elem_type == "COMP":
             return Comparator(elem_type, **elem_data)
         if elem_type == "VCVS":
@@ -141,18 +143,12 @@ class CoupledInductor(TwoTerminal):
                 this_ind_couplings = self.xyce_couplings_dict.get(ind_name)
                 for coupled_to_ind_name, value in this_ind_couplings.items():
                     if not coupled_to_ind_name == ind_name:
-                        # Calculate the coupling coefficient
-                        l_mutual = float(this_ind_couplings.get(coupled_to_ind_name))
-                        l_self = float(this_ind_couplings.get(ind_name))
-                        l_other = float(self.xyce_couplings_dict.get(coupled_to_ind_name).get(coupled_to_ind_name))
-                        coef = l_mutual/sqrt(l_self*l_other)
+                        coef = init_data.get("coupling_coefficient")
                         # Invalid coefficient values
-                        if coef > 1:
-                            coef = 1
-                            print("Resulting coefficient larger than 1.")
-                        elif coef < -1:
-                            coef = -1
-                            print("Resulting coefficient lower than -1.")
+                        if float(coef) > 1:
+                            coef = "1"
+                        elif float(coef) < -1:
+                            coef = "-1"
                         # Define mutual inductor lines
                         mutual_name = (ind_name + coupled_to_ind_name)
                         mutual_name_reversed = (coupled_to_ind_name + ind_name)
@@ -685,6 +681,11 @@ class OperationalAmplifier(SubcircuitBased):
         gain = init_data['gain']
         params = f'PARAMS: GAIN={gain} RES_FILTER={rf} CAP_FILTER={cf}'
         super().__init__(elem_type, name, self.nodes, init_data, params)
+
+class ModelBasedOperationalAmplifier(SubcircuitBased):
+        def __init__(self, elem_type, name, nodes, init_data):
+            params = ""
+            super().__init__(elem_type, name, nodes, init_data, params)
 
 class Comparator(SubcircuitBased):
     def __init__(self, elem_type, name, nodes, init_data):
