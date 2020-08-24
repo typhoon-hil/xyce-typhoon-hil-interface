@@ -1598,6 +1598,14 @@ library "xyce_lib" {
                         unit = "Ω"
                     }
 
+                    vd_on {
+                        label = "Forward voltage drop"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "V"
+                    }
+
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
 
@@ -1696,6 +1704,22 @@ library "xyce_lib" {
                         type = generic
                         default_value = "0"
                         unit = "Ω"
+                    }
+
+                    vd_on {
+                        label = "Diode voltage drop"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "V"
+                    }
+
+                    vsw_on {
+                        label = "Switch voltage drop"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "V"
                     }
 
                     CODE open
