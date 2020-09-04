@@ -17,7 +17,6 @@ V_DTCOMPOUT n_dtcomp 0 PULSE V1=-DT V2=0 PW={0.5*TS} PER={TS}
 R_auxDTCOMPOUT n_dtcomp 0 1e-7
 
 * Non-linear Voltage Sources are used for the output generation
-* smoothbsrc(=1)/rcconst may help with convergence, avoiding an infinite slope
 
 B_OUT out 0 V={IF( (V(duty) > V(tri_pos) + V(n_dtout)), VMAX, 0 )} smoothbsrc=0
 + rcconst = {TS*5e-4}
