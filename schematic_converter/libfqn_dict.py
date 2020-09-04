@@ -2,12 +2,12 @@ def determine_elem(libfqn):
     ''' Uses the lib_fqn JSON entry to return the element type '''
 
     elem_dict = {
-        "Sources.Independent Sources.Voltage.AC Voltage Source":"Vac",
+        "Sources.Independent Sources.Voltage.AC Voltage Source":"Vsin",
         "Sources.Independent Sources.Voltage.DC Voltage Source":"Vdc",
         "Sources.Independent Sources.Voltage.Pulse Voltage Source":"Vpulse",
         "Sources.Independent Sources.Voltage.Exponent Voltage Source":"Vexp",
         "Sources.Independent Sources.Voltage.Triangular Voltage Source":"Vtri",
-        "Sources.Independent Sources.Current.AC Current Source":"Iac",
+        "Sources.Independent Sources.Current.AC Current Source":"Isin",
         "Sources.Independent Sources.Current.DC Current Source":"Idc",
         "Sources.Independent Sources.Current.Pulse Current Source":"Ipulse",
         "Sources.Independent Sources.Current.Exponent Current Source":"Iexp",

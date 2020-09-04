@@ -32,22 +32,27 @@ def available_variables(csv_file, cir_file):
 
     try:
         with open(csv_file) as f_csv:
+            print(csv_file)
             table = pd.read_csv(f_csv)
             with open(cir_file) as f_cir:
                 # Original table header may include extra commas due to
                 # differential voltage measurements V(v+,v-)
                 new_tab =  table.dropna(axis=1) # Drops empty columns
+                print(new_tab.columns)
                 # Sets the new header
                 last_line = f_cir.readlines()[-1].replace('\n','')
                 cols = ['Time']
                 cols.extend(last_line.split(",")[1:])
+                print(cols)
                 try:
                     new_tab.columns = cols
                     new_tab.to_csv(csv_file, index=False)
                 except ValueError:
+                    print(error)
                     # Length mismatch
                     pass
     except FileNotFoundError:
+        print("error")
         pass
 
 
@@ -115,7 +120,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
     def convert_JSON_file(self):
         try:
             # Converts the JSON file to a Xyce .cir file using tse2xyce.py
-            tse2xyce.tse2xyce(self.json_file_path)
+            tse2xyce.tse2xyce(self.json_file_path, self.sim_params_dict)
             # The Xyce file path is set by substituting the file extension
             self.xyce_file_path = re.sub(  r"\.json",r".cir",
                                                 self.json_file_path)
@@ -173,7 +178,8 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
         if self.process.exitCode() == 0:
             if not "Xyce Abort" in self.textBrowser.toPlainText():
-                self.plot_data_path = "xyce_out.csv"
+                self.plot_data_path = "xyce_out.csv" if self.sim_params_dict["analysis_type"] == "Transient" else "xyce_f_out.csv"
+
                 available_variables(self.plot_data_path,
                                     self.xyce_file_path)
                 self.textBrowser.append("""<body>
@@ -231,10 +237,11 @@ class XyceOutput(QDialog, Ui_XyceOutput):
             self.cir_folder = "/".join(self.xyce_file_path.split("/")[0:-1])
         self.params_path = self.cir_folder + "/xyce_params.t"
         # Write the parameters to a file
-        with open(self.params_path,"w") as f:
-            f.writelines([  f"t_step = {self.sim_params_dict['max_ts']}\n",
-                            f"total_time = {self.sim_params_dict['sim_time']}\n"
-                            f"decimation = {float(self.sim_params_dict['max_ts'])}\n"])
+        if self.sim_params_dict['analysis_type'] == "Transient":
+            with open(self.params_path,"w") as f:
+                f.writelines([  f"t_step = {self.sim_params_dict['max_ts']}\n",
+                                f"total_time = {self.sim_params_dict['sim_time']}\n"
+                                f"decimation = {float(self.sim_params_dict['max_ts'])}\n"])
         # Xyce simulation command
         command = f'xyce -prf "{self.params_path}" "{self.xyce_file_path}"\n'
         # Start the Xyce process
@@ -249,15 +256,17 @@ class XyceOutput(QDialog, Ui_XyceOutput):
             </body>""")
         # Starts windows command prompt in the THCC drive, otherwise the typhoon_hil.cmd
         # batch can result in errors.
+        filename = "xyce_out" if self.sim_params_dict['analysis_type'] == "Transient" else "xyce_f_out"
         try:
             thcc_folder = os.environ["TYPHOONPATH"]
-            self.plotprocess.startDetached(f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file "{os.getcwd()}\\xyce_out.csv"')
+            self.plotprocess.startDetached(f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv"')
         except KeyError:
-            self.plotprocess.startDetached(f'cmd /c pushd "C:" & typhoon_hil sa --data_file "{os.getcwd()}\\xyce_out.csv"')
+            self.plotprocess.startDetached(f'cmd /c pushd "C:" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv"')
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    sim_params = {'max_ts':'1e-6','sim_time':'1ms'}
-    mainwindow = XyceOutput(r"path_to", sim_params)
+    #sim_params = {'analysis_type':'Transient','max_ts':'1e-5','sim_time':'50ms'}
+    sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
+    mainwindow = XyceOutput(r"path_to.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

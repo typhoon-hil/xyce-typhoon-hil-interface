@@ -57,7 +57,7 @@ class Element:
             return Delay(elem_type, **elem_data)
         if elem_type == "PWM":
             return PWM(elem_type, **elem_data)
-        if any(elem_type == t for t in ["Vdc", "Vac", "Vpulse", "Vexp", "Vtri", "I_meas"]):
+        if any(elem_type == t for t in ["Vdc", "Vsin", "Vpulse", "Vexp", "Vtri", "I_meas"]):
             return VoltageSource(elem_type,**elem_data)
         if any(elem_type == t for t in ["Idc", "Iac", "Ipulse", "Iexp", "V_meas"]):
             return CurrentSource(elem_type, **elem_data)
@@ -110,7 +110,10 @@ class Capacitor(TwoTerminal):
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
         self.value = init_data.get("C")
-        self.params = "IC="+init_data.get("IC")
+        analysis_type = init_data.get("analysis_type")
+        if analysis_type == "Transient":
+            # Don't set the value to zero for AC analysis
+            self.params = "IC="+init_data["IC"]
         self.model = init_data.get("model","")
 
 class Inductor(TwoTerminal):
@@ -119,7 +122,10 @@ class Inductor(TwoTerminal):
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
         self.value = init_data.get("L")
-        self.params = "IC="+init_data.get("IC")
+        analysis_type = init_data.get("analysis_type")
+        if analysis_type == "Transient":
+            # Don't set the value to zero for AC analysis
+            self.params = "IC="+init_data["IC"]
         self.model = init_data.get("model","")
 
 class CoupledInductor(TwoTerminal):
@@ -128,7 +134,10 @@ class CoupledInductor(TwoTerminal):
     # L<name> <+ node> <- node> [model name] <value> [IC=<initial value>]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
-        self.params = "IC=" + init_data.get("IC")
+        analysis_type = init_data.get("analysis_type")
+        if analysis_type == "Transient":
+            # Don't set the value to zero for AC analysis
+            self.params = "IC="+init_data["IC"]
         self.value = init_data.get("L")
         self.xyce_couplings_dict = ast.literal_eval(init_data.get("xyce_couplings_dict"))
         CoupledInductor.lines = []
@@ -183,38 +192,51 @@ class VoltageSource(TwoTerminal):
         super().__init__(name, nodes)
         tr_spec = []
 
-        for k in init_data.keys():
-            tr_spec.append(f"{k}={init_data[k]}")
-
-        if elem_type == "I_meas" or elem_type == "Vdc":
-            self.transient_spec = init_data["voltage"]
-
-        if elem_type == "Vac":
-            self.transient_spec = "SIN " + " ".join(tr_spec)
-
-        if elem_type == "Vpulse":
-            self.transient_spec = "PULSE " + " ".join(tr_spec)
-
-        if elem_type == "Vexp":
-            self.transient_spec = "EXP " + " ".join(tr_spec)
-
-        if elem_type == "Vtri":
+        def vtri_spec():
             V0 = init_data["vmin"]
             V1 = init_data["vmax"]
             T1 = float(init_data["trise"])
             T2 = float(init_data["tfall"])
-            self.transient_spec = f"PWL 0S {V0} {str(T1)} {str(V1)} {str(T1+T2)} {V0} R=0"
+            return f"PWL 0S {V0} {str(T1)} {str(V1)} {str(T1+T2)} {V0} R=0"
+
+        for k in init_data.keys():
+            if not k == "analysis_type":
+                tr_spec.append(f"{k}={init_data[k]}")
+
+        tr_spec_dict = {"Vdc":init_data["voltage"] if elem_type == "Vdc" else "",
+                        "I_meas": init_data["voltage"] if elem_type == "I_meas" else "",
+                        "Vsin":"SIN " + " ".join(tr_spec) if elem_type == "Vsin" else "",
+                        "Vpulse":"PULSE " + " ".join(tr_spec) if elem_type == "Vpulse" else "",
+                        "Vexp": "EXP " + " ".join(tr_spec) if elem_type == "Vexp" else "",
+                        "Vtri":vtri_spec() if elem_type == "Vtri" else ""
+                        }
+
+        ac_spec_dict = {"Vdc":"AC " + init_data["voltage"] if elem_type == "Vdc" else "",
+                        "I_meas": init_data["voltage"] if elem_type == "I_meas" else "",
+                        "Vsin":"AC " + init_data["VA"]  + " " + init_data["PHASE"] if elem_type == "Vsin" else "",
+                        "Vpulse":"AC" + init_data["V0"] if elem_type == "Vpulse" else "",
+                        "Vexp": "AC" + init_data["V0"] if elem_type == "Vexp" else "",
+                        "Vtri":"AC" + init_data["V0"] if elem_type == "Vtri" else ""
+                        }
+
+        if init_data["analysis_type"] == "AC small-signal":
+            self.source_spec = ac_spec_dict[elem_type]
+        else:
+            self.source_spec = tr_spec_dict[elem_type]
 
     # Needs special xyce_line method
     def xyce_line(self):
         return  (Element.xyce_element(self) + " n_" +
                 self.node_p + " n_" + self.node_n + " " +
-                self.transient_spec  + "\n")
+                self.source_spec  + "\n")
 
-    def as_measurement(self):
+    def as_measurement(self, analysis_type):
         # Used when the voltage source is a current measurement. Called on
         # tse2xyce, based on the element name.
-        return  f"I(V_{self.name})"
+        if analysis_type == "Transient":
+            return  f"I(V_{self.name})"
+        elif analysis_type == "AC small-signal":
+            return  f"IM(V_{self.name}) IP(V_{self.name})"
 
 class CurrentSource(TwoTerminal):
     type = "I"
@@ -226,19 +248,27 @@ class CurrentSource(TwoTerminal):
         self.elem_type = elem_type
 
         for k in init_data.keys():
-            tr_spec.append(f"{k}={init_data[k]}")
+            if not k == "analysis_type":
+                tr_spec.append(f"{k}={init_data[k]}")
 
-        if elem_type == "V_meas" or elem_type == "Idc":
-            self.transient_spec = init_data["current"]
+        tr_spec_dict = {"Idc":init_data["current"] if elem_type == "Idc" else "",
+                        "V_meas": init_data["current"] if elem_type == "V_meas" else "",
+                        "Isin":"SIN " + " ".join(tr_spec) if elem_type == "Isin" else "",
+                        "Ipulse":"PULSE " + " ".join(tr_spec) if elem_type == "Ipulse" else "",
+                        "Iexp": "EXP " + " ".join(tr_spec) if elem_type == "Iexp" else "",
+                        }
 
-        if elem_type == "Iac":
-            self.transient_spec = "SIN " + " ".join(tr_spec)
+        ac_spec_dict = {"Idc":"AC " + init_data["current"] if elem_type == "Idc" else "",
+                        "V_meas": init_data["current"] if elem_type == "V_meas" else "",
+                        "Isin":"AC " + init_data["VA"]  + " " + init_data["PHASE"] if elem_type == "Isin" else "",
+                        "Ipulse":"AC" + init_data["V0"] if elem_type == "Ipulse" else "",
+                        "Iexp": "AC" + init_data["V0"] if elem_type == "Iexp" else "",
+                        }
 
-        if elem_type == "Ipulse":
-            self.transient_spec = "PULSE " + " ".join(tr_spec)
-
-        if elem_type == "Iexp":
-            self.transient_spec = "EXP " + " ".join(tr_spec)
+        if init_data["analysis_type"] == "AC small-signal":
+            self.source_spec = ac_spec_dict[elem_type]
+        else:
+            self.source_spec = tr_spec_dict[elem_type]
 
     # Needs special xyce_line method
     def xyce_line(self):
@@ -247,10 +277,13 @@ class CurrentSource(TwoTerminal):
         else:
             return  (Element.xyce_element(self) + " n_" +
                     self.node_p + " n_" + self.node_n + " " +
-                    self.transient_spec  + "\n")
+                    self.source_spec  + "\n")
 
-    def as_measurement(self):
-        return  f"V(n_{self.node_p},n_{self.node_n})"
+    def as_measurement(self, analysis_type):
+        if analysis_type == "Transient":
+            return  f"V(n_{self.node_p},n_{self.node_n})"
+        elif analysis_type == "AC small-signal":
+            return  f"VM(n_{self.node_p},n_{self.node_n}) VP(n_{self.node_p},n_{self.node_n})"
 ################################################################################
 
 ### General Non-Linear Devices #################################################
@@ -679,10 +712,13 @@ class IdealTransformer2W(SubcircuitBased):
 
 class OperationalAmplifier(SubcircuitBased):
     def __init__(self, elem_type, name, nodes, init_data):
-        if init_data["model_type"]=="Ideal":
-            init_data["model_name"] = "op_amp_1"
-        if init_data["model_type"]=="Low-pass filter":
-            init_data["model_name"] = "op_amp_2"
+        if init_data["analysis_type"]=="AC small-signal":
+            init_data["model_name"] = "op_amp_3"
+        else:
+            if init_data["model_type"]=="Ideal":
+                init_data["model_name"] = "op_amp_1"
+            elif init_data["model_type"]=="Low-pass filter":
+                init_data["model_name"] = "op_amp_2"
         init_data["model_path"] = included_models_path + "op-amp.lib"
         self.nodes = [nodes["non_inv"], nodes["inv"], nodes["Out"]]
         rf = init_data['Rf']
