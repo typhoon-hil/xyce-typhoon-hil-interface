@@ -32,18 +32,15 @@ def available_variables(csv_file, cir_file):
 
     try:
         with open(csv_file) as f_csv:
-            print(csv_file)
             table = pd.read_csv(f_csv)
             with open(cir_file) as f_cir:
                 # Original table header may include extra commas due to
                 # differential voltage measurements V(v+,v-)
                 new_tab =  table.dropna(axis=1) # Drops empty columns
-                print(new_tab.columns)
                 # Sets the new header
                 last_line = f_cir.readlines()[-1].replace('\n','')
                 cols = ['Time']
                 cols.extend(last_line.split(",")[1:])
-                print(cols)
                 try:
                     new_tab.columns = cols
                     new_tab.to_csv(csv_file, index=False)
@@ -265,8 +262,8 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    #sim_params = {'analysis_type':'Transient','max_ts':'1e-5','sim_time':'50ms'}
-    sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
-    mainwindow = XyceOutput(r"path_to.json", sim_params)
+    sim_params = {'analysis_type':'Transient','max_ts':'1e-5','sim_time':'50ms'}
+    #sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
+    mainwindow = XyceOutput(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\power_test Target files\power_test.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

@@ -13,6 +13,6 @@ B_DROP mid_meas cathode V={IF(V(anode, cathode)<VD_ON, IF(V(anode, cathode)>0, V
 
 V_MEAS mid_node mid_meas 0
 
-.MODEL IDDIODE SWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF=1e5 ON=0.99 OFF=0.01
+.MODEL IDDIODE SWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF={1e11*R_ON} ON=0.99 OFF=0.01
 
 .ENDS id_diode
