@@ -1,0 +1,11 @@
+* Sum
+
+.SUBCKT p_meas in_p in_n out_p out_n
+
+I_MEAS out_p out_n 0
+V_MEAS in_p out_p 0
+
+B_POWER p_meas 0 V={V(in_p,in_n)*I(V_MEAS)}
+R_POWER p_meas 0 1e7
+
+.ENDS p_meas

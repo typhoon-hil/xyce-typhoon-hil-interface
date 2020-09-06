@@ -58,26 +58,52 @@ def tse2xyce(jsonfile, sim_params_dict):
         # Current measurement
         if elem_type == "I_meas":
             # Relevant data for instantiation
-            elem_data = {"name":"_I_meas__" + elem_name,
-                        "nodes":elem_get_nodes(),
-                        "init_data":{"voltage":"0","analysis_type":analysis_type}}
-            # Add the name to the list of aliases
-            if analysis_type == "AC small-signal":
-                meas_aliases.extend([f"mag({elem_name})", f"phase({elem_name})"])
+            meas_nodes = elem_get_nodes()
+            if len(meas_nodes) == 3:
+                elem_type = "I_meas_out"
+                name = elem_name
             else:
-                meas_aliases.append(elem_name)
+                name = "_I_meas__" + elem_name
+            elem_data = {"name":name,
+                        "nodes":meas_nodes,
+                        "init_data":{"voltage":"0","analysis_type":analysis_type}}
+            if len(meas_nodes) == 2:
+                # If no output port, add the name to the list of aliases
+                if analysis_type == "AC small-signal":
+                    meas_aliases.extend([f"mag({elem_name})", f"phase({elem_name})"])
+                else:
+                    meas_aliases.append(elem_name)
 
         # Voltage measurement
         elif elem_type == "V_meas":
             # Relevant data for instantiation
-            elem_data = {"name":"_V_meas__" + elem_name,
-                        "nodes":elem_get_nodes(),
-                        "init_data":{"current":"0", "analysis_type":analysis_type}}
-            # Add the name to the list of aliases
-            if analysis_type == "AC small-signal":
-                meas_aliases.extend([f"mag({elem_name})", f"phase({elem_name})"])
+            meas_nodes = elem_get_nodes()
+            if len(meas_nodes) == 3:
+                elem_type = "V_meas_out"
+                name = elem_name
             else:
-                meas_aliases.append(elem_name)
+                name = "_V_meas__" + elem_name
+            elem_data = {"name":name,
+                        "nodes":meas_nodes,
+                        "init_data":{"current":"0", "analysis_type":analysis_type}}
+
+            if len(meas_nodes) == 2:
+                # If no output port, add the name to the list of aliases
+                if analysis_type == "AC small-signal":
+                    meas_aliases.extend([f"mag({elem_name})", f"phase({elem_name})"])
+                else:
+                    meas_aliases.append(elem_name)
+
+        elif elem_type in ["Probe", "Vnode"]:
+            # Relevant data for instantiation
+            elem_data = {"name":elem_name,
+                        "nodes":elem_get_nodes(),
+                        "init_data":{"analysis_type":analysis_type}}
+            # if analysis_type == "AC small-signal":
+            #     meas_aliases.extend([f"mag({elem_name})", f"phase({elem_name})"])
+            # else:
+            #     meas_aliases.append(elem_name)
+
         ##########################################################
 
         #### In the case of every other element contained in the new library
@@ -124,9 +150,25 @@ def tse2xyce(jsonfile, sim_params_dict):
                 coupled_L_lines += "".join((CoupledInductor.lines))
             # Measurement
             enabled_measurements = []
-            if "_meas_" in this_element.name: # Zero value sources
+            if elem_type in ["V_meas", "I_meas"]: # Zero value sources
                 # Append the resulting string to the list of measurements
                 measurements.append(this_element.as_measurement(sim_params_dict["analysis_type"]))
+            elif elem_type == "P_meas":
+                meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["P"])
+                measurements.append(meas_string)
+                meas_aliases.extend([meas_alias])
+            elif this_element.type == "NodeV":
+                meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["V"])
+                measurements.append(meas_string)
+                meas_aliases.extend([meas_alias])
+            elif this_element.init_data.get("model_name") == "v_meas_out":
+                meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["V"])
+                measurements.append(meas_string)
+                meas_aliases.extend([meas_alias])
+            elif this_element.init_data.get("model_name") == "i_meas_out":
+                meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["I"])
+                measurements.append(meas_string)
+                meas_aliases.extend([meas_alias])
             else:
                 init_data = elem_data.get("init_data")
                 if init_data.get("meas_v") == "True":
@@ -220,4 +262,4 @@ def tse2xyce(jsonfile, sim_params_dict):
 if __name__ == "__main__":
     sim_params = {'analysis_type':'Transient','max_ts':'1e-6','sim_time':'1ms'}
     # sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
-    tse2xyce(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\power_test Target files\power_test.json", sim_params)
+    tse2xyce(r"path_to.json", sim_params)

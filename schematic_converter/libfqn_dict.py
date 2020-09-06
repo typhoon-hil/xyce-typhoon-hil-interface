@@ -22,6 +22,9 @@ def determine_elem(libfqn):
         "Electronics.Pulse Width Modulator":"PWM",
         "Measurements.Current Measurement":"I_meas",
         "Measurements.Voltage Measurement":"V_meas",
+        "Measurements.Power Measurement":"P_meas",
+        "Measurements.Probe_":"Probe",
+        "Measurements.Node Voltage":"Vnode",
         "Passive Elements.Ideal Resistor":"R",
         "Passive Elements.Ideal Capacitor":"C",
         "Passive Elements.Ideal Inductor":"L",
@@ -53,6 +56,13 @@ def determine_elem(libfqn):
         "Behavioral Digital.Delay_":"U",
         "Special.Dynamic SPICE component":"Smart",
         "Special.NodeID":"NodeID",
+        "Math.Sum_":"math_sum",
+        "Math.Product_":"math_prod",
+        "Math.Constant_":"math_constant",
+        "Math.Trig Function":"math_trig",
+        "Math.Saturation":"math_sat",
+        "Math.Gain_":"math_gain",
+        "Math.Absolute Value":"math_abs",
     }
 
     if libfqn in elem_dict.keys():

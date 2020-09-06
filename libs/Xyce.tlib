@@ -1,6 +1,6 @@
 //
 // Saved by sw version: 2020.2
-// Save timestamp: 05-Sep-2020 @ 02:22:24 PM
+// Save timestamp: 06-Sep-2020 @ 02:50:45 PM
 //
 
 library "xyce_lib" {
@@ -10267,20 +10267,6 @@ library "xyce_lib" {
 
         component Category Measurements {
             layout = dynamic
-            component "core/Current Measurement" "Current Measurement" {
-            }
-            [
-                position = 7296, 7904
-                size = 64, 32
-            ]
-
-            component "core/Voltage Measurement" "Voltage Measurement" {
-            }
-            [
-                position = 7472, 7904
-                size = 64, 32
-            ]
-
             component Subsystem "Power Measurement" {
                 layout = dynamic
                 component "core/Current Measurement" I {
@@ -10357,54 +10343,160 @@ library "xyce_lib" {
                 mask {
                     description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
 
-                    avg {
-                        label = "Average"
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                        
+                    ENDCODE
+
+                    CODE init
+                    ENDCODE
+
+                    CODE define_icon
+                    ENDCODE
+                }
+            }
+            [
+                position = 7616, 7920
+                size = 112, 136
+            ]
+
+            component Subsystem "Node Voltage" {
+                layout = dynamic
+                component src_ground gnd1 {
+                }
+                [
+                    position = 7792, 8072
+                    rotation = left
+                ]
+
+                component el_open "Open Circuit1" {
+                    circuit_connector = "true"
+                }
+                [
+                    position = 7704, 8072
+                    rotation = down
+                ]
+
+                port node {
+                    position = top center
+                    kind = pe
+                }
+                [
+                    position = 7624, 8072
+                    rotation = down
+                    hide_name = True
+                    scale = -1, 1
+                ]
+
+                connect gnd1.node "Open Circuit1.p_node" as Connection1
+                connect "Open Circuit1.n_node" node as Connection2
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Measures the node-to-ground voltage.</p></body></html>"
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE init
+                        def empty():
+                            pass
+                    ENDCODE
+                }
+            }
+            [
+                position = 7176, 7904
+                size = 48, 48
+            ]
+
+            component Subsystem Probe_ {
+                layout = dynamic
+                component gen_probe Probe1 {
+                }
+                [
+                    position = 8192, 8192
+                ]
+
+                port In {
+                    position = left:1
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 8128, 8192
+                ]
+
+                connect Probe1.in In as Connection1
+            }
+            [
+                position = 7176, 8000
+                size = 48, 48
+            ]
+
+            component Subsystem "Current Measurement" {
+                layout = dynamic
+                component "core/Current Measurement" I {
+                    execution_rate = "1"
+                    sig_output = "True"
+                }
+                [
+                    position = 8192, 8192
+                    size = 64, 32
+                ]
+
+                port n_node {
+                    position = right:1
+                    kind = pe
+                }
+                [
+                    position = 8272, 8192
+                    rotation = down
+                    hide_name = True
+                ]
+
+                port p_node {
+                    position = left:1
+                    kind = pe
+                }
+                [
+                    position = 8112, 8192
+                    hide_name = True
+                ]
+
+                connect I.p_node p_node as Connection2
+                connect I.n_node n_node as Connection1
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+
+                    signal_out {
+                        label = "Signal output"
                         widget = checkbox
                         type = bool
-                        default_value = "True"
-                        no_evaluate
-
-                        CODE property_value_edited
-                            hide_show_interval(prop_handle, container_handle)
-                        ENDCODE
-                    }
-
-                    avg_interval {
-                        label = "Interval"
-                        widget = edit
-                        type = generic
-                        default_value = "[0, end]"
-                    }
-
-                    rms {
-                        label = "RMS"
-                        widget = checkbox
-                        type = bool
-                        default_value = "True"
-                        no_evaluate
-
-                        CODE property_value_edited
-                            hide_show_interval(prop_handle, container_handle)
-                        ENDCODE
-                    }
-
-                    rms_interval {
-                        label = "Interval"
-                        widget = edit
-                        type = generic
-                        default_value = "[0, end]"
-                    }
-
-                    test {
-                        label = "test"
-                        widget = edit
-                        type = generic
-                        default_value = "0"
+                        default_value = "False"
                         no_evaluate
 
                         CODE property_value_changed
-                            mdl.info("i was changed")
-                            mdl.refresh_icon(container_handle)
+                            show_signal_output(container_handle)
                         ENDCODE
                     }
 
@@ -10421,38 +10513,732 @@ library "xyce_lib" {
                     ENDCODE
 
                     CODE init
-                        def hide_show_interval(prop_handle, mask_handle):
-                            int_prop = mdl.prop(mask_handle, mdl.get_name(prop_handle)+"_interval")
-                            if mdl.get_property_disp_value(prop_handle) == True:
-                                mdl.show_property(int_prop)
+                        x0, y0 = (8192, 8192)
+                    
+                        def delete_port(mdl, name, parent):
+                            comp = mdl.get_item(name, parent=parent, item_type="port")
+                            if comp:
+                                mdl.delete_item(comp)
+                    
+                        def show_signal_output(mask_handle):
+                            comp_handle = mdl.get_parent(mask_handle)
+                            signal_out = mdl.get_property_value(mdl.prop(item_handle, "signal_out"))
+                    
+                            inner_measure_handle = mdl.get_item("I", parent=comp_handle)
+                    
+                            if signal_out:
+                                out_port = mdl.create_port(
+                                name="signal_out",
+                                parent=comp_handle,
+                                hide_name=True,
+                                rotation='left',
+                                kind='sp',
+                                direction='out',
+                                position=(x0, y0-100),
+                                terminal_position=("top","auto")
+                                )
+                                mdl.create_connection(mdl.term(inner_measure_handle, "out"), out_port)
                             else:
-                                mdl.hide_property(int_prop)
-                    
-                    
-                        def read_measure_file_results():
-                            # Get the path to the exported JSON
-                            mdlfile = mdl.get_model_file_path()
-                            mdlfile_name = mdlfile.split('\\')[-1].split('.')[0]
-                            mdlfile_folder = '/'.join(mdlfile.split('\\')[0:-1])
-                            mdlfile_target_folder = mdlfile_folder + '/' + mdlfile_name + ' Target files'
-                    
-                    ENDCODE
-
-                    CODE define_icon
-                        val = mdl.get_property_value(mdl.prop(item_handle, "test"))
-                    
-                        mdl.set_color(item_handle, "blue")
-                        mdl.disp_component_icon_text(item_handle, str(val), relpos_y = 0.5, size = 8)
+                                delete_port(mdl, "signal_out", parent=comp_handle)
                     ENDCODE
                 }
             }
             [
-                position = 7640, 7912
-                size = 112, 136
+                position = 7312, 7904
+                size = 48, 48
+            ]
+
+            component Subsystem "Voltage Measurement" {
+                layout = dynamic
+                component "core/Voltage Measurement" V {
+                    execution_rate = "1"
+                    sig_output = "True"
+                }
+                [
+                    position = 8192, 8192
+                    size = 64, 32
+                ]
+
+                port p_node {
+                    position = left:1
+                    kind = pe
+                }
+                [
+                    position = 8112, 8192
+                    hide_name = True
+                ]
+
+                port n_node {
+                    position = right:1
+                    kind = pe
+                }
+                [
+                    position = 8272, 8192
+                    rotation = down
+                    hide_name = True
+                ]
+
+                connect V.n_node n_node as Connection2
+                connect V.p_node p_node as Connection1
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+
+                    signal_out {
+                        label = "Signal output"
+                        widget = checkbox
+                        type = bool
+                        default_value = "False"
+                        no_evaluate
+
+                        CODE property_value_changed
+                            show_signal_output(container_handle)
+                        ENDCODE
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE init
+                        x0, y0 = (8192, 8192)
+                    
+                        def delete_port(mdl, name, parent):
+                            comp = mdl.get_item(name, parent=parent, item_type="port")
+                            if comp:
+                                mdl.delete_item(comp)
+                    
+                        def show_signal_output(mask_handle):
+                            comp_handle = mdl.get_parent(mask_handle)
+                            signal_out = mdl.get_property_value(mdl.prop(item_handle, "signal_out"))
+                    
+                            inner_measure_handle = mdl.get_item("V", parent=comp_handle)
+                    
+                            if signal_out:
+                                out_port = mdl.create_port(
+                                name="signal_out",
+                                parent=comp_handle,
+                                hide_name=True,
+                                rotation='left',
+                                kind='sp',
+                                direction='out',
+                                position=(x0, y0-100),
+                                terminal_position=("top","auto")
+                                )
+                                mdl.create_connection(mdl.term(inner_measure_handle, "out"), out_port)
+                            else:
+                                delete_port(mdl, "signal_out", parent=comp_handle)
+                    ENDCODE
+                }
+            }
+            [
+                position = 7456, 7904
+                size = 48, 48
             ]
         }
         [
             position = 8096, 8400
+            size = 96, 104
+        ]
+
+        component Category Math {
+            layout = dynamic
+            component Subsystem "Absolute Value" {
+                layout = dynamic
+                component gen_gain G {
+                }
+                [
+                    position = 7760, 8040
+                ]
+
+                port In {
+                    position = auto:auto
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7672, 8040
+                ]
+
+                port Out {
+                    position = auto:auto
+                    kind = sp
+                    direction =  in
+                    sp_type {
+                        default = inherit
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7840, 8040
+                ]
+
+                connect In G.in as Connection1
+                connect G.out Out as Connection2
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output is the absolute value of the input.<br></br><br></br>In the Schematic Editor this component is of the signal processing type. In Xyce, however, it is an electrical source.</p></body></html>"
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+                }
+            }
+            [
+                position = 7456, 8040
+                size = 56, 48
+            ]
+
+            component Subsystem Gain_ {
+                layout = dynamic
+                component gen_gain G {
+                }
+                [
+                    position = 7656, 7976
+                ]
+
+                port In {
+                    position = auto:auto
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7568, 7976
+                ]
+
+                port Out {
+                    position = auto:auto
+                    kind = sp
+                    direction =  in
+                    sp_type {
+                        default = inherit
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7736, 7976
+                ]
+
+                connect In G.in as Connection1
+                connect G.out Out as Connection2
+
+                gain = "1"
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+
+                    gain {
+                        label = "Gain"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                        
+                    ENDCODE
+                }
+            }
+            [
+                position = 7552, 8040
+                size = 56, 56
+            ]
+
+            component Subsystem Saturation {
+                layout = dynamic
+                component gen_gain G {
+                }
+                [
+                    position = 7592, 7968
+                ]
+
+                port In {
+                    position = auto:auto
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7504, 7968
+                ]
+
+                port Out {
+                    position = auto:auto
+                    kind = sp
+                    direction =  in
+                    sp_type {
+                        default = inherit
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7672, 7968
+                ]
+
+                connect In G.in as Connection1
+                connect G.out Out as Connection2
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output is equal to the input limited to the minimum and maximum values entered.<br></br><br></br>In the Schematic Editor this component is of the signal processing type. In Xyce, however, it is an electrical source.</p></body></html>"
+
+                    max {
+                        label = "Maximum"
+                        widget = edit
+                        type = generic
+                        default_value = "1"
+                        unit = "V"
+                    }
+
+                    min {
+                        label = "Minimum"
+                        widget = edit
+                        type = generic
+                        default_value = "-1"
+                        unit = "V"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+                }
+            }
+            [
+                position = 7552, 8128
+                size = 56, 48
+            ]
+
+            component Subsystem "Trig Function" {
+                layout = dynamic
+                component gen_gain G {
+                }
+                [
+                    position = 7880, 8048
+                ]
+
+                port In {
+                    position = auto:auto
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7792, 8048
+                ]
+
+                port Out {
+                    position = auto:auto
+                    kind = sp
+                    direction =  in
+                    sp_type {
+                        default = inherit
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7960, 8048
+                ]
+
+                connect In G.in as Connection1
+                connect G.out Out as Connection2
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output is the selected trigonometric function applied to the input value.<br></br><br></br>Values are in degrees.<br></br><br></br>In the Schematic Editor this component is of the signal processing type. In Xyce, however, it is an electrical source.</p></body></html>"
+
+                    trig_fcn {
+                        label = "Function"
+                        widget = combo
+                        combo_values = "sin", "cos", "tan", "asin", "acos", "atan"
+                        type = string
+                        default_value = "sin"
+                        no_evaluate
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+                }
+            }
+            [
+                position = 7456, 8128
+                size = 56, 48
+            ]
+
+            component Subsystem Sum_ {
+                layout = dynamic
+                component gen_sum Sum1 {
+                    execution_rate = "1"
+                    signs = "++"
+                }
+                [
+                    position = 8256, 8192
+                ]
+
+                port Out {
+                    position = auto:auto
+                    kind = sp
+                    direction =  in
+                    sp_type {
+                        default = inherit
+                        readonly = True
+                    }
+                }
+                [
+                    position = 8336, 8192
+                ]
+
+                port In1 {
+                    label = "+"
+                    position = left:auto
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 8144, 8096
+                ]
+
+                port In2 {
+                    label = "+"
+                    position = left:auto
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 8144, 8144
+                ]
+
+                connect Sum1.out Out as Connection1
+                connect Sum1.in In1 as Connection2
+                connect Sum1.in1 In2 as Connection3
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output is the sum of the inputs multiplied by the entered signs.<br></br><br></br>Characters other than + or - will be ignored.<br></br><br></br>The maximum number of inputs is 5.</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br>In the Schematic Editor this component is of the signal processing type. In Xyce, however, it is an electrical source.</p></body></html>"
+
+                    signs {
+                        label = "Signs"
+                        widget = edit
+                        type = generic
+                        default_value = "++"
+                        no_evaluate
+
+                        CODE property_value_changed
+                            update_inputs(container_handle)
+                        ENDCODE
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE init
+                        x0, y0 = (8192, 8192)
+                    
+                        def delete_port(mdl, name, parent):
+                            comp = mdl.get_item(name, parent=parent, item_type="port")
+                            if comp:
+                                mdl.delete_item(comp)
+                    
+                        def update_inputs(mask_handle):
+                            comp_handle = mdl.get_parent(mask_handle)
+                            signs_prop = mdl.prop(mask_handle, "signs")
+                            signs = mdl.get_property_value(signs_prop)
+                    
+                            sum_handle = mdl.get_item("Sum1", parent=comp_handle)
+                    
+                            for c in signs:
+                                if not c in ["+", "-"]:
+                                    signs = signs.replace(c, "")
+                            signs = signs[:5]
+                    
+                            mdl.set_property_value(mdl.prop(sum_handle, "signs"), signs)
+                    
+                            for idx in range(1, 6):
+                                delete_port(mdl, "In"+str(idx), parent=comp_handle)
+                    
+                            for idx in range(len(signs)):
+                    
+                                if idx == 0:
+                                    sum_input_name = "in"
+                                else:
+                                    sum_input_name = "in"+str(idx)
+                    
+                                new_input = mdl.create_port(
+                                name="In"+str(idx+1),
+                                label = signs[idx],
+                                parent=comp_handle,
+                                rotation='up',
+                                kind='sp',
+                                direction='in',
+                                position=(x0-50, y0-100 + 50*idx)
+                                #terminal_position=(-24, 48*(num_windings-1))
+                                )
+                                mdl.create_connection(mdl.term(sum_handle, sum_input_name), new_input)
+                    ENDCODE
+                }
+            }
+            [
+                position = 7648, 8016
+                size = 48, 96
+            ]
+
+            component Subsystem Product_ {
+                layout = dynamic
+                component gen_product Product1 {
+                    execution_rate = "1"
+                    signs = "**"
+                }
+                [
+                    position = 8320, 8192
+                ]
+
+                port Out {
+                    position = auto:auto
+                    kind = sp
+                    direction =  in
+                    sp_type {
+                        default = inherit
+                        readonly = True
+                    }
+                }
+                [
+                    position = 8408, 8192
+                ]
+
+                port In1 {
+                    label = "*"
+                    position = left:auto
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 8144, 8096
+                ]
+
+                port In2 {
+                    label = "*"
+                    position = left:auto
+                    kind = sp
+                    direction =  out
+                    sp_type {
+                        default = auto
+                        readonly = True
+                    }
+                }
+                [
+                    position = 8144, 8144
+                ]
+
+                connect Product1.out Out as Connection1
+                connect Product1.in In1 as Connection2
+                connect Product1.in1 In2 as Connection3
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output is the multiplication or division of the inputs, depending on the entered operations.<br></br><br></br>Characters other than * or / will be ignored.<br></br><br></br>The maximum number of inputs is 5.</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br>In the Schematic Editor this component is of the signal processing type. In Xyce, however, it is an electrical source.</p></body></html>"
+
+                    operations {
+                        label = "Operations"
+                        widget = edit
+                        type = generic
+                        default_value = "**"
+                        no_evaluate
+
+                        CODE property_value_changed
+                            update_inputs(container_handle)
+                        ENDCODE
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+
+                    CODE init
+                        x0, y0 = (8192, 8192)
+                    
+                        def delete_port(mdl, name, parent):
+                            comp = mdl.get_item(name, parent=parent, item_type="port")
+                            if comp:
+                                mdl.delete_item(comp)
+                    
+                        def update_inputs(mask_handle):
+                            comp_handle = mdl.get_parent(mask_handle)
+                            operations_prop = mdl.prop(mask_handle, "operations")
+                            operations = mdl.get_property_value(operations_prop)
+                    
+                            product_handle = mdl.get_item("Product1", parent=comp_handle)
+                    
+                            for c in operations:
+                                if not c in ["*", "/"]:
+                                    operations = operations.replace(c, "")
+                            operations = operations[:5]
+                    
+                            mdl.set_property_value(mdl.prop(product_handle, "signs"), operations)
+                    
+                            for idx in range(1, 6):
+                                delete_port(mdl, "In"+str(idx), parent=comp_handle)
+                    
+                            for idx in range(len(operations)):
+                    
+                                if idx == 0:
+                                    prod_input_name = "in"
+                                else:
+                                    prod_input_name = "in"+str(idx)
+                    
+                                new_input = mdl.create_port(
+                                name="In"+str(idx+1),
+                                label = operations[idx],
+                                parent=comp_handle,
+                                rotation='up',
+                                kind='sp',
+                                direction='in',
+                                position=(x0-50, y0-100 + 50*idx)
+                                #terminal_position=(-24, 48*(num_windings-1))
+                                )
+                                mdl.create_connection(mdl.term(product_handle, prod_input_name), new_input)
+                    ENDCODE
+                }
+            }
+            [
+                position = 7648, 8136
+                size = 48, 96
+            ]
+
+            component Subsystem Constant_ {
+                layout = dynamic
+                component src_constant Constant1 {
+                    execution_rate = "1"
+                }
+                [
+                    position = 7768, 8040
+                ]
+
+                port Out {
+                    position = auto:auto
+                    kind = sp
+                    direction =  in
+                    sp_type {
+                        default = inherit
+                        readonly = True
+                    }
+                }
+                [
+                    position = 7840, 8040
+                ]
+
+                connect Constant1.out Out as Connection1
+
+                value = "1"
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">In the Schematic Editor this component is of the signal processing type. In Xyce, however, it is an electrical source.</p></body></html>"
+
+                    value {
+                        label = "Value"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                    }
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                    
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+                    
+                    ENDCODE
+                }
+            }
+            [
+                position = 7456, 7960
+                size = 56, 48
+            ]
+        }
+        [
+            position = 8320, 8400
             size = 96, 104
         ]
     }

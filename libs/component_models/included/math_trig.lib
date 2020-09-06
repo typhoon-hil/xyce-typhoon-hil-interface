@@ -1,0 +1,45 @@
+* Trigonometric functions
+
+.SUBCKT sin in out
+
+B_TRIG out 0 V={SIN(V(in)/180*3.14159265359)}
+R_TRIG out 0 1e7
+
+.ENDS sin
+
+.SUBCKT cos in out
+
+B_TRIG out 0 V={COS(V(in)/180*3.14159265359)}
+R_TRIG out 0 1e7
+
+.ENDS cos
+
+.SUBCKT tan in out
+
+B_TRIG out 0 V={TAN(V(in)/180*3.14159265359)}
+R_TRIG out 0 1e7
+
+.ENDS tan
+
+* Inverted functions may present some convergence problems (1e-5 used)
+
+.SUBCKT asin in out
+
+B_TRIG out 0 V={ASIN(V(in)+1e-5)*180/3.14159265359}
+R_TRIG out 0 1e7
+
+.ENDS asin
+
+.SUBCKT acos in out
+
+B_TRIG out 0 V={ACOS(V(in)+1e-5)*180/3.14159265359}
+R_TRIG out 0 1e7
+
+.ENDS acos
+
+.SUBCKT atan in out
+
+B_TRIG out 0 V={ATAN(V(in)+1e-5)*180/3.14159265359}
+R_TRIG out 0 1e7
+
+.ENDS atan

@@ -1,0 +1,24 @@
+* Other math operations
+
+.SUBCKT saturation in out
++PARAMS: MAX=100 MIN=100
+
+B_SAT out 0 V={IF(V(in)>MAX, MAX, IF(V(in)<MIN, MIN, V(in)))}
+R_SAT out 0 1e7
+
+.ENDS saturation
+
+.SUBCKT gain in out
++PARAMS: GAIN=1
+
+B_GAIN out 0 V={GAIN*V(in)}
+R_GAIN out 0 1e7
+
+.ENDS gain
+
+.SUBCKT abs in out
+
+B_ABS out 0 V={abs(V(in))}
+R_ABS out 0 1e7
+
+.ENDS abs
