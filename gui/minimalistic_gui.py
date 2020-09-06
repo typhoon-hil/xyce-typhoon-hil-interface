@@ -264,6 +264,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     sim_params = {'analysis_type':'Transient','max_ts':'1e-5','sim_time':'50ms'}
     #sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
-    mainwindow = XyceOutput(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\power_test Target files\power_test.json", sim_params)
+    mainwindow = XyceOutput(r"path_to.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

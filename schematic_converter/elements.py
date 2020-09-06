@@ -39,73 +39,94 @@ class Element:
         # Instantiates the appropriate class depending on elem_type.
         if elem_type == "L":
             return Inductor(elem_type, **elem_data)
-        if elem_type == "L_coupled":
+        elif elem_type == "L_coupled":
             return CoupledInductor(elem_type, **elem_data)
-        if elem_type == "C":
+        elif elem_type == "C":
             return Capacitor(elem_type, **elem_data)
-        if elem_type == "R":
+        elif elem_type == "R":
             return Resistor(elem_type, **elem_data)
-        if elem_type == "Transf":
+        elif elem_type == "Transf":
             return IdealTransformer2W(elem_type, **elem_data)
-        if elem_type == "ymemristor":
+        elif elem_type == "ymemristor":
             return Memristor(elem_type, **elem_data)
-        if elem_type == "D":
+        elif elem_type == "D":
             return Diode(elem_type, **elem_data)
-        if elem_type == "IdealD":
+        elif elem_type == "IdealD":
             return IdealDiode(elem_type, **elem_data)
-        if elem_type == "UnidirSwitch":
+        elif elem_type == "UnidirSwitch":
             return UnidirectionalSwitch(elem_type, **elem_data)
-        if elem_type == "M":
+        elif elem_type == "M":
             return Mosfet(elem_type, **elem_data)
-        if elem_type == "J":
+        elif elem_type == "J":
             return Jfet(elem_type, **elem_data)
-        if elem_type == "Z":
+        elif elem_type == "Z":
             return Mesfet(elem_type, **elem_data)
-        if elem_type == "Q":
+        elif elem_type == "Q":
             return Bjt(elem_type, **elem_data)
-        if elem_type == "S":
+        elif elem_type == "S":
             return VoltageControlledSwitch(elem_type, **elem_data)
-        if elem_type == "W":
+        elif elem_type == "W":
             return CurrentControlledSwitch(elem_type, **elem_data)
         # if elem_type == "X":
         #     return SubcircuitBased(elem_type, **elem_data)
-        if elem_type == "U":
+        elif elem_type == "U":
             return BehavioralDigitalDevice(elem_type, **elem_data)
-        if elem_type == "DELAY":
+        elif elem_type == "DELAY":
             return Delay(elem_type, **elem_data)
-        if elem_type == "PWM":
+        elif elem_type == "PWM":
             return PWM(elem_type, **elem_data)
-        if any(elem_type == t for t in ["Vdc", "Vsin", "Vpulse", "Vexp", "Vtri", "I_meas"]):
+        elif any(elem_type == t for t in ["Vdc", "Vsin", "Vpulse", "Vexp", "Vtri", "I_meas"]):
             return VoltageSource(elem_type,**elem_data)
-        if any(elem_type == t for t in ["Idc", "Iac", "Ipulse", "Iexp", "V_meas"]):
+        elif any(elem_type == t for t in ["Idc", "Iac", "Ipulse", "Iexp", "V_meas"]):
             return CurrentSource(elem_type, **elem_data)
-        if elem_type == "OPAMP":
+        elif elem_type == "I_meas_out" or elem_type == "V_meas_out":
+            return MeasureWithOutput(elem_type, **elem_data)
+        elif elem_type == "P_meas":
+            return PowerMeasurement(elem_type, **elem_data)
+        elif elem_type == "Probe" or elem_type == "Vnode":
+            return NodeVoltage(elem_type, **elem_data)
+        elif elem_type == "OPAMP":
             return OperationalAmplifier(elem_type, **elem_data)
-        if elem_type == "OPAMP_MODEL":
+        elif elem_type == "OPAMP_MODEL":
             return ModelBasedOperationalAmplifier(elem_type, **elem_data)
-        if elem_type == "COMP":
+        elif elem_type == "COMP":
             return Comparator(elem_type, **elem_data)
-        if elem_type == "VCVS":
+        elif elem_type == "VCVS":
             return VoltageControlledVoltageSource(elem_type, **elem_data)
-        if elem_type == "VCCS":
+        elif elem_type == "VCCS":
             return VoltageControlledCurrentSource(elem_type, **elem_data)
-        if elem_type == "CCCS":
+        elif elem_type == "CCCS":
             return CurrentControlledCurrentSource(elem_type, **elem_data)
-        if elem_type == "CCVS":
+        elif elem_type == "CCVS":
             return CurrentControlledVoltageSource(elem_type, **elem_data)
-        if elem_type == "T":
+        elif elem_type == "T":
             return LosslessTransmissionLine(elem_type, **elem_data)
-        if elem_type == "O":
+        elif elem_type == "O":
             return LossyTransmissionLine(elem_type, **elem_data)
-        if elem_type == "ytransline":
+        elif elem_type == "ytransline":
             return LumpedTransmissionLine(elem_type, **elem_data)
-        if elem_type == "Smart":
+        elif elem_type == "Smart":
             return DynamicSpiceComponent(elem_type, **elem_data)
-        if elem_type == "3PVoltageSource":
+        elif elem_type == "3PVoltageSource":
             return ThreePhaseVoltageSource(elem_type, **elem_data)
+        elif elem_type == "math_constant":
+            return Constant(elem_type, **elem_data)
+        elif elem_type == "math_sum":
+            return Sum(elem_type, **elem_data)
+        elif elem_type == "math_prod":
+            return Product(elem_type, **elem_data)
+        elif elem_type == "math_gain":
+            return Gain(elem_type, **elem_data)
+        elif elem_type == "math_abs":
+            return AbsoluteValue(elem_type, **elem_data)
+        elif elem_type == "math_sat":
+            return Saturation(elem_type, **elem_data)
+        elif elem_type == "math_trig":
+            return TrigonometricFunction(elem_type, **elem_data)
+
 ################################################################################
 
-### Two-terminal elements ######################################################
+### Base classes ###############################################################
 class TwoTerminal(Element):
     def __init__(self,name,nodes):
         super().__init__(name)
@@ -143,7 +164,108 @@ class TwoTerminal(Element):
 
     def lib_file(self):
         return self.model_path
+
+class Fet(Element):
+    def __init__(self, elem_type, name, nodes, init_data):
+        super().__init__(name)
+        self.init_data = init_data
+        self.model = init_data["model_name"]
+        self.nodeinfo = "n_" + " n_".join([nodes["drain"],
+                nodes["gate"], nodes["src"], nodes["src"]])
+        self.model_path = init_data["model_path"]
+        # Some component models are subcircuit-based
+        if init_data["subc_model"] == "True":
+            self.type = "X"
+            # May have to check for the number of subcircuit nodes in the future
+            self.nodeinfo = "n_" + " n_".join([nodes["drain"],
+                    nodes["gate"], nodes["src"]])
+    # No subcircuit lines should be added when a subc-based model is used
+    def xyce_subc(self):
+        return ""
+
+    def xyce_line(self):
+        return  f'{Element.xyce_element(self)} {self.nodeinfo}'\
+                    f' {self.model} \n'
+
+    def v_measurement_nodes(self):
+        return ["n_"+self.node_p, "n_"+self.node_n]
+
+    def i_measurement_element(self):
+        return self.xyce_element()
+
+    def p_measurement_element(self):
+        return self.name
+
+class SubcircuitBased(Element):
+    def __init__(self, elem_type, name, nodes, init_data, params):
+        super().__init__(name)
+        self.init_data = init_data
+        self.model = init_data["model_name"]
+        self.model_path = init_data["model_path"]
+        self.nodeinfo = "n_" + " n_".join([node for node in nodes])
+        self.nodeinfo = self.nodeinfo.replace("n_0", "0")
+        self.type = "X"
+        self.params = params
+
+    # No subcircuit lines should be added when a subc-based model is used
+    def xyce_subc(self):
+        return ""
+
+    def xyce_line(self):
+        return  f'{Element.xyce_element(self)} {self.nodeinfo}'\
+                    f' {self.model} {self.params}\n'
 ################################################################################
+
+### Node voltage measurement ###################################################
+
+class NodeVoltage(Element):
+    type = "NodeV"
+    def __init__(self, elem_type, name, nodes, init_data):
+        super().__init__(name)
+        self.elem_type = elem_type
+        self.node = list(nodes.values())[0]
+        self.init_data = init_data
+
+    def xyce_line(self):
+        return  ""
+
+    def v_measurement_line(self):
+        return f"V(n_{self.node}, 0) "
+
+    def v_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            if self.elem_type == "Vnode":
+                return f"V({self.name})"
+            else:
+                return f"{self.name}"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            if self.elem_type == "Vnode":
+                return f"VM({self.name}),VP({self.name})"
+            else:
+                return f"Mag({self.name}),Ph({self.name})"
+
+
+################################################################################
+
+### Power measurement element ##################################################
+
+class PowerMeasurement(SubcircuitBased):
+    def __init__(self, elem_type, name, nodes, init_data):
+        init_data["model_name"] = "p_meas"
+        init_data["model_path"] = included_models_path + "power_measure.lib"
+        params=""
+        self.nodes = [nodes["in_p"], nodes["in_n"], nodes["out_p"], nodes["in_n"]]
+        super().__init__(elem_type, name, self.nodes, init_data, params)
+
+    def p_measurement_line(self):
+        return f"V({self.xyce_element()}:p_meas) "
+
+    def p_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"{self.name}"
+
+################################################################################
+
 
 ### Linear elements ############################################################
 class Capacitor(TwoTerminal):
@@ -371,37 +493,6 @@ class Diode(TwoTerminal):
     # No subcircuit lines should be added when a subc-based model is used
     def xyce_subc(self):
         return ""
-
-class Fet(Element):
-    def __init__(self, elem_type, name, nodes, init_data):
-        super().__init__(name)
-        self.init_data = init_data
-        self.model = init_data["model_name"]
-        self.nodeinfo = "n_" + " n_".join([nodes["drain"],
-                nodes["gate"], nodes["src"], nodes["src"]])
-        self.model_path = init_data["model_path"]
-        # Some component models are subcircuit-based
-        if init_data["subc_model"] == "True":
-            self.type = "X"
-            # May have to check for the number of subcircuit nodes in the future
-            self.nodeinfo = "n_" + " n_".join([nodes["drain"],
-                    nodes["gate"], nodes["src"]])
-    # No subcircuit lines should be added when a subc-based model is used
-    def xyce_subc(self):
-        return ""
-
-    def xyce_line(self):
-        return  f'{Element.xyce_element(self)} {self.nodeinfo}'\
-                    f' {self.model} \n'
-
-    def v_measurement_nodes(self):
-        return ["n_"+self.node_p, "n_"+self.node_n]
-
-    def i_measurement_element(self):
-        return self.xyce_element()
-
-    def p_measurement_element(self):
-        return self.name
 
 class Mosfet(Fet):
     type = "M"
@@ -725,23 +816,6 @@ U_{self.name} {self.device_type}({num_inputs}) PWRNODE{self.name} 0 \
 
 
 ### Subcircuit-syntax-dependent elements (composite) ###########################
-class SubcircuitBased(Element):
-    def __init__(self, elem_type, name, nodes, init_data, params):
-        super().__init__(name)
-        self.init_data = init_data
-        self.model = init_data["model_name"]
-        self.model_path = init_data["model_path"]
-        self.nodeinfo = "n_" + " n_".join([node for node in nodes])
-        self.type = "X"
-        self.params = params
-
-    # No subcircuit lines should be added when a subc-based model is used
-    def xyce_subc(self):
-        return ""
-
-    def xyce_line(self):
-        return  f'{Element.xyce_element(self)} {self.nodeinfo}'\
-                    f' {self.model} {self.params}\n'
 
 class IdealDiode(SubcircuitBased):
     def __init__(self, elem_type, name, nodes, init_data):
@@ -813,7 +887,7 @@ class UnidirectionalSwitch(SubcircuitBased):
             return f"IswM({self.name}),IswP({self.name}),IdM({self.name}),IdP({self.name})"
 
     def p_measurement_line(self):
-        return f"I({self.xyce_element()}+:SW_DIODE) "
+        return f"I({self.xyce_element()}:SW_DIODE) "
 
     def p_measurement_alias(self):
         return f"P({self.name})"
@@ -877,10 +951,120 @@ class PWM(SubcircuitBased):
 
 class DynamicSpiceComponent(SubcircuitBased):
     def __init__(self, elem_type, name, nodes, init_data):
-        print(init_data)
         self.nodes = [nodes[n] for n in init_data["pin_order"].split(",")]
         params  = ""
         super().__init__(elem_type, name, self.nodes, init_data, params)
+
+
+### Signal components ############################################################
+
+class MeasureWithOutput(SubcircuitBased):
+    def __init__(self, elem_type, name, nodes, init_data):
+        if elem_type == "I_meas_out":
+            init_data["model_name"] = "i_meas_out"
+        elif elem_type == "V_meas_out":
+            init_data["model_name"] = "v_meas_out"
+        init_data["model_path"] = included_models_path + "meas_with_outputs.lib"
+        params=""
+
+        self.nodes = [nodes["p_node"], nodes["n_node"], nodes["signal_out"]]
+        super().__init__(elem_type, name, self.nodes, init_data, params)
+
+
+    def v_measurement_line(self):
+        return f"V(n_{self.nodes[0]}, n_{self.nodes[1]}) "
+
+    def v_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"{self.name}"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"Mag({self.name}) Ph({self.name})"
+
+    def i_measurement_line(self):
+        return f"I({self.xyce_element()}:V_MEAS) "
+
+    def i_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"{self.name}"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"Mag({self.name}) Ph({self.name})"
+
+class Constant(Element):
+    type = "V"
+    def __init__(self, elem_type, name, nodes, init_data):
+        self.node = nodes["Out"]
+        self.val = init_data["value"]
+        self.init_data = init_data
+        super().__init__(name)
+
+    def xyce_line(self):
+        return  (Element.xyce_element(self) + " n_" +
+                self.node + " 0 " + str(self.val) + "\n" +
+                "R_"+ Element.xyce_element(self) + " n_" +
+                        self.node + " 0 1e7" + "\n")
+
+class Saturation(SubcircuitBased):
+    def __init__(self, elem_type, name, nodes, init_data):
+        init_data["model_path"] = included_models_path + "math_other.lib"
+        init_data["model_name"] = "saturation"
+        self.nodes = [nodes["In"], nodes["Out"]]
+        params = f"PARAMS: MAX={init_data['max']} MIN={init_data['min']}"
+        super().__init__(elem_type, name, self.nodes, init_data, params)
+
+class AbsoluteValue(SubcircuitBased):
+    def __init__(self, elem_type, name, nodes, init_data):
+        init_data["model_path"] = included_models_path + "math_other.lib"
+        init_data["model_name"] = "abs"
+        self.nodes = [nodes["In"], nodes["Out"]]
+        params = ""
+        super().__init__(elem_type, name, self.nodes, init_data, params)
+
+class Gain(SubcircuitBased):
+    def __init__(self, elem_type, name, nodes, init_data):
+        init_data["model_path"] = included_models_path + "math_other.lib"
+        init_data["model_name"] = "gain"
+        self.nodes = [nodes["In"], nodes["Out"]]
+        params = f"PARAMS: GAIN={init_data['gain']}"
+        super().__init__(elem_type, name, self.nodes, init_data, params)
+
+class TrigonometricFunction(SubcircuitBased):
+    def __init__(self, elem_type, name, nodes, init_data):
+        init_data["model_path"] = included_models_path + "math_trig.lib"
+        init_data["model_name"] = init_data["trig_fcn"]
+        self.nodes = [nodes["In"], nodes["Out"]]
+        params = ""
+        super().__init__(elem_type, name, self.nodes, init_data, params)
+
+class Sum(SubcircuitBased):
+    def __init__(self, elem_type, name, nodes, init_data):
+        init_data["model_path"] = included_models_path + "math_sum.lib"
+        init_data["model_name"] = "math_sum"
+        self.signs = init_data["signs"]
+        params = ""
+        sgn_dict = {"+":"1", "-":"-1"}
+        for idx in range(len(self.signs)):
+            params = params + f"S{idx+1}={sgn_dict.get(self.signs[idx])} "
+        self.nodes = [nodes["In"+str(n)] for n in range(1,len(self.signs)+1)]
+        while len(self.nodes) < 5:
+            self.nodes.append("0")
+        self.nodes.append(nodes["Out"])
+        super().__init__(elem_type, name, self.nodes, init_data, "PARAMS: "+params)
+
+class Product(SubcircuitBased):
+    def __init__(self, elem_type, name, nodes, init_data):
+        init_data["model_path"] = included_models_path + "math_prod.lib"
+        init_data["model_name"] = "math_prod"
+        self.operations = init_data["operations"]
+        params = ""
+        sgn_dict = {"*":"1", "/":"-1"}
+        for idx in range(len(self.operations)):
+            params = params + f"S{idx+1}={sgn_dict.get(self.operations[idx])} "
+        self.nodes = [nodes["In"+str(n)] for n in range(1,len(self.operations)+1)]
+        while len(self.nodes) < 5:
+            self.nodes.append("0")
+        self.nodes.append(nodes["Out"])
+        super().__init__(elem_type, name, self.nodes, init_data, "PARAMS: "+params)
+
 
 ################################################################################
 
