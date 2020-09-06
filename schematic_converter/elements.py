@@ -16,6 +16,24 @@ class Element:
         # Return example: "R_R1"
         return self.type + "_" + self.name
 
+    def measurements(self, analysis_type, enabled_measurements=None):
+        self.meas_string = ""
+        self.meas_alias = []
+        if "V" in enabled_measurements:
+            self.meas_string += self.v_measurement_line()
+            self.meas_alias.append(self.v_measurement_alias())
+        if "I" in enabled_measurements:
+            self.meas_string += self.i_measurement_line()
+            self.meas_alias.append(self.i_measurement_alias())
+        if "P" in enabled_measurements:
+            self.meas_string += self.p_measurement_line()
+            self.meas_alias.append(self.p_measurement_alias())
+        if "G" in enabled_measurements:
+            self.meas_string += self.g_measurement_line()
+            self.meas_alias.append(self.g_measurement_alias())
+
+        return [self.meas_string, ",".join(self.meas_alias)]
+
     @staticmethod
     def pick_correct_subclass(elem_type, elem_data):
         # Instantiates the appropriate class depending on elem_type.
@@ -99,6 +117,30 @@ class TwoTerminal(Element):
                 self.node_p + " n_" + self.node_n + " " +
                 self.model + " " + self.value + " " + self.params + "\n")
 
+    def v_measurement_line(self):
+        return f"V(n_{self.node_p}, n_{self.node_n}) "
+
+    def v_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"V({self.name})"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"VM({self.name}),VP({self.name})"
+
+    def i_measurement_line(self):
+        return f"I({self.xyce_element()}) "
+
+    def i_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"I({self.name})"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"IM({self.name}),IP({self.name})"
+
+    def p_measurement_line(self):
+        return f"P({self.xyce_element()}) "
+
+    def p_measurement_alias(self):
+        return f"P({self.name})"
+
     def lib_file(self):
         return self.model_path
 ################################################################################
@@ -109,6 +151,7 @@ class Capacitor(TwoTerminal):
     # C<name> <+ node> <- node> [model name] <value> [IC=<initial value>]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
+        self.init_data = init_data
         self.value = init_data.get("C")
         analysis_type = init_data.get("analysis_type")
         if analysis_type == "Transient":
@@ -122,6 +165,7 @@ class Inductor(TwoTerminal):
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
         self.value = init_data.get("L")
+        self.init_data = init_data
         analysis_type = init_data.get("analysis_type")
         if analysis_type == "Transient":
             # Don't set the value to zero for AC analysis
@@ -134,6 +178,7 @@ class CoupledInductor(TwoTerminal):
     # L<name> <+ node> <- node> [model name] <value> [IC=<initial value>]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
+        self.init_data = init_data
         analysis_type = init_data.get("analysis_type")
         if analysis_type == "Transient":
             # Don't set the value to zero for AC analysis
@@ -180,6 +225,7 @@ class Resistor(TwoTerminal):
     # R<name> <+ node> <- node> [model name] <value> [L=<length>] [W=<width>]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
+        self.init_data = init_data
         self.value = init_data.get("R")
         self.params = init_data.get("PLACEHOLDER","")
         self.model = init_data.get("model","")
@@ -190,6 +236,7 @@ class VoltageSource(TwoTerminal):
     # + [AC [magnitude value [phase value] ] ] [transient specification]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
+        self.init_data = init_data
         tr_spec = []
 
         def vtri_spec():
@@ -200,7 +247,7 @@ class VoltageSource(TwoTerminal):
             return f"PWL 0S {V0} {str(T1)} {str(V1)} {str(T1+T2)} {V0} R=0"
 
         for k in init_data.keys():
-            if not k == "analysis_type":
+            if not k in ["analysis_type", "meas_v", "meas_i", "meas_p"]:
                 tr_spec.append(f"{k}={init_data[k]}")
 
         tr_spec_dict = {"Vdc":init_data["voltage"] if elem_type == "Vdc" else "",
@@ -214,9 +261,9 @@ class VoltageSource(TwoTerminal):
         ac_spec_dict = {"Vdc":"AC " + init_data["voltage"] if elem_type == "Vdc" else "",
                         "I_meas": init_data["voltage"] if elem_type == "I_meas" else "",
                         "Vsin":"AC " + init_data["VA"]  + " " + init_data["PHASE"] if elem_type == "Vsin" else "",
-                        "Vpulse":"AC" + init_data["V0"] if elem_type == "Vpulse" else "",
-                        "Vexp": "AC" + init_data["V0"] if elem_type == "Vexp" else "",
-                        "Vtri":"AC" + init_data["V0"] if elem_type == "Vtri" else ""
+                        "Vpulse":"AC" + init_data["V1"] if elem_type == "Vpulse" else "",
+                        "Vexp": "AC" + init_data["V1"] if elem_type == "Vexp" else "",
+                        "Vtri":"AC" + init_data["vmax"] if elem_type == "Vtri" else ""
                         }
 
         if init_data["analysis_type"] == "AC small-signal":
@@ -246,6 +293,7 @@ class CurrentSource(TwoTerminal):
         super().__init__(name, nodes)
         tr_spec = []
         self.elem_type = elem_type
+        self.init_data = init_data
 
         for k in init_data.keys():
             if not k == "analysis_type":
@@ -292,6 +340,7 @@ class Memristor(TwoTerminal):
     # ymemristor <name> <(+) node> <(-) node> <model>
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
+        self.init_data = init_data
         self.model = init_data["model_name"]
         self.model_path = init_data["model_path"]
         # Some component models are subcircuit-based
@@ -313,6 +362,7 @@ class Diode(TwoTerminal):
     # D<name> <(+) node> <(-) node> <model name> [area value]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
+        self.init_data = init_data
         self.model = init_data["model_name"]
         self.model_path = init_data["model_path"]
         # Some component models are subcircuit-based
@@ -325,6 +375,7 @@ class Diode(TwoTerminal):
 class Fet(Element):
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name)
+        self.init_data = init_data
         self.model = init_data["model_name"]
         self.nodeinfo = "n_" + " n_".join([nodes["drain"],
                 nodes["gate"], nodes["src"], nodes["src"]])
@@ -343,6 +394,15 @@ class Fet(Element):
         return  f'{Element.xyce_element(self)} {self.nodeinfo}'\
                     f' {self.model} \n'
 
+    def v_measurement_nodes(self):
+        return ["n_"+self.node_p, "n_"+self.node_n]
+
+    def i_measurement_element(self):
+        return self.xyce_element()
+
+    def p_measurement_element(self):
+        return self.name
+
 class Mosfet(Fet):
     type = "M"
         # M<name> <drain node> <gate node> <source node>
@@ -350,6 +410,7 @@ class Mosfet(Fet):
         # + [PARAMS]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(elem_type, name, nodes, init_data)
+        self.init_data = init_data
     # FUTURE:
     # Check special BSIMSOI and MVS forms
 
@@ -359,6 +420,7 @@ class Jfet(Fet):
     # value] [device parameters]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(elem_type, name, nodes, init_data)
+        self.init_data = init_data
 
 class Mesfet(Fet):
     type = "Z"
@@ -366,6 +428,7 @@ class Mesfet(Fet):
     # + [area value] [device parameters]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(elem_type, name, nodes, init_data)
+        self.init_data = init_data
         self.nodeinfo = "n_" + " n_".join([nodes["drain"],
                 nodes["gate"], nodes["src"]])
 
@@ -378,6 +441,7 @@ class Bjt(Fet):
         # nodes dict keys are different from what the Fet class demands
         fake_nodes = {"drain":"0","gate":"0","src":"0"}
         super().__init__(elem_type, name, fake_nodes, init_data)
+        self.init_data = init_data
         self.nodeinfo = "n_" + " n_".join([nodes["col"],
                 nodes["base"], nodes["emit"]])
 ################################################################################
@@ -446,6 +510,7 @@ class VoltageControlledCurrentSource(VoltageControlled):
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes, init_data)
         # No model used, only the gain
+        self.init_data = init_data
         self.model = init_data["transc"]
 
     # FUTURE:
@@ -503,6 +568,7 @@ class CurrentControlledCurrentSource(CurrentControlled):
         super().__init__(name, nodes, init_data)
         # No model used, only the gain
         self.model = init_data["gain"]
+        self.init_data = init_data
     # FUTURE
     # F<name> <(+) node> <(-) node> POLY(<value>)
     # + <controlling V device name>*
@@ -516,6 +582,7 @@ class CurrentControlledVoltageSource(CurrentControlled):
         super().__init__(name, nodes, init_data)
         # No model used, only the gain
         self.model = init_data["transr"]
+        self.init_data = init_data
     # FUTURE
     # H<name> <(+) node> <(-) node> POLY(<value>)
     # + <controlling V device name>*
@@ -527,6 +594,7 @@ class CurrentControlledVoltageSource(CurrentControlled):
 class TransmissionLine(Element):
     def __init__(self, name, nodes):
         super().__init__(name)
+        self.init_data = init_data
         self.ports = "n_" + " n_".join( [nodes["P1_p"],nodes["P1_n"],
                                         nodes["P2_p"],nodes["P2_n"]])
 
@@ -540,6 +608,7 @@ class LosslessTransmissionLine(TransmissionLine):
     # + Z0=<value> [TD=<value>] [F=<value> [NL=<value>]]
     def __init__(self, elem_type, name, nodes, init_data):
         super().__init__(name, nodes)
+        self.init_data = init_data
         self.model = f'Z0={init_data["Z0"]} TD={init_data["TD"]}'
 
 class LossyTransmissionLine(TransmissionLine):
@@ -659,6 +728,7 @@ U_{self.name} {self.device_type}({num_inputs}) PWRNODE{self.name} 0 \
 class SubcircuitBased(Element):
     def __init__(self, elem_type, name, nodes, init_data, params):
         super().__init__(name)
+        self.init_data = init_data
         self.model = init_data["model_name"]
         self.model_path = init_data["model_path"]
         self.nodeinfo = "n_" + " n_".join([node for node in nodes])
@@ -685,6 +755,30 @@ class IdealDiode(SubcircuitBased):
         params = f"R_ON={r_on} VD_ON={vd_on}"
         super().__init__(elem_type, name, self.nodes, init_data, params)
 
+    def v_measurement_line(self):
+        return f"V(n_{self.nodes[0]}, n_{self.nodes[1]}) "
+
+    def v_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"V({self.name})"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"VM({self.name}) VP({self.name})"
+
+    def i_measurement_line(self):
+        return f"I({self.xyce_element()}:V_MEAS) "
+
+    def i_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"I({self.name})"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"IM({self.name}) IP({self.name})"
+
+    def p_measurement_line(self):
+        return f"P({self.xyce_element()}:SW_DIODE) "
+
+    def p_measurement_alias(self):
+        return f"P({self.name})"
+
 class UnidirectionalSwitch(SubcircuitBased):
     def __init__(self, elem_type, name, nodes, init_data):
         init_data["model_name"] = "unidir_switch"
@@ -699,6 +793,39 @@ class UnidirectionalSwitch(SubcircuitBased):
             vsw_on = "0"
         params = f"R_ON={r_on} VD_ON={vd_on} VSW_ON={vsw_on}"
         super().__init__(elem_type, name, self.nodes, init_data, params)
+
+    def v_measurement_line(self):
+        return f"V(n_{self.nodes[0]}, n_{self.nodes[2]}) "
+
+    def v_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"V({self.name})"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"VM({self.name}),VP({self.name})"
+
+    def i_measurement_line(self):
+        return f"I({self.xyce_element()}:V_MEAS_SW) I({self.xyce_element()}:V_MEAS_D) "
+
+    def i_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"Isw({self.name}),Id({self.name})"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"IswM({self.name}),IswP({self.name}),IdM({self.name}),IdP({self.name})"
+
+    def p_measurement_line(self):
+        return f"I({self.xyce_element()}+:SW_DIODE) "
+
+    def p_measurement_alias(self):
+        return f"P({self.name})"
+
+    def g_measurement_line(self):
+        return f"V(n_{self.nodes[1]}, 0) "
+
+    def g_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"Vg({self.name})"
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"VgM({self.name}),VgP({self.name})"
 
 class IdealTransformer2W(SubcircuitBased):
     def __init__(self, elem_type, name, nodes, init_data):
