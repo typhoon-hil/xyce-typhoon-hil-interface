@@ -37,6 +37,9 @@ def available_variables(csv_file, cir_file):
                 # Original table header may include extra commas due to
                 # differential voltage measurements V(v+,v-)
                 new_tab =  table.dropna(axis=1) # Drops empty columns
+                for col in new_tab.columns:
+                    if "Re(" in col:
+                        print(col)
                 # Sets the new header
                 last_line = f_cir.readlines()[-1].replace('\n','')
                 cols = ['Time']
@@ -263,7 +266,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     sim_params = {'analysis_type':'Transient','max_ts':'1e-5','sim_time':'50ms'}
-    #sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
+    # sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
     mainwindow = XyceOutput(r"path_to.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

@@ -28,6 +28,7 @@ def tse2xyce(jsonfile, sim_params_dict):
     measurements = []
     meas_aliases = []
     groundnodes = []
+    node_merges = {}
     node_ids = {}
     coupled_L_lines = ""
 
@@ -154,13 +155,19 @@ def tse2xyce(jsonfile, sim_params_dict):
                 # Append the resulting string to the list of measurements
                 measurements.append(this_element.as_measurement(sim_params_dict["analysis_type"]))
             elif elem_type == "P_meas":
-                meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["P"])
-                measurements.append(meas_string)
-                meas_aliases.extend([meas_alias])
+                if sim_params_dict["analysis_type"] == "Transient":
+                    meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["P"])
+                    measurements.append(meas_string)
+                    meas_aliases.extend([meas_alias])
             elif this_element.type == "NodeV":
                 meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["V"])
                 measurements.append(meas_string)
                 meas_aliases.extend([meas_alias])
+            elif this_element.type == "Probe":
+                if sim_params_dict["analysis_type"] == "Transient":
+                    meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["V"])
+                    measurements.append(meas_string)
+                    meas_aliases.extend([meas_alias])
             elif this_element.init_data.get("model_name") == "v_meas_out":
                 meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], ["V"])
                 measurements.append(meas_string)
@@ -195,13 +202,24 @@ def tse2xyce(jsonfile, sim_params_dict):
                     groundnodes.append(str(n["id"]))
 
         # Replace node numbers based on node_id field.
-        if elem_type == "NodeID":
-            identificator = elem_data["init_data"]["node_id"]
+        elif elem_type == "NodeID":
+            identifier = elem_data["init_data"]["node_id"]
             term = elem["terminals"][0]["id"]
             # For each node in the circuit
             for n in node_data:
                 if term in n["terminals"]:
-                    node_ids.update({str(n["id"]):identificator})
+                    node_ids.update({str(n["id"]):identifier})
+
+        # Merge signal-to-power nodes
+        elif elem_type == "sgn_to_pwr":
+            term1 = elem["terminals"][0]["id"]
+            term2 = elem["terminals"][1]["id"]
+            for n in node_data:
+                if term1 in n["terminals"]:
+                    n_term1 = str(n['id'])
+                if term2 in n["terminals"]:
+                    n_term2 = str(n['id'])
+            node_merges.update({n_term1:n_term2})
 
     # Convert the lists to proper strings
     measurements = " ".join(measurements)
@@ -211,6 +229,10 @@ def tse2xyce(jsonfile, sim_params_dict):
     for g in groundnodes:
         lines = lines.replace("n_" + g,"0") #.replace("  "," ") use to get rid of double spaces
         measurements = measurements.replace("n_" + g,"0")
+
+    for node in node_merges:
+        lines = lines.replace("n_" + node, "n_" + node_merges[node])
+        measurements = measurements.replace("n_" + node, "n_" + node_merges[node])
 
     for node in node_ids:
         lines = lines.replace("n_" + node, "n_" + node_ids[node])
@@ -260,6 +282,6 @@ def tse2xyce(jsonfile, sim_params_dict):
     CoupledInductor.instance_counter = 0
 
 if __name__ == "__main__":
-    sim_params = {'analysis_type':'Transient','max_ts':'1e-6','sim_time':'1ms'}
-    # sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
+    # sim_params = {'analysis_type':'Transient','max_ts':'1e-6','sim_time':'1ms'}
+    sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
     tse2xyce(r"path_to.json", sim_params)

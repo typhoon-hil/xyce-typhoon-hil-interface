@@ -4,7 +4,7 @@
 +PARAMS: GAIN=10000
 
 B_OPAMP out 0 V={GAIN*(V(non_inv)-V(inv))} smoothbsrc=1
-rcconst = {GLOBAL_TS*1e-4}
++rcconst = {GLOBAL_TS*1e-4}
 R_OPAMP out 0 1e6
 
 .ENDS op_amp_1

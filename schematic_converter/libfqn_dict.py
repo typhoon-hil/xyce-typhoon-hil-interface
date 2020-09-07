@@ -25,6 +25,7 @@ def determine_elem(libfqn):
         "Measurements.Power Measurement":"P_meas",
         "Measurements.Probe_":"Probe",
         "Measurements.Node Voltage":"Vnode",
+        "Measurements.Signal-to-Power":"sgn_to_pwr",
         "Passive Elements.Ideal Resistor":"R",
         "Passive Elements.Ideal Capacitor":"C",
         "Passive Elements.Ideal Inductor":"L",

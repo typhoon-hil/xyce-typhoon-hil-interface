@@ -83,8 +83,10 @@ class Element:
             return MeasureWithOutput(elem_type, **elem_data)
         elif elem_type == "P_meas":
             return PowerMeasurement(elem_type, **elem_data)
-        elif elem_type == "Probe" or elem_type == "Vnode":
+        elif elem_type == "Vnode":
             return NodeVoltage(elem_type, **elem_data)
+        elif elem_type == "Probe":
+            return Probe(elem_type, **elem_data)
         elif elem_type == "OPAMP":
             return OperationalAmplifier(elem_type, **elem_data)
         elif elem_type == "OPAMP_MODEL":
@@ -139,7 +141,10 @@ class TwoTerminal(Element):
                 self.model + " " + self.value + " " + self.params + "\n")
 
     def v_measurement_line(self):
-        return f"V(n_{self.node_p}, n_{self.node_n}) "
+        if self.init_data["analysis_type"]=="Transient":
+            return f"V(n_{self.node_p}, n_{self.node_n}) "
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"VM(n_{self.node_p}, n_{self.node_n}) VP(n_{self.node_p}, n_{self.node_n}) "
 
     def v_measurement_alias(self):
         if self.init_data["analysis_type"]=="Transient":
@@ -148,7 +153,10 @@ class TwoTerminal(Element):
             return f"VM({self.name}),VP({self.name})"
 
     def i_measurement_line(self):
-        return f"I({self.xyce_element()}) "
+        if self.init_data["analysis_type"]=="Transient":
+            return f"I({self.xyce_element()}) "
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"IM({self.xyce_element()}) IP({self.xyce_element()}) "
 
     def i_measurement_alias(self):
         if self.init_data["analysis_type"]=="Transient":
@@ -230,19 +238,35 @@ class NodeVoltage(Element):
         return  ""
 
     def v_measurement_line(self):
-        return f"V(n_{self.node}, 0) "
+        if self.init_data["analysis_type"]=="Transient":
+            return f"V(n_{self.node}, 0) "
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"VM(n_{self.node}, 0) VP(n_{self.node}, 0) "
 
     def v_measurement_alias(self):
         if self.init_data["analysis_type"]=="Transient":
-            if self.elem_type == "Vnode":
-                return f"V({self.name})"
-            else:
-                return f"{self.name}"
+            return f"{self.name}"
         elif self.init_data["analysis_type"]=="AC small-signal":
-            if self.elem_type == "Vnode":
-                return f"VM({self.name}),VP({self.name})"
-            else:
-                return f"Mag({self.name}),Ph({self.name})"
+            return f"Mag({self.name}),Ph({self.name})"
+
+class Probe(Element):
+    type = "Probe"
+    def __init__(self, elem_type, name, nodes, init_data):
+        super().__init__(name)
+        self.elem_type = elem_type
+        self.node = list(nodes.values())[0]
+        self.init_data = init_data
+
+    def xyce_line(self):
+        return  ""
+
+    def v_measurement_line(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"V(n_{self.node}, 0) "
+
+    def v_measurement_alias(self):
+        if self.init_data["analysis_type"]=="Transient":
+            return f"{self.name}"
 
 
 ################################################################################
@@ -258,14 +282,14 @@ class PowerMeasurement(SubcircuitBased):
         super().__init__(elem_type, name, self.nodes, init_data, params)
 
     def p_measurement_line(self):
-        return f"V({self.xyce_element()}:p_meas) "
+        if self.init_data["analysis_type"]=="Transient":
+            return f"V({self.xyce_element()}:p_meas) "
 
     def p_measurement_alias(self):
         if self.init_data["analysis_type"]=="Transient":
             return f"{self.name}"
 
 ################################################################################
-
 
 ### Linear elements ############################################################
 class Capacitor(TwoTerminal):
@@ -383,9 +407,9 @@ class VoltageSource(TwoTerminal):
         ac_spec_dict = {"Vdc":"AC " + init_data["voltage"] if elem_type == "Vdc" else "",
                         "I_meas": init_data["voltage"] if elem_type == "I_meas" else "",
                         "Vsin":"AC " + init_data["VA"]  + " " + init_data["PHASE"] if elem_type == "Vsin" else "",
-                        "Vpulse":"AC" + init_data["V1"] if elem_type == "Vpulse" else "",
-                        "Vexp": "AC" + init_data["V1"] if elem_type == "Vexp" else "",
-                        "Vtri":"AC" + init_data["vmax"] if elem_type == "Vtri" else ""
+                        "Vpulse":"AC " + init_data["V1"] if elem_type == "Vpulse" else "",
+                        "Vexp": "AC " + init_data["V1"] if elem_type == "Vexp" else "",
+                        "Vtri":"AC " + init_data["vmax"] if elem_type == "Vtri" else ""
                         }
 
         if init_data["analysis_type"] == "AC small-signal":
@@ -431,8 +455,8 @@ class CurrentSource(TwoTerminal):
         ac_spec_dict = {"Idc":"AC " + init_data["current"] if elem_type == "Idc" else "",
                         "V_meas": init_data["current"] if elem_type == "V_meas" else "",
                         "Isin":"AC " + init_data["VA"]  + " " + init_data["PHASE"] if elem_type == "Isin" else "",
-                        "Ipulse":"AC" + init_data["V0"] if elem_type == "Ipulse" else "",
-                        "Iexp": "AC" + init_data["V0"] if elem_type == "Iexp" else "",
+                        "Ipulse":"AC " + init_data["V0"] if elem_type == "Ipulse" else "",
+                        "Iexp": "AC " + init_data["V0"] if elem_type == "Iexp" else "",
                         }
 
         if init_data["analysis_type"] == "AC small-signal":
@@ -972,22 +996,28 @@ class MeasureWithOutput(SubcircuitBased):
 
 
     def v_measurement_line(self):
-        return f"V(n_{self.nodes[0]}, n_{self.nodes[1]}) "
+        if self.init_data["analysis_type"]=="Transient":
+            return f"V(n_{self.nodes[0]}, n_{self.nodes[1]}) "
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"VM(n_{self.nodes[0]}, n_{self.nodes[1]}) VP(n_{self.nodes[0]}, n_{self.nodes[1]}) "
 
     def v_measurement_alias(self):
         if self.init_data["analysis_type"]=="Transient":
             return f"{self.name}"
         elif self.init_data["analysis_type"]=="AC small-signal":
-            return f"Mag({self.name}) Ph({self.name})"
+            return f"Mag({self.name}),Ph({self.name})"
 
     def i_measurement_line(self):
-        return f"I({self.xyce_element()}:V_MEAS) "
+        if self.init_data["analysis_type"]=="Transient":
+            return f"I({self.xyce_element()}:V_MEAS) "
+        elif self.init_data["analysis_type"]=="AC small-signal":
+            return f"IM({self.xyce_element()}:V_MEAS) IP({self.xyce_element()}:V_MEAS)"
 
     def i_measurement_alias(self):
         if self.init_data["analysis_type"]=="Transient":
             return f"{self.name}"
         elif self.init_data["analysis_type"]=="AC small-signal":
-            return f"Mag({self.name}) Ph({self.name})"
+            return f"Mag({self.name}),Ph({self.name})"
 
 class Constant(Element):
     type = "V"
