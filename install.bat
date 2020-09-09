@@ -12,6 +12,8 @@ IF EXIST "%appdata%/typhoon/2019.4 SP2" (set c_version=2020.1 SP2)
 IF EXIST "%appdata%/typhoon/2020.2" (set c_version=2020.2)
 IF %c_version%=="" (ECHO No compatible Typhoon HIL Control Center installation found. Make sure to run the Typhoon Schematic Editor once before running this installation script. & pause & exit)
 
+ECHO Installing on the latest version detected: Typhoon HIL Control Center %c_version%
+
 cd "%~dp0"
 set path_to_this_folder=%~dp0\
 set appdata_folder=%appdata%
