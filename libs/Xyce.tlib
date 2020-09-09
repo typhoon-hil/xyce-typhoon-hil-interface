@@ -8046,8 +8046,8 @@ library "xyce_lib" {
                             if json_file_path:
                                 os.chdir(xycesim_path)
                                 sys.path.append(xycesim_path)
-                                sys.path.append(xycesim_path+'gui')
-                                sys.path.append(xycesim_path+'schematic_converter')
+                                sys.path.append(xycesim_path+'\gui')
+                                sys.path.append(xycesim_path+'\schematic_converter')
                                 try:
                                     from minimalistic_gui import XyceOutput
                                     import tse2xyce
