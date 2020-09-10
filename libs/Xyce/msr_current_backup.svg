@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" baseProfile="basic"
+	 id="svg3602" xmlns:cc="http://creativecommons.org/ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:version="0.91 r13725" sodipodi:docname="msr_current.svg" inkscape:export-xdpi="90" inkscape:export-ydpi="90" inkscape:export-filename="C:\Users\ACO\Desktop\current_measurement.png"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-273 381 64 32"
+	 xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-width:1.0032;}
+	.st1{fill:#FFFFFF;stroke:#000000;}
+	.st2{stroke:#000000;stroke-width:0.8916;}
+	.st3{font-family:'MyriadPro-Regular';}
+	.st4{font-size:14px;}
+</style>
+<title  id="title2818">diagram of current measurement component</title>
+<defs>
+	
+	
+		<inkscape:perspective  id="perspective3610" inkscape:vp_x="0 : 526.18109 : 1" sodipodi:type="inkscape:persp3d" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_z="744.09448 : 526.18109 : 1" inkscape:persp3d-origin="372.04724 : 350.78739 : 1">
+		</inkscape:perspective>
+	
+		<inkscape:perspective  id="perspective2823" inkscape:vp_x="0 : 0.5 : 1" sodipodi:type="inkscape:persp3d" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_z="1 : 0.5 : 1" inkscape:persp3d-origin="0.5 : 0.33333333 : 1">
+		</inkscape:perspective>
+	
+		<inkscape:perspective  id="perspective3597" inkscape:vp_x="0 : 0.5 : 1" sodipodi:type="inkscape:persp3d" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_z="1 : 0.5 : 1" inkscape:persp3d-origin="0.5 : 0.33333333 : 1">
+		</inkscape:perspective>
+	
+		<inkscape:perspective  id="perspective3700" inkscape:vp_x="0 : 0.5 : 1" sodipodi:type="inkscape:persp3d" inkscape:vp_y="0 : 1000 : 0" inkscape:vp_z="1 : 0.5 : 1" inkscape:persp3d-origin="0.5 : 0.33333333 : 1">
+		</inkscape:perspective>
+</defs>
+<sodipodi:namedview  width="64px" inkscape:cy="15.382419" inkscape:cx="36.116728" inkscape:zoom="22.627416" showgrid="true" borderopacity="1" bordercolor="#cb0101" id="base" pagecolor="#ffffff" inkscape:current-layer="svg3602" inkscape:window-maximized="1" inkscape:window-y="-8" inkscape:window-x="-8" inkscape:snap-bbox="false" inkscape:window-height="1417" inkscape:pageshadow="2" inkscape:window-width="2560" inkscape:pageopacity="0.0" guidecolor="#25e600" guideopacity="0.49803922" showguides="true" showborder="true" borderlayer="false" inkscape:guide-bbox="true" inkscape:snap-to-guides="false" inkscape:showpageshadow="true" inkscape:snap-object-midpoints="true" inkscape:document-units="px" inkscape:snap-grids="false" inkscape:snap-midpoints="false">
+	
+		<inkscape:grid  type="xygrid" id="grid3612" originx="0px" spacingy="1px" empcolor="#0000ff" empopacity="0.43921569" spacingx="1px" originy="0px" empspacing="8" enabled="true" visible="true" units="px" snapvisiblegridlinesonly="true">
+		</inkscape:grid>
+</sodipodi:namedview>
+<path id="path4130" inkscape:connector-curvature="0" inkscape:export-xdpi="90" inkscape:export-ydpi="90" sodipodi:nodetypes="cccc" inkscape:export-filename="C:\Users\Felix\Documents\Typhoon repositories\TyphoonRTDS_SourceCode\RTDS_Schematic_Editor\trunk\images\components\resistorH.png" class="st0" d="
+	M-257,397h-16 M-209,397h-16"/>
+<path id="path2824" sodipodi:cx="32" sodipodi:rx="16" sodipodi:cy="16" sodipodi:ry="16" sodipodi:type="arc" class="st1" d="
+	M-225.5,397c0,8.6-6.9,15.5-15.5,15.5c-8.6,0-15.5-6.9-15.5-15.5c0-8.6,6.9-15.5,15.5-15.5C-232.4,381.5-225.5,388.4-225.5,397z"/>
+<path id="path3119-1" inkscape:connector-curvature="0" class="st2" d="M-221.4,393.4v7.1l5-3.5L-221.4,393.4z"/>
+<text transform="matrix(1 0 0 1 -245.2757 401.1126)" class="st3 st4">A</text>
+</svg>
