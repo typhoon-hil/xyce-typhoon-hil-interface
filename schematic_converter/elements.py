@@ -442,7 +442,7 @@ class CurrentSource(TwoTerminal):
         self.init_data = init_data
 
         for k in init_data.keys():
-            if not k == "analysis_type":
+            if not k == ["analysis_type", "meas_v", "meas_i", "meas_p"]:
                 tr_spec.append(f"{k}={init_data[k]}")
 
         tr_spec_dict = {"Idc":init_data["current"] if elem_type == "Idc" else "",
@@ -455,8 +455,8 @@ class CurrentSource(TwoTerminal):
         ac_spec_dict = {"Idc":"AC " + init_data["current"] if elem_type == "Idc" else "",
                         "V_meas": init_data["current"] if elem_type == "V_meas" else "",
                         "Isin":"AC " + init_data["VA"]  + " " + init_data["PHASE"] if elem_type == "Isin" else "",
-                        "Ipulse":"AC " + init_data["V0"] if elem_type == "Ipulse" else "",
-                        "Iexp": "AC " + init_data["V0"] if elem_type == "Iexp" else "",
+                        "Ipulse":"AC " + init_data["V1"] if elem_type == "Ipulse" else "",
+                        "Iexp": "AC " + init_data["V1"] if elem_type == "Iexp" else "",
                         }
 
         if init_data["analysis_type"] == "AC small-signal":

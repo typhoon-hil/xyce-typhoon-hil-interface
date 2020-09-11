@@ -158,25 +158,25 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/cc_switch_high.svg')
                         ctrl_name_prop = mdl.prop(item_handle, "ctrl_name")
                         ctrl_name = mdl.get_property_value(ctrl_name_prop)
-                    
+
                         try:
-                    
+
                             logic = mdl.prop(item_handle, "logic")
-                    
+
                             if mdl.get_property_value(logic) == "Active Low":
                                 if not ctrl_name == "None":
                                     mdl.set_component_icon_image(item_handle, 'Xyce/cc_switch_low_selectedcur.svg')
@@ -189,20 +189,20 @@ library "xyce_lib" {
                                    mdl.set_component_icon_image(item_handle, 'Xyce/cc_switch_high_selectedcur.svg')
                                    mdl.set_color(item_handle, "blue")
                                    mdl.disp_component_icon_text(item_handle, " " + ctrl_name, relpos_x = 0.5, relpos_y = 0.87, size = 8)
-                    
+
                         except: pass
                     ENDCODE
 
                     CODE init
                         def update_current_measurements():
                             i_list = []
-                    
+
                             for item in mdl.get_items():
                                 try: # Not every component has a type
                                     if mdl.get_component_type_name(item) == "Current Measurement":
                                         i_list.append(item.fqn.split(".")[0])
                                 except AttributeError: pass
-                    
+
                             for item in mdl.get_items():
                                 try: # Not every component has a type
                                     if mdl.get_component_type_name(item) == "Current-Controlled Switch":
@@ -213,7 +213,7 @@ library "xyce_lib" {
                                             mdl.set_property_value(ctrl_name_prop, "None")
                                             mdl.refresh_icon(item)
                                 except AttributeError: pass
-                    
+
                         update_current_measurements()
                     ENDCODE
                 }
@@ -343,22 +343,22 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/vc_switch_high.svg')
-                    
+
                         try:
                             logic = mdl.prop(item_handle, "logic")
-                    
+
                             if mdl.get_property_value(logic) == "Active Low":
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vc_switch_low.svg')
                         except: pass
@@ -517,20 +517,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-                    
+
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -542,20 +542,20 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-                    
+
                             def parse_file(self):
                                 choose_file = QFileDialog()
-                    
+
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-                    
-                    
+
+
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-                    
-                    
+
+
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -592,17 +592,17 @@ library "xyce_lib" {
                                         else:
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-                    
+
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-                    
+
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-                    
+
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -614,14 +614,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-                    
+
                         mdl.set_component_icon_image(item_handle, 'Xyce/mesfet_nchannel.svg')
-                    
+
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-                    
+
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -640,7 +640,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-                    
+
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -807,20 +807,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-                    
+
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -832,18 +832,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-                    
+
                             def parse_file(self):
                                 choose_file = QFileDialog()
-                    
+
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-                    
+
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-                    
+
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -880,17 +880,17 @@ library "xyce_lib" {
                                         else:
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-                    
+
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-                    
+
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-                    
+
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -902,14 +902,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-                    
+
                         mdl.set_component_icon_image(item_handle, 'Xyce/bjt_npn.svg')
-                    
+
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-                    
+
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -928,7 +928,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-                    
+
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -1095,20 +1095,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-                    
+
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -1120,18 +1120,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-                    
+
                             def parse_file(self):
                                 choose_file = QFileDialog()
-                    
+
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-                    
+
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-                    
+
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -1168,17 +1168,17 @@ library "xyce_lib" {
                                         else:
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-                    
+
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-                    
+
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-                    
+
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -1190,14 +1190,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-                    
+
                         mdl.set_component_icon_image(item_handle, 'Xyce/jfet_nchannel.svg')
-                    
+
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-                    
+
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -1216,7 +1216,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-                    
+
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -1383,20 +1383,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-                    
+
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -1408,16 +1408,16 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-                    
+
                             def parse_file(self):
                                 choose_file = QFileDialog()
-                    
+
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-                    
+
                                 if file:
                                     self.parse_models(file)
-                    
-                    
+
+
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -1429,7 +1429,7 @@ library "xyce_lib" {
                                 # Find individual models
                                 nmos_models = re.compile(r"^\.MODEL ([\S]*)\s+NMOS",flags = re.I)
                                 pmos_models = re.compile(r"^\.MODEL ([\S]*)\s+PMOS",flags = re.I)
-                    
+
                                 # Models should not be added if inside a subcircuit definition
                                 with io.open(file) as lib:
                                     in_sub_flag = False
@@ -1455,17 +1455,17 @@ library "xyce_lib" {
                                         else:
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-                    
+
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-                    
+
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-                    
+
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -1477,14 +1477,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-                    
+
                         mdl.set_component_icon_image(item_handle, 'Xyce/mosfet_nmos.svg')
-                    
+
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-                    
+
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -1503,7 +1503,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-                    
+
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -1640,20 +1640,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-                    
+
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -1665,18 +1665,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-                    
+
                             def parse_file(self):
                                 choose_file = QFileDialog()
-                    
+
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-                    
+
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-                    
+
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -1688,7 +1688,7 @@ library "xyce_lib" {
                                 # Find individual models
                                 diode_models = re.compile(r"^\.MODEL ([.\S]*)\s+(?:D|d)", flags = re.I)
                                 # Models should not be added if inside a subcircuit definition
-                    
+
                                 with io.open(file) as lib:
                                     in_sub_flag = False
                                     for line in lib:
@@ -1709,17 +1709,17 @@ library "xyce_lib" {
                                             # Detect end of the subcircuit and update flag
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-                    
+
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-                    
+
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-                    
+
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -1731,14 +1731,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-                    
+
                         mdl.set_component_icon_image(item_handle, 'Xyce/diode.svg')
-                    
+
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-                    
+
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -1757,7 +1757,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-                    
+
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -1860,14 +1860,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
@@ -1875,7 +1875,7 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-                    
+
                         mdl.set_component_icon_image(item_handle, 'Xyce/diode.svg')
                     ENDCODE
 
@@ -2012,14 +2012,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
@@ -2027,7 +2027,7 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-                    
+
                         mdl.set_component_icon_image(item_handle, 'Xyce/mosfet_nmos.svg')
                     ENDCODE
 
@@ -2137,19 +2137,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/inductor.svg')
-                    
+
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -2178,7 +2178,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-                    
+
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -2194,7 +2194,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-                    
+
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -2219,11 +2219,11 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-                    
+
                         L_prop = mdl.prop(item_handle, "L")
-                    
+
                         L_text, color = get_text(L_prop, "H")
-                    
+
                         if not ignore == True:
                             mdl.set_color(item_handle, color)
                             mdl.disp_component_icon_text(item_handle, L_text, relpos_y = 0.2, size = 8)
@@ -2326,19 +2326,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/resistor.svg')
-                    
+
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -2367,7 +2367,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-                    
+
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -2383,7 +2383,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-                    
+
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -2408,10 +2408,10 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-                    
+
                         R_prop = mdl.prop(item_handle, "R")
                         R_text, color = get_text(R_prop, "Ω")
-                    
+
                         if not ignore == True:
                             mdl.set_color(item_handle, color)
                             mdl.disp_component_icon_text(item_handle, R_text, relpos_y = 0.2, size = 8)
@@ -2546,20 +2546,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-                    
+
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -2571,18 +2571,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-                    
+
                             def parse_file(self):
                                 choose_file = QFileDialog()
-                    
+
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-                    
+
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-                    
+
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -2615,17 +2615,17 @@ library "xyce_lib" {
                                             # Detect end of the subcircuit and update flag
                                             if re.match(r".ENDS", line):
                                                 in_sub_flag = False
-                    
+
                                     if mdl.get_property_disp_value(mdl.prop(item_handle, "subc_model")) == True:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list + subcircuit_model_list)
                                     else:
                                         mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-                    
+
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-                    
+
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -2637,14 +2637,14 @@ library "xyce_lib" {
 
                     CODE define_icon
                         import builtins
-                    
+
                         mdl.set_component_icon_image(item_handle, 'Xyce/memristor.svg')
-                    
+
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-                    
+
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -2663,7 +2663,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-                    
+
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -2771,19 +2771,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/capacitor.svg')
-                    
+
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -2812,7 +2812,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-                    
+
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -2828,7 +2828,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-                    
+
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -2853,11 +2853,11 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-                    
+
                         C_prop = mdl.prop(item_handle, "C")
-                    
+
                         C_text, color = get_text(C_prop, "F")
-                    
+
                         if not ignore == True:
                             mdl.set_color(item_handle, color)
                             mdl.disp_component_icon_text(item_handle, C_text, relpos_y = 0.12, size = 8)
@@ -2993,14 +2993,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -3198,26 +3198,26 @@ library "xyce_lib" {
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
                         import ast
-                    
+
                         def update_all_inductors(item_handle):
-                    
+
                             items = mdl.get_items()
-                    
+
                             ind_count = 0
                             for item in items:
                                 try:
                                     if mdl.get_component_type_name(item) == "Coupled Inductor":
                                         ind_count = ind_count + 1
                                 except: pass
-                    
+
                             this_ind_mask = item_handle
                             this_ind = mdl.get_parent(this_ind_mask)
-                    
+
                             couplings_dict_prop = mdl.prop(this_ind_mask, "couplings_dict")
                             couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
                             inductors_dict_prop = mdl.prop(this_ind_mask, "inductors_dict")
                             inductors_dict = ast.literal_eval(mdl.get_property_value(inductors_dict_prop))
-                    
+
                             # When the model is loaded, the fqids change
                             if this_ind.item_fqid not in inductors_dict and len(inductors_dict) == ind_count:
                                 # Replace inductors_dict entries
@@ -3233,7 +3233,7 @@ library "xyce_lib" {
                                     else:
                                         mdl.info("Current known limitation: cannot rename a Coupled Inductor before double-clicking one of them, after opening a saved model. Please undo the changes or reopen the model.")
                                         raise Exception("Error when updating Coupled Inductors.")
-                    
+
                                 # Replace couplings_dict entries
                                 for ind_fqid in list(couplings_dict):
                                     coupled_to_dict = couplings_dict[ind_fqid]
@@ -3242,11 +3242,11 @@ library "xyce_lib" {
                                         if coupled_to_dict.get(coupled_ind_fqid):
                                             coupled_to_dict.update({new_fqid:coupled_to_dict.pop(coupled_ind_fqid)})
                                     couplings_dict[new_fqids[ind_fqid]] = couplings_dict.pop(ind_fqid)
-                    
+
                             # If the model wasn't just loaded
                             else:
                                 list_of_inductors = []
-                    
+
                                 for item in items:
                                     try:
                                         if mdl.get_component_type_name(item) == "Coupled Inductor":
@@ -3262,7 +3262,7 @@ library "xyce_lib" {
                                         couplings_dict.pop(ind_fqid, None)
                                         for coupled_to_dict in list(couplings_dict.values()):
                                             coupled_to_dict.pop(ind_fqid, None)
-                    
+
                             # Update dicts of every inductor
                             for item in items:
                                 try:
@@ -3276,7 +3276,7 @@ library "xyce_lib" {
                                         mdl.set_property_value(couplings_dict_property, str(couplings_dict))
                                         mdl.refresh_icon(item)
                                 except: pass
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
@@ -3285,7 +3285,7 @@ library "xyce_lib" {
                         update_all_inductors(item_handle)
                         update_display(item_handle)
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
@@ -3380,7 +3380,7 @@ library "xyce_lib" {
                         # update_display(item_handle)
                         # dialog.exec_()
                         import ast
-                    
+
                         def update_display(mask_handle, edited=None):
                             this_ind_mask = mask_handle
                             this_ind = mdl.get_parent(this_ind_mask)
@@ -3397,13 +3397,13 @@ library "xyce_lib" {
                             current_coupling_coefficient_prop = mdl.prop(this_ind_mask, "current_coupling_coefficient")
                             change_prop = mdl.prop(this_ind_mask, "change")
                             remove_prop = mdl.prop(this_ind_mask, "remove")
-                    
+
                             coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
                             # Available inductors to couple to
                             names_of_available_inductors = list(inductors_dict.values())
                             # Removes itself
                             names_of_available_inductors.remove(inductors_dict.get(this_ind.item_fqid))
-                    
+
                             # If this inductor is coupled to others
                             if coupled_to_dict:
                                 names_of_the_coupled_inductors = []
@@ -3412,7 +3412,7 @@ library "xyce_lib" {
                                     if names_of_available_inductors:
                                         names_of_available_inductors.remove(inductors_dict.get(coupind_fqid))
                                 mdl.set_property_combo_values(select_coupled_prop, names_of_the_coupled_inductors)
-                    
+
                                 # If a coupling has just been edited
                                 if edited:
                                     coupind_fqid = mdl.get_item(edited).item_fqid
@@ -3433,7 +3433,7 @@ library "xyce_lib" {
                                 mdl.disable_property(current_coupling_coefficient_prop)
                                 mdl.disable_property(change_prop)
                                 mdl.disable_property(remove_prop)
-                    
+
                             # If there are inductors available to couple to in the schematic level
                             if names_of_available_inductors:
                                 mdl.set_property_combo_values(create_coupling_prop, names_of_available_inductors)
@@ -3447,7 +3447,7 @@ library "xyce_lib" {
                                 mdl.set_property_disp_value(create_coupling_prop, "No inductors available")
                                 mdl.disable_property(add_prop)
                                 mdl.disable_property(coupling_coefficient_prop)
-                    
+
                         def add_coupling(mask_handle):
                             this_ind_mask = mask_handle
                             this_ind = mdl.get_parent(this_ind_mask)
@@ -3461,10 +3461,10 @@ library "xyce_lib" {
                             selected_ind = mdl.get_property_disp_value(create_coupling_prop)
                             # Current select_coupled values
                             select_coupled_list = mdl.get_property_combo_values(select_coupled_prop)
-                    
+
                             if not selected_ind == "No inductors available":
                                 ind_handle = mdl.get_item(name=selected_ind)
-                    
+
                                 coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
                                 counterpart_coupled_to_dict = couplings_dict.get(ind_handle.item_fqid)
                                 # Create the first dict entries if there are no couplings for ind_handle yet
@@ -3477,10 +3477,10 @@ library "xyce_lib" {
                                     counterpart_coupled_to_dict.update({this_ind.item_fqid:coupling_coefficient_value})
                                 else:
                                     counterpart_coupled_to_dict = {this_ind.item_fqid:coupling_coefficient_value}
-                    
+
                                 couplings_dict.update({this_ind.item_fqid:coupled_to_dict})
                                 couplings_dict.update({ind_handle.item_fqid:counterpart_coupled_to_dict})
-                    
+
                                 # Update couplings_dict of all inductors:
                                 for item in mdl.get_items():
                                     try:
@@ -3490,41 +3490,41 @@ library "xyce_lib" {
                                             mdl.set_property_value(couplings_dict_property, str(couplings_dict))
                                             mdl.refresh_icon(item)
                                     except: pass
-                    
+
                             update_display(this_ind_mask, edited=selected_ind)
-                    
+
                         def selected_a_coupled_inductor(mask_handle):
                             this_ind_mask = mask_handle
                             this_ind = mdl.get_parent(this_ind_mask)
-                    
+
                             couplings_dict_prop = mdl.prop(this_ind_mask, "couplings_dict")
                             couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
                             current_coupling_coefficient_prop = mdl.prop(this_ind_mask, "current_coupling_coefficient")
                             change_prop = mdl.prop(this_ind_mask, "change")
-                    
+
                             coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
                             displayed_ind = mdl.get_property_disp_value(select_coupled_prop)
                             coupind_fqid = mdl.get_item(displayed_ind).item_fqid
                             mdl.set_property_disp_value(current_coupling_coefficient_prop, coupled_to_dict[coupind_fqid])
                             mdl.disable_property(change_prop)
-                    
+
                         def remove_coupling(mask_handle):
                             this_ind_mask = mask_handle
                             this_ind = mdl.get_parent(this_ind_mask)
-                    
+
                             couplings_dict_prop = mdl.prop(this_ind_mask, "couplings_dict")
                             couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
                             displayed_ind = mdl.get_property_disp_value(select_coupled_prop)
                             ind_handle = mdl.get_item(displayed_ind)
-                    
+
                             coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
                             counterpart_coupled_to_dict = couplings_dict.get(ind_handle.item_fqid)
-                    
+
                             coupled_to_dict.pop(ind_handle.item_fqid)
                             counterpart_coupled_to_dict.pop(this_ind.item_fqid)
-                    
+
                             # Update couplings_dict of all inductors:
                             for item in mdl.get_items():
                                 try:
@@ -3534,28 +3534,28 @@ library "xyce_lib" {
                                         mdl.set_property_value(couplings_dict_property, str(couplings_dict))
                                         mdl.refresh_icon(item)
                                 except: pass
-                    
+
                             update_display(this_ind_mask)
-                    
+
                         def change_coupling_value(mask_handle):
                             this_ind_mask = mask_handle
                             this_ind = mdl.get_parent(this_ind_mask)
-                    
+
                             couplings_dict_prop = mdl.prop(this_ind_mask, "couplings_dict")
                             couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
                             displayed_ind = mdl.get_property_disp_value(select_coupled_prop)
                             ind_handle = mdl.get_item(displayed_ind)
                             current_coupling_coefficient_prop = mdl.prop(this_ind_mask, "current_coupling_coefficient")
-                    
+
                             coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
                             counterpart_coupled_to_dict = couplings_dict.get(ind_handle.item_fqid)
-                    
+
                             new_value = mdl.get_property_disp_value(current_coupling_coefficient_prop)
-                    
+
                             coupled_to_dict.update({ind_handle.item_fqid:new_value})
                             counterpart_coupled_to_dict.update({this_ind.item_fqid:new_value})
-                    
+
                             # Update couplings_dict of all inductors:
                             for item in mdl.get_items():
                                 try:
@@ -3564,49 +3564,49 @@ library "xyce_lib" {
                                         mdl.set_property_combo_values(couplings_dict_property, [str(couplings_dict)])
                                         mdl.set_property_value(couplings_dict_property, str(couplings_dict))
                                 except: pass
-                    
+
                             update_display(this_ind_mask, edited=displayed_ind)
-                    
+
                         def edited_current_coupling_box_value(mask_handle, new_value):
                             this_ind_mask = mask_handle
                             this_ind = mdl.get_parent(this_ind_mask)
-                    
+
                             couplings_dict_prop = mdl.prop(this_ind_mask, "couplings_dict")
                             couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
                             select_coupled_prop = mdl.prop(this_ind_mask, "select_coupled")
                             current_coupling_coefficient_prop = mdl.prop(this_ind_mask, "current_coupling_coefficient")
                             change_prop = mdl.prop(this_ind_mask, "change")
-                    
+
                             displayed_ind = mdl.get_property_disp_value(select_coupled_prop)
                             displayed_coupling_value = mdl.get_property_disp_value(current_coupling_coefficient_prop)
                             coupled_to_dict = couplings_dict.get(this_ind.item_fqid)
-                    
+
                             ind_handle = mdl.get_item(displayed_ind)
-                    
+
                             if coupled_to_dict[ind_handle.item_fqid] == str(new_value):
                                 mdl.disable_property(change_prop)
                             else:
                                 mdl.enable_property(change_prop)
-                    
+
                     ENDCODE
 
                     CODE pre_compile
                         import ast
-                    
+
                         this_ind_mask = item_handle
                         this_ind = mdl.get_parent(this_ind_mask)
-                    
+
                         # Property handles
                         couplings_dict_prop = mdl.prop(this_ind_mask, "couplings_dict")
                         couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
-                    
+
                         inductors_dict_prop = mdl.prop(this_ind_mask, "inductors_dict")
                         inductors_dict = ast.literal_eval(mdl.get_property_value(inductors_dict_prop))
-                    
+
                         items = mdl.get_items()
                         ind_count = 0
                         raise_error_topology_change = False
-                    
+
                         for item in items:
                             try:
                                 if mdl.get_component_type_name(item) == "Coupled Inductor":
@@ -3615,24 +3615,24 @@ library "xyce_lib" {
                                         raise_error_topology_change = True
                                     ind_count = ind_count + 1
                             except: pass
-                    
+
                         if not ind_count == len(inductors_dict):
                             # Deleted/added
                             raise_error_topology_change = True
-                    
+
                         if raise_error_topology_change:
                             mdl.info("A Coupled Inductor was added/removed/renamed. Please double-click any Coupled Inductor component to update before starting Xyce.")
-                    
+
                         for ind_fqid in inductors_dict:
                             for coupled_to_dict in list(couplings_dict.values()):
                                 found_entry = coupled_to_dict.pop(ind_fqid, None)
                                 if found_entry:
                                     coupled_to_dict[inductors_dict[ind_fqid]] = found_entry
-                    
+
                             has_couplings = couplings_dict.pop(ind_fqid, None)
                             if has_couplings:
                                 couplings_dict[inductors_dict[ind_fqid]] = has_couplings
-                    
+
                         # Adds self inductances to couplings_dict to allow coupling coefficient calculation
                         # Substitutes fqids by inductor names
                         for item in items:
@@ -3641,17 +3641,17 @@ library "xyce_lib" {
                                     self_inductance_property = mdl.prop(item, "L")
                                     ind_self = mdl.get_property_value(self_inductance_property)
                                     ind_name = mdl.get_name(item)
-                    
+
                                     for key, coupled_to_dict in couplings_dict.items():
                                         if key == ind_name:
                                             coupled_to_dict.update({ind_name:ind_self})
                             except: pass
-                    
+
                         for item in mdl.get_items():
                             try:
                                 if mdl.get_component_type_name(item) == "Coupled Inductor":
                                     xyce_couplings_dict_property = mdl.prop(item, "xyce_couplings_dict")
-                    
+
                                     if raise_error_topology_change:
                                         mdl.set_property_combo_values(xyce_couplings_dict_property, 0)
                                         mdl.set_property_value(xyce_couplings_dict_property, 0)
@@ -3659,15 +3659,15 @@ library "xyce_lib" {
                                         mdl.set_property_combo_values(xyce_couplings_dict_property, [str(couplings_dict)])
                                         mdl.set_property_value(xyce_couplings_dict_property, str(couplings_dict))
                             except: pass
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         import ast
-                    
+
                         couplings_dict_prop = mdl.prop(item_handle, "couplings_dict")
                         couplings_dict = ast.literal_eval(mdl.get_property_value(couplings_dict_prop))
-                    
+
                         this_ind = mdl.get_parent(item_handle)
                         if couplings_dict.values():
                             for coupled_dict in list(couplings_dict.values()):
@@ -3678,7 +3678,7 @@ library "xyce_lib" {
                                     mdl.set_component_icon_image(item_handle, 'Xyce/not_coupled_inductor.svg')
                         else:
                             mdl.set_component_icon_image(item_handle, 'Xyce/not_coupled_inductor.svg')
-                    
+
                     ENDCODE
 
                     CODE post_resolve
@@ -3820,27 +3820,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_exp.svg')
-                            
+
                                 V1 = mdl.prop(item_handle, "V1")
                                 V2 = mdl.prop(item_handle, "V2")
                                 min = mdl.get_property_value(V1)
                                 max = mdl.get_property_value(V2)
-                            
+
                                 min_text = f"{min} V"
                                 max_text = f"{max} V"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -3982,27 +3982,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_pulse.svg')
-                            
+
                                 V1 = mdl.prop(item_handle, "V1")
                                 V2 = mdl.prop(item_handle, "V2")
                                 min = mdl.get_property_value(V1)
                                 max = mdl.get_property_value(V2)
-                            
+
                                 min_text = f"{min} V"
                                 max_text = f"{max} V"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -4096,24 +4096,24 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_dc.svg')
-                            
+
                                 voltage = mdl.prop(item_handle, "voltage")
                                 vdc = mdl.get_property_value(voltage)
-                            
+
                                 vdc_text = f"{vdc} V"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, vdc_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                             ENDCODE
@@ -4245,27 +4245,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_ac.svg')
-                            
+
                                 VA = mdl.prop(item_handle, "VA")
                                 FREQ = mdl.prop(item_handle, "FREQ")
                                 amplitude = mdl.get_property_value(VA)
                                 frequency = mdl.get_property_value(FREQ)
-                            
+
                                 amp_text = f"{amplitude} V"
                                 freq_text = f"{frequency} Hz"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, freq_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, amp_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -4383,27 +4383,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_triangular.svg')
-                            
+
                                 VMIN = mdl.prop(item_handle, "vmin")
                                 VMAX = mdl.prop(item_handle, "vmax")
                                 min = mdl.get_property_value(VMIN)
                                 max = mdl.get_property_value(VMAX)
-                            
+
                                 min_text = f"{min} V"
                                 max_text = f"{max} V"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -4542,27 +4542,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_exp.svg')
-                            
+
                                 V1 = mdl.prop(item_handle, "V1")
                                 V2 = mdl.prop(item_handle, "V2")
                                 min = mdl.get_property_value(V1)
                                 max = mdl.get_property_value(V2)
-                            
+
                                 min_text = f"{min} A"
                                 max_text = f"{max} A"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -4695,27 +4695,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_ac.svg')
-                            
+
                                 VA = mdl.prop(item_handle, "VA")
                                 FREQ = mdl.prop(item_handle, "FREQ")
                                 amplitude = mdl.get_property_value(VA)
                                 frequency = mdl.get_property_value(FREQ)
-                            
+
                                 amp_text = f"{amplitude} A"
                                 freq_text = f"{frequency} Hz"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, freq_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, amp_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -4805,24 +4805,24 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_dc.svg')
-                            
+
                                 current = mdl.prop(item_handle, "current")
                                 idc = mdl.get_property_value(current)
-                            
+
                                 idc_text = f"{idc} A"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, idc_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                             ENDCODE
@@ -4963,27 +4963,27 @@ library "xyce_lib" {
 
                             CODE open
                                 from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                            
+
                                 dialog = RegularComponentPropertiesDialog(
                                     component=component,
                                     property_container=component.masks[-1],
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_pulse.svg')
-                            
+
                                 V1 = mdl.prop(item_handle, "V1")
                                 V2 = mdl.prop(item_handle, "V2")
                                 min = mdl.get_property_value(V1)
                                 max = mdl.get_property_value(V2)
-                            
+
                                 min_text = f"{min} A"
                                 max_text = f"{max} A"
-                            
+
                                 mdl.set_color(item_handle, "blue")
                                 mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
                                 mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
@@ -5112,24 +5112,24 @@ library "xyce_lib" {
 
                         CODE open
                             from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                        
+
                             dialog = RegularComponentPropertiesDialog(
                                 component=component,
                                 property_container=component.masks[-1],
                                 current_diagram=current_diagram
                             )
                             dialog.exec_()
-                        
+
                         ENDCODE
 
                         CODE define_icon
                             mdl.set_component_icon_image(item_handle, 'Xyce/vccs.svg')
-                        
+
                             transc_prop = mdl.prop(item_handle, "transc")
                             transc = mdl.get_property_value(transc_prop)
-                        
+
                             text = f" gm = {transc}"
-                        
+
                             mdl.set_color(item_handle, "blue")
                             mdl.disp_component_icon_text(item_handle, text, relpos_x = 0.5, relpos_y = 0.87, size = 8)
                         ENDCODE
@@ -5241,22 +5241,22 @@ library "xyce_lib" {
 
                         CODE open
                             from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                        
+
                             dialog = RegularComponentPropertiesDialog(
                                 component=component,
                                 property_container=component.masks[-1],
                                 current_diagram=current_diagram
                             )
                             dialog.exec_()
-                        
+
                         ENDCODE
 
                         CODE define_icon
                             ctrl_name_prop = mdl.prop(item_handle, "ctrl_name")
                             ctrl_name = mdl.get_property_disp_value(ctrl_name_prop)
-                        
+
                             mdl.set_component_icon_image(item_handle, 'Xyce/cccs.svg')
-                        
+
                             if not ctrl_name == "None":
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cccs_active.svg')
                                 mdl.set_color(item_handle, "blue")
@@ -5266,13 +5266,13 @@ library "xyce_lib" {
                         CODE init
                             def update_current_measurements():
                                 i_list = []
-                        
+
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current Measurement":
                                             i_list.append(item.fqn.split(".")[0])
                                     except AttributeError: pass
-                        
+
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current-Controlled Current Source":
@@ -5283,7 +5283,7 @@ library "xyce_lib" {
                                                 mdl.set_property_value(ctrl_name_prop, "None")
                                                 mdl.refresh_icon(item)
                                     except AttributeError: pass
-                        
+
                             update_current_measurements()
                         ENDCODE
                     }
@@ -5394,22 +5394,22 @@ library "xyce_lib" {
 
                         CODE open
                             from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                        
+
                             dialog = RegularComponentPropertiesDialog(
                                 component=component,
                                 property_container=component.masks[-1],
                                 current_diagram=current_diagram
                             )
                             dialog.exec_()
-                        
+
                         ENDCODE
 
                         CODE define_icon
                             ctrl_name_prop = mdl.prop(item_handle, "ctrl_name")
                             ctrl_name = mdl.get_property_disp_value(ctrl_name_prop)
-                        
+
                             mdl.set_component_icon_image(item_handle, 'Xyce/ccvs.svg')
-                        
+
                             if not ctrl_name == "None":
                                 mdl.set_component_icon_image(item_handle, 'Xyce/ccvs_active.svg')
                                 mdl.set_color(item_handle, "blue")
@@ -5419,13 +5419,13 @@ library "xyce_lib" {
                         CODE init
                             def update_current_measurements():
                                 i_list = []
-                        
+
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current Measurement":
                                             i_list.append(item.fqn.split(".")[0])
                                     except AttributeError: pass
-                        
+
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current-Controlled Voltage Source":
@@ -5435,14 +5435,14 @@ library "xyce_lib" {
                                             if displayed_ctrl not in i_list:
                                                 mdl.set_property_value(ctrl_name_prop, "None")
                                     except AttributeError: pass
-                        
+
                             def refresh_all_ccvs_icons():
                                 for item in mdl.get_items():
                                     try: # Not every component has a type
                                         if mdl.get_component_type_name(item) == "Current-Controlled Voltage Source":
                                             mdl.refresh_icon(item)
                                     except AttributeError: pass
-                        
+
                             update_current_measurements()
                         ENDCODE
                     }
@@ -5578,24 +5578,24 @@ library "xyce_lib" {
 
                         CODE open
                             from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                        
+
                             dialog = RegularComponentPropertiesDialog(
                                 component=component,
                                 property_container=component.masks[-1],
                                 current_diagram=current_diagram
                             )
                             dialog.exec_()
-                        
+
                         ENDCODE
 
                         CODE define_icon
                             mdl.set_component_icon_image(item_handle, 'Xyce/vcvs.svg')
-                        
+
                             gain_prop = mdl.prop(item_handle, "gain")
                             gain = mdl.get_property_value(gain_prop)
-                        
+
                             text = f" g = {gain}"
-                        
+
                             mdl.set_color(item_handle, "blue")
                             mdl.disp_component_icon_text(item_handle, text, relpos_x = 0.5, relpos_y = 0.87, size = 8)
                         ENDCODE
@@ -5759,19 +5759,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/lossy_tl.svg')
-                    
+
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -5800,7 +5800,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-                    
+
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -5816,7 +5816,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-                    
+
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -5841,10 +5841,10 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-                    
+
                         len_prop = mdl.prop(item_handle, "LEN")
                         len_text, color = get_text(len_prop, "m")
-                    
+
                         if not ignore == True:
                             mdl.set_color(item_handle, color)
                             mdl.disp_component_icon_text(item_handle, len_text, relpos_x = 0.5, relpos_y = 0.5, size = 8)
@@ -5938,19 +5938,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/lumped_tl.svg')
-                    
+
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -5979,7 +5979,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-                    
+
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -5995,7 +5995,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-                    
+
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -6020,13 +6020,13 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-                    
+
                         len_prop = mdl.prop(item_handle, "LEN")
                         lumps_prop = mdl.prop(item_handle, "LUMPS")
-                    
+
                         len_text, color_len = get_text(len_prop, "m")
                         lumps_text, color_lumps = get_text(lumps_prop, "")
-                    
+
                         if not ignore == True:
                             mdl.set_color(item_handle, color_len)
                             mdl.disp_component_icon_text(item_handle, len_text, relpos_x = 0.5, relpos_y = 0.11, size = 8)
@@ -6126,19 +6126,19 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/ideal_tl.svg')
-                    
+
                         ignore = False
                         def unit_conv(value, unit):
                             if value == 0:
@@ -6167,7 +6167,7 @@ library "xyce_lib" {
                                 value = value * 1e-9
                                 unit = "G" + unit
                             return (value, unit)
-                    
+
                         def prefix_to_scientific(prefix):
                             if prefix == "p":
                                 return "e-12"
@@ -6183,7 +6183,7 @@ library "xyce_lib" {
                                 return "e6"
                             if prefix == "G":
                                 return "e9"
-                    
+
                         def get_text(prop_handle, unit):
                             val = mdl.get_property_value(prop_handle)
                             # If val is not a string
@@ -6208,13 +6208,13 @@ library "xyce_lib" {
                                     color = "green"
                                     inside_text = f"{val}"
                                     return (inside_text, color)
-                    
+
                         TD_prop = mdl.prop(item_handle, "TD")
                         Z0_prop = mdl.prop(item_handle, "Z0")
-                    
+
                         TD_text, color1 = get_text(TD_prop, "s")
                         Z0_text, color2 = get_text(Z0_prop, "Ω")
-                    
+
                         if not ignore == True:
                             mdl.set_color(item_handle, color1)
                             mdl.disp_component_icon_text(item_handle, TD_text, relpos_x = 0.7, relpos_y = 0.5, size = 8, trim_factor = 0.4)
@@ -6470,14 +6470,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -6488,17 +6488,17 @@ library "xyce_lib" {
                         def new_filter_cap():
                             fp_prop = mdl.prop(item_handle, "fp")
                             fp = mdl.get_property_value(fp_prop)
-                    
+
                             Rf_prop = mdl.prop(item_handle, "Rf")
                             Rf = mdl.get_property_value(Rf_prop)
-                    
+
                             try:
                                 pi = 3.14159265359
                                 cap = 1/(2*pi*fp*Rf)
-                    
+
                                 Cf = mdl.prop(item_handle, "Cf")
                                 mdl.set_property_value(Cf, cap)
-                    
+
                             except ZeroDivisionError:
                                 mdl.info("Filter resistor and capacitor cannot be set to zero.")
                                 mdl.set_property_value(fp_prop, fp)
@@ -6657,14 +6657,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -6800,14 +6800,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -6977,20 +6977,20 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog
                         import os, sys, csv, io, re
-                    
+
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -7002,18 +7002,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-                    
+
                             def parse_file(self):
                                 choose_file = QFileDialog()
-                    
+
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-                    
+
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-                    
+
                             def parse_models(self, file):
                                 model_list = []
                                 subcircuit_model_list = []
@@ -7037,14 +7037,14 @@ library "xyce_lib" {
                                             # Detect end of the subcircuit and update flag
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-                    
+
                                     mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), subcircuit_model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
-                    
+
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-                    
+
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -7065,7 +7065,7 @@ library "xyce_lib" {
                         model_name = mdl.get_property_value(mdl.prop(item_handle, "model_name"))
                         # HEADER STOP
                         import builtins
-                    
+
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -7201,14 +7201,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
@@ -7216,13 +7216,13 @@ library "xyce_lib" {
                         from PyQt5.QtWidgets import QWidget, QFileDialog, QDialog, QApplication
                         from PyQt5 import QtCore, QtGui, QtWidgets
                         import os, sys, csv, io, re
-                    
-                    
+
+
                         mdl.disable_property(mdl.prop(item_handle, "configure_positions"))
-                    
+
                         models_pin_info = {}
                         positions = []
-                    
+
                         class FileDialog(QWidget):
                             def __init__(self, mdl, item_handle):
                                 super().__init__()
@@ -7234,18 +7234,18 @@ library "xyce_lib" {
                                 self.mdl = mdl
                                 self.item_handle = item_handle
                                 self.comp_handle = mdl.get_sub_level_handle(item_handle)
-                    
+
                             def parse_file(self):
                                 choose_file = QFileDialog()
-                    
+
                                 file, _ = choose_file.getOpenFileName(self, 'Choose Library File', '.', 'SPICE Library files (*.lib)')
-                    
+
                                 if file:
                                     self.parse_models(file)
                                     return True
                                 else:
                                     return False
-                    
+
                             def parse_models(self, file):
                                 subcircuit_model_list = []
                                 # Find subcircuit-based models
@@ -7268,15 +7268,15 @@ library "xyce_lib" {
                                             # Detect end of the subcircuit and update flag
                                             if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                 in_sub_flag = False
-                    
+
                                     mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), subcircuit_model_list)
                                     mdl.set_property_value(mdl.prop(item_handle, "model_path"), file)
                                     mdl.set_property_disp_value(mdl.prop(item_handle, "model_name"), subcircuit_model_list[0])
-                    
+
                         def load_and_parse_file(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             return ex.parse_file()
-                    
+
                         def parse_models_loadfile(item_handle):
                             file = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
                             selected_model = mdl.get_property_value(mdl.prop(item_handle, "selected_model"))
@@ -7303,24 +7303,24 @@ library "xyce_lib" {
                                                 # Detect end of the subcircuit and update flag
                                                 if re.match(r".[Ee][Nn][Dd][Ss]", line):
                                                     in_sub_flag = False
-                    
+
                                 except FileNotFoundError:
                                     mdl.disable_property(mdl.prop(item_handle, "configure_positions"))
-                    
+
                                 mdl.set_property_combo_values(mdl.prop(item_handle, "model_name"), subcircuit_model_list)
-                    
-                    
+
+
                                 if selected_model in subcircuit_model_list:
                                    mdl.set_property_value(mdl.prop(item_handle, "pin_order"), ",".join(models_pin_info[selected_model]))
                                 #mdl.info(mdl.get_property_value(mdl.prop(item_handle, "pin_order")))
-                    
+
                         def update_component(item_handle):
                             model_name_prop = mdl.prop(item_handle, "model_name")
                             selected_model = mdl.get_property_value(model_name_prop)
                             # component = mdl.get_item(name=mdl.get_fqn(item_handle).split(".")[0])
                             component = item_handle
                             # items = mdl.get_items(parent=component)
-                    
+
                             items = mdl.get_items(item_handle)
                             # container_handle passes Category when opening library.
                             # This deletes all components inside the category
@@ -7334,8 +7334,8 @@ library "xyce_lib" {
                                     mdl.delete_item(it)
                                 except:
                                     pass
-                    
-                    
+
+
                             if not selected_model == "None":
                                 mdl.set_property_value(mdl.prop(item_handle, "selected_model"), selected_model)
                                 parse_models_loadfile(item_handle)
@@ -7394,7 +7394,7 @@ library "xyce_lib" {
                                         before_junc = junc
                                         offset += 75
                                     count += 1
-                    
+
                         def repeat_parse(mdl, item_handle):
                             ex = FileDialog(mdl, item_handle)
                             filename = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
@@ -7402,7 +7402,7 @@ library "xyce_lib" {
                                 return ex.parse_models(filename)
                             except FileNotFoundError:
                                 mdl.info("Warning: " + mdl.get_fqn(item_handle).split(".")[0] + " model file not found!")
-                    
+
                         # Terminal position configuration window
                         class Ui_TerminalPositions(object):
                             def setupUi(self, TerminalPositions):
@@ -7491,12 +7491,12 @@ library "xyce_lib" {
                                 self.toolButton_idx_down.setGeometry(QtCore.QRect(330, 230, 21, 21))
                                 self.toolButton_idx_down.setText("")
                                 self.toolButton_idx_down.setObjectName("toolButton_idx_down")
-                    
+
                                 self.retranslateUi(TerminalPositions)
                                 self.buttonBox.accepted.connect(TerminalPositions.accept)
                                 self.buttonBox.rejected.connect(TerminalPositions.reject)
                                 QtCore.QMetaObject.connectSlotsByName(TerminalPositions)
-                    
+
                             def retranslateUi(self, TerminalPositions):
                                 _translate = QtCore.QCoreApplication.translate
                                 TerminalPositions.setWindowTitle(_translate("TerminalPositions", "Terminal positions configuration"))
@@ -7510,21 +7510,21 @@ library "xyce_lib" {
                                 self.groupBox_2.setTitle(_translate("TerminalPositions", "New positions"))
                                 self.label_2.setText(_translate("TerminalPositions", "Change index"))
                                 self.label_missing_terms.setText(_translate("TerminalPositions", "Some terminals are not yet configured"))
-                    
+
                         class TerminalPositionsDialog(QDialog, Ui_TerminalPositions):
                             def __init__(self):
                                 super().__init__()
                                 self.setupUi(self)
                                 self.added_terminals = []
-                    
+
                                 # Some extra configs
                                 self.toolButton_idx_up.setArrowType(QtCore.Qt.UpArrow)
                                 self.toolButton_idx_down.setArrowType(QtCore.Qt.DownArrow)
                                 self.label_missing_terms.setStyleSheet("color: red")
-                    
+
                                 # Must configure everything before OK is available
                                 self.buttonBox.buttons()[0].setEnabled(False)
-                    
+
                                 # Connect button functions
                                 self.pushButton_left.clicked.connect(self.add_to_list_left)
                                 self.pushButton_right.clicked.connect(self.add_to_list_right)
@@ -7532,13 +7532,13 @@ library "xyce_lib" {
                                 self.pushButton_down.clicked.connect(self.add_to_list_down)
                                 self.toolButton_idx_up.clicked.connect(self.index_up)
                                 self.toolButton_idx_down.clicked.connect(self.index_down)
-                    
+
                                 # Connect QListWidget clicks
                                 self.listWidget_up.itemClicked.connect(self.clicked_on_list_up)
                                 self.listWidget_down.itemClicked.connect(self.clicked_on_list_down)
                                 self.listWidget_left.itemClicked.connect(self.clicked_on_list_left)
                                 self.listWidget_right.itemClicked.connect(self.clicked_on_list_right)
-                    
+
                             def test_ok_available(self, inlist):
                                 if len(self.added_terminals) == self.comboBox.count():
                                     self.buttonBox.buttons()[0].setEnabled(True)
@@ -7552,38 +7552,38 @@ library "xyce_lib" {
                                         else:
                                             self.comboBox.setCurrentIndex(i)
                                         i = i + 1
-                    
+
                             def add_to_combo(self, terminals):
                                 self.comboBox.addItems(terminals)
-                    
+
                             def display_selected_model(self, model):
                                 self.groupBox.setTitle("Configure positions for model " + model)
-                    
+
                             def get_lists(self):
                                 rg_left = range(self.listWidget_left.count())
                                 left_list = [str(self.listWidget_left.item(i).text()) for i in rg_left]
-                    
+
                                 rg_right = range(self.listWidget_right.count())
                                 right_list = [str(self.listWidget_right.item(i).text()) for i in rg_right]
-                    
+
                                 rg_up = range(self.listWidget_up.count())
                                 up_list = [str(self.listWidget_up.item(i).text()) for i in rg_up]
-                    
+
                                 rg_down = range(self.listWidget_down.count())
                                 down_list = [str(self.listWidget_down.item(i).text()) for i in rg_down]
-                    
+
                                 return {"left":left_list, "right":right_list,
                                                     "top":up_list, "bottom":down_list}
-                    
+
                             def return_dict(self):
                                 return self.get_lists()
-                    
+
                             def in_list_check(self):
-                    
+
                                 terminal = self.comboBox.currentText()
                                 lists = self.get_lists()
                                 inlist = False
-                    
+
                                 for pos in lists:
                                     if terminal in lists[pos]:
                                         inlist = True
@@ -7604,37 +7604,37 @@ library "xyce_lib" {
                                             item = self.listWidget_down.findItems(terminal, QtCore.Qt.MatchExactly)[0]
                                             row = self.listWidget_down.row(item)
                                             self.listWidget_down.takeItem(row)
-                    
+
                                 return (terminal, inlist)
-                    
+
                             def add_to_list_left(self, position):
                                 terminal, inlist = self.in_list_check()
                                 self.listWidget_left.addItem(terminal)
                                 if terminal not in self.added_terminals:
                                     self.added_terminals.append(terminal)
                                 self.test_ok_available(inlist)
-                    
+
                             def add_to_list_right(self, position):
                                 terminal, inlist = self.in_list_check()
                                 self.listWidget_right.addItem(terminal)
                                 if terminal not in self.added_terminals:
                                     self.added_terminals.append(terminal)
                                 self.test_ok_available(inlist)
-                    
+
                             def add_to_list_up(self, position):
                                 terminal, inlist = self.in_list_check()
                                 self.listWidget_up.addItem(terminal)
                                 if terminal not in self.added_terminals:
                                     self.added_terminals.append(terminal)
                                 self.test_ok_available(inlist)
-                    
+
                             def add_to_list_down(self, position):
                                 terminal, inlist = self.in_list_check()
                                 self.listWidget_down.addItem(terminal)
                                 if terminal not in self.added_terminals:
                                     self.added_terminals.append(terminal)
                                 self.test_ok_available(inlist)
-                    
+
                             def index_up(self):
                                 selected_term = self.comboBox.currentText()
                                 if self.listWidget_left.findItems(selected_term, QtCore.Qt.MatchExactly):
@@ -7652,7 +7652,7 @@ library "xyce_lib" {
                                     list_widget.setCurrentRow(currentRow - 1)
                                 else:
                                     list_widget.setCurrentRow(0)
-                    
+
                             def index_down(self):
                                 selected_term = self.comboBox.currentText()
                                 if self.listWidget_left.findItems(selected_term, QtCore.Qt.MatchExactly):
@@ -7670,31 +7670,31 @@ library "xyce_lib" {
                                     list_widget.setCurrentRow(currentRow + 1)
                                 else:
                                     list_widget.setCurrentRow(list_widget.count()-1)
-                    
+
                             def clicked_on_list_left(self):
                                 row = self.listWidget_left.currentRow()
                                 term = self.listWidget_left.item(row).text()
                                 idx = self.comboBox.findText(term, QtCore.Qt.MatchExactly)
                                 self.comboBox.setCurrentIndex(idx)
-                    
+
                             def clicked_on_list_right(self):
                                 row = self.listWidget_right.currentRow()
                                 term = self.listWidget_right.item(row).text()
                                 idx = self.comboBox.findText(term, QtCore.Qt.MatchExactly)
                                 self.comboBox.setCurrentIndex(idx)
-                    
+
                             def clicked_on_list_up(self):
                                 row = self.listWidget_up.currentRow()
                                 term = self.listWidget_up.item(row).text()
                                 idx = self.comboBox.findText(term, QtCore.Qt.MatchExactly)
                                 self.comboBox.setCurrentIndex(idx)
-                    
+
                             def clicked_on_list_down(self):
                                 row = self.listWidget_down.currentRow()
                                 term = self.listWidget_down.item(row).text()
                                 idx = self.comboBox.findText(term, QtCore.Qt.MatchExactly)
                                 self.comboBox.setCurrentIndex(idx)
-                    
+
                         class Ui_ViewNetlist(object):
                             def setupUi(self, ViewNetlist):
                                 ViewNetlist.setObjectName("ViewNetlist")
@@ -7706,21 +7706,21 @@ library "xyce_lib" {
                                 self.gridLayout.addWidget(self.textBrowser_netlist, 0, 0, 2, 1)
                                 spacerItem = QtWidgets.QSpacerItem(20, 384, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
                                 self.gridLayout.addItem(spacerItem, 1, 1, 1, 1)
-                    
+
                                 self.retranslateUi(ViewNetlist)
                                 QtCore.QMetaObject.connectSlotsByName(ViewNetlist)
-                    
+
                             def retranslateUi(self, ViewNetlist):
                                 _translate = QtCore.QCoreApplication.translate
                                 ViewNetlist.setWindowTitle(_translate("ViewNetlist", "View netlist"))
-                    
+
                         class NetlistWindow(QDialog, Ui_ViewNetlist):
                             def __init__(self):
                                 super().__init__()
                                 self.setupUi(self)
                                 self.show_netlist()
-                    
-                    
+
+
                             def show_netlist(self):
                                 self.textBrowser_netlist.clear()
                                 selected_model = mdl.get_property_disp_value(mdl.prop(item_handle, "model_name"))
@@ -7733,15 +7733,15 @@ library "xyce_lib" {
                                     self.textBrowser_netlist.append(line[:-1])
                                 curs = self.textBrowser_netlist.textCursor()
                                 self.textBrowser_netlist.moveCursor(QtGui.QTextCursor.Start)
-                    
+
                             def get_model_lines(self):
-                    
+
                                 file = mdl.get_property_value(mdl.prop(item_handle, "model_path"))
                                 selected_model = mdl.get_property_disp_value(mdl.prop(item_handle, "model_name"))
-                    
+
                                 regex_model = re.compile(fr"^\.SUBCKT {selected_model} ", flags = re.I)
                                 model_lines = []
-                    
+
                                 try:
                                     with open(file) as lib:
                                         in_model_flag = False
@@ -7758,14 +7758,14 @@ library "xyce_lib" {
                                                     in_model_flag = False
                                                 else:
                                                     model_lines.append(line)
-                    
+
                                     return model_lines
-                    
+
                                 except FileNotFoundError:
                                     mdl.info("Model file not found")
                                     return ["Model file not found."]
-                    
-                    
+
+
                         def configuration_availability(item_handle):
                             model_name_prop = mdl.prop(item_handle, "model_name")
                             configure_prop = mdl.prop(item_handle, "configure_positions")
@@ -7775,7 +7775,7 @@ library "xyce_lib" {
                                 configure_terminal_positions(item_handle)
                             else:
                                 mdl.info("Please confirm of cancel the model change before configuring the terminal positions.")
-                    
+
                         def configure_terminal_positions(item_handle):
                             pin_pos_dict = {}
                             pin_pos_list = []
@@ -7792,26 +7792,26 @@ library "xyce_lib" {
                             # Run the GUI and get the new terminal positons
                             if conf.exec_():
                                 new_term_positions = conf.return_dict()
-                    
+
                                 # Update terminal positions
-                    
+
                                 # Get all port handles
                                 port_handles = []
                                 # component = mdl.get_item(name=mdl.get_fqn(item_handle).split(".")[0])
                                 # all_handles = mdl.get_items(component)
                                 all_handles = mdl.get_items(item_handle)
-                    
+
                                 for h in all_handles:
                                     try:
                                         if h.item_type == "port":
                                             port_handles.append(h)
                                     except: pass
-                    
-                    
+
+
                                 # Go through every terminal of the new_term_positions dict and compare
                                 # to the each port name (in port_handles). If the name is the same, set
                                 # the port position as the key of the dict (up, down, left, right)
-                    
+
                                 for key in new_term_positions:
                                     for term_name in new_term_positions[key]:
                                         for ph in port_handles:
@@ -7820,32 +7820,32 @@ library "xyce_lib" {
                                                 new_pos = (key, new_term_positions[key].index(term_name) + 1)
                                                 mdl.set_port_properties(ph, terminal_position = new_pos)
                                                 pin_pos_dict.update({term_name:(new_pos[0],str(new_pos[1]))})
-                    
+
                             for term in terminals:
                                 pin_pos_list.append(pin_pos_dict[term][0])
                                 pin_idx_list.append(pin_pos_dict[term][1])
-                    
-                    
+
+
                             mdl.set_property_value(mdl.prop(item_handle, "pin_positions"), ",".join(pin_pos_list))
                             mdl.set_property_value(mdl.prop(item_handle, "pin_idx"), ",".join(pin_idx_list))
-                    
+
                         def view_netlist():
                             netlistwindow = NetlistWindow()
                             netlistwindow.exec_()
-                    
-                    
+
+
                         parse_models_loadfile(item_handle)
                         #mdl.set_property_value(a)
                     ENDCODE
 
                     CODE define_icon
                         import builtins
-                    
+
                         model_name_prop = mdl.prop(item_handle, "model_name")
                         model_name = mdl.get_property_value(model_name_prop)
                         model_path_prop = mdl.prop(item_handle, "model_path")
                         model_path = mdl.get_property_value(model_path_prop)
-                    
+
                         try:
                             builtins.open(model_path)
                             if not model_name == "None":
@@ -7869,7 +7869,7 @@ library "xyce_lib" {
                         selected_model = mdl.get_property_value(mdl.prop(item_handle, "selected_model"))
                         # HEADER STOP
                         import builtins
-                    
+
                         try:
                             model_path_prop = mdl.prop(item_handle, "model_path")
                             model_path = mdl.get_property_value(model_path_prop)
@@ -7978,33 +7978,39 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+                        from PyQt5 import QtWidgets, QtCore
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
-                        dialog.exec_()
-                    
+                        buttons = dialog.findChildren(QtWidgets.QPushButton)
+                        for button in buttons:
+                          if button.text() == "OK":
+                            mdl.set_ns_var("ok_button_handle", button)
+                            break
+                        dialog.exec()
+
                     ENDCODE
 
                     CODE init
                         from PyQt5.QtWidgets import QWidget, QFileDialog, QDialog, QApplication
                         from PyQt5 import QtCore, QtGui, QtWidgets
                         import sys, os, re
-                    
+
                         keep_open = {}
-                    
+
                         def sim_with_xyce(mask_handle):
-                    
+
                             try:
                               ih = mdl.get_parent(mask_handle) # Component handle
                             except:
                               mdl.info("If this XyceSim component was copied from another model, please save and reload this model or add a new XyceSim from the Library Explorer.")
                               raise Exception()
-                    
+
                             sim_params_dict = {}
-                    
+
                             analysis_type = mdl.get_property_disp_value(mdl.prop(ih, "sim_type"))
                             sim_params_dict['analysis_type'] = analysis_type
                             if analysis_type == "Transient":
@@ -8019,24 +8025,24 @@ library "xyce_lib" {
                                 sim_params_dict['start_f'] = start_f
                                 sim_params_dict['end_f'] = end_f
                                 sim_params_dict['num_points'] = num_points
-                    
+
                             # Export to JSON to the Target Files folder
                             mdl.export_model_to_json()
-                    
+
                             # Get the path to the exported JSON
                             mdlfile = mdl.get_model_file_path()
                             mdlfile_name = mdlfile.split('\\')[-1].split('.')[0]
                             mdlfile_folder = '/'.join(mdlfile.split('\\')[0:-1])
                             mdlfile_target_folder = mdlfile_folder + '/' + mdlfile_name + ' Target files'
                             json_file_path = mdlfile_target_folder + '/' + mdlfile_name + '.json'
-                    
+
                             # Xyce converter path
                             try:
                                 xycesim_path = os.environ['TYPHOON_XYCE_INTERFACE']
                             except:
                                 raise Exception("The TYPHOON_XYCE_INTERFACE system environment variable could not be found. "\
                                                 "Make sure Control Center is restarted after running install.bat in the xyce-typhoon-hil-interface folder.")
-                    
+
                             if json_file_path:
                                 os.chdir(xycesim_path)
                                 sys.path.append(xycesim_path)
@@ -8051,22 +8057,22 @@ library "xyce_lib" {
                                 mainwindow = XyceOutput(json_file_path, sim_params_dict)
                                 mainwindow.show()
                                 keep_open.update({'xycewin':mainwindow})
-                    
+
                             ok_button = mdl.get_ns_var("ok_button_handle")
                             ok_button.click()
-                    
+
                         def start_sim(mask_handle):
                             sim_with_xyce(mask_handle)
-                    
+
                         def open_sa():
                             if keep_open.get('xycewin'):
                                 keep_open['xycewin'].plot_data()
                             else:
                                 mdl.info('No plot data.')
-                    
+
                         def update_display(mask_handle):
                             sim_type = mdl.get_property_disp_value(mdl.prop(mask_handle, "sim_type"))
-                    
+
                             end_f = mdl.prop(mask_handle, "end_f")
                             mdl.hide_property(end_f)
                             start_f = mdl.prop(mask_handle, "start_f")
@@ -8077,7 +8083,7 @@ library "xyce_lib" {
                             mdl.hide_property(sim_time)
                             max_ts = mdl.prop(mask_handle, "max_ts")
                             mdl.hide_property(max_ts)
-                    
+
                             if sim_type == "Transient":
                                 mdl.show_property(sim_time)
                                 mdl.show_property(max_ts)
@@ -8085,7 +8091,7 @@ library "xyce_lib" {
                                 mdl.show_property(start_f)
                                 mdl.show_property(end_f)
                                 mdl.show_property(num_points)
-                    
+
                         update_display(item_handle)
                     ENDCODE
 
@@ -8153,22 +8159,22 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
                         mdl.set_component_icon_image(item_handle, 'Xyce/node_id_test.svg')
-                    
+
                         node_id = mdl.get_property_value(mdl.prop(item_handle, "node_id"))
                         mdl.set_color(item_handle, "green")
-                    
+
                         mdl.disp_component_icon_text(item_handle, node_id, relpos_x = 0.5, relpos_y = 0.85, size = 6)
                     ENDCODE
                 }
@@ -8374,14 +8380,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -8583,14 +8589,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -8824,14 +8830,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -9065,14 +9071,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -9306,14 +9312,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -9547,14 +9553,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -9788,14 +9794,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -10029,14 +10035,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -10239,14 +10245,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -10347,14 +10353,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
@@ -10406,14 +10412,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
@@ -10460,14 +10466,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE define_icon
@@ -10530,30 +10536,30 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         x0, y0 = (8192, 8192)
-                    
+
                         def delete_port(mdl, name, parent):
                             comp = mdl.get_item(name, parent=parent, item_type="port")
                             if comp:
                                 mdl.delete_item(comp)
-                    
+
                         def show_signal_output(mask_handle):
                             comp_handle = mdl.get_parent(mask_handle)
                             signal_out = mdl.get_property_value(mdl.prop(item_handle, "signal_out"))
-                    
+
                             inner_measure_handle = mdl.get_item("I", parent=comp_handle)
-                    
+
                             if signal_out:
                                 out_port = mdl.create_port(
                                 name="signal_out",
@@ -10630,30 +10636,30 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         x0, y0 = (8192, 8192)
-                    
+
                         def delete_port(mdl, name, parent):
                             comp = mdl.get_item(name, parent=parent, item_type="port")
                             if comp:
                                 mdl.delete_item(comp)
-                    
+
                         def show_signal_output(mask_handle):
                             comp_handle = mdl.get_parent(mask_handle)
                             signal_out = mdl.get_property_value(mdl.prop(item_handle, "signal_out"))
-                    
+
                             inner_measure_handle = mdl.get_item("V", parent=comp_handle)
-                    
+
                             if signal_out:
                                 out_port = mdl.create_port(
                                 name="signal_out",
@@ -10779,14 +10785,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                        
+
                     ENDCODE
                 }
             }
@@ -10847,14 +10853,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
                 }
             }
@@ -10923,14 +10929,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                        
+
                     ENDCODE
                 }
             }
@@ -10990,14 +10996,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
                 }
             }
@@ -11078,48 +11084,48 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         x0, y0 = (8192, 8192)
-                    
+
                         def delete_port(mdl, name, parent):
                             comp = mdl.get_item(name, parent=parent, item_type="port")
                             if comp:
                                 mdl.delete_item(comp)
-                    
+
                         def update_inputs(mask_handle):
                             comp_handle = mdl.get_parent(mask_handle)
                             signs_prop = mdl.prop(mask_handle, "signs")
                             signs = mdl.get_property_value(signs_prop)
-                    
+
                             sum_handle = mdl.get_item("Sum1", parent=comp_handle)
-                    
+
                             for c in signs:
                                 if not c in ["+", "-"]:
                                     signs = signs.replace(c, "")
                             signs = signs[:5]
-                    
+
                             mdl.set_property_value(mdl.prop(sum_handle, "signs"), signs)
-                    
+
                             for idx in range(1, 6):
                                 delete_port(mdl, "In"+str(idx), parent=comp_handle)
-                    
+
                             for idx in range(len(signs)):
-                    
+
                                 if idx == 0:
                                     sum_input_name = "in"
                                 else:
                                     sum_input_name = "in"+str(idx)
-                    
+
                                 new_input = mdl.create_port(
                                 name="In"+str(idx+1),
                                 label = signs[idx],
@@ -11211,48 +11217,48 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
 
                     CODE init
                         x0, y0 = (8192, 8192)
-                    
+
                         def delete_port(mdl, name, parent):
                             comp = mdl.get_item(name, parent=parent, item_type="port")
                             if comp:
                                 mdl.delete_item(comp)
-                    
+
                         def update_inputs(mask_handle):
                             comp_handle = mdl.get_parent(mask_handle)
                             operations_prop = mdl.prop(mask_handle, "operations")
                             operations = mdl.get_property_value(operations_prop)
-                    
+
                             product_handle = mdl.get_item("Product1", parent=comp_handle)
-                    
+
                             for c in operations:
                                 if not c in ["*", "/"]:
                                     operations = operations.replace(c, "")
                             operations = operations[:5]
-                    
+
                             mdl.set_property_value(mdl.prop(product_handle, "signs"), operations)
-                    
+
                             for idx in range(1, 6):
                                 delete_port(mdl, "In"+str(idx), parent=comp_handle)
-                    
+
                             for idx in range(len(operations)):
-                    
+
                                 if idx == 0:
                                     prod_input_name = "in"
                                 else:
                                     prod_input_name = "in"+str(idx)
-                    
+
                                 new_input = mdl.create_port(
                                 name="In"+str(idx+1),
                                 label = operations[idx],
@@ -11311,14 +11317,14 @@ library "xyce_lib" {
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
-                    
+
                         dialog = RegularComponentPropertiesDialog(
                             component=component,
                             property_container=component.masks[-1],
                             current_diagram=current_diagram
                         )
                         dialog.exec_()
-                    
+
                     ENDCODE
                 }
             }
