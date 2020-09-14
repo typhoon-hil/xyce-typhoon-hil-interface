@@ -1,6 +1,6 @@
 //
 // Saved by sw version: 2020.2
-// Save timestamp: 07-Sep-2020 @ 11:58:27 AM
+// Save timestamp: 10-Sep-2020 @ 12:21:55 PM
 //
 
 library "xyce_lib" {
@@ -8046,8 +8046,8 @@ library "xyce_lib" {
                             if json_file_path:
                                 os.chdir(xycesim_path)
                                 sys.path.append(xycesim_path)
-                                sys.path.append(xycesim_path+'gui')
-                                sys.path.append(xycesim_path+'schematic_converter')
+                                sys.path.append(xycesim_path+'\gui')
+                                sys.path.append(xycesim_path+'\schematic_converter')
                                 try:
                                     from minimalistic_gui import XyceOutput
                                     import tse2xyce
@@ -10276,7 +10276,7 @@ library "xyce_lib" {
         component Category Measurements {
             layout = dynamic
             component Subsystem "Power Measurement" {
-                layout = dynamic
+                layout = static
                 component "core/Current Measurement" I {
                 }
                 [
@@ -10293,7 +10293,7 @@ library "xyce_lib" {
                 ]
 
                 port in_p {
-                    position = left:auto
+                    position = left top
                     kind = pe
                 }
                 [
@@ -10302,7 +10302,7 @@ library "xyce_lib" {
                 ]
 
                 port out_p {
-                    position = right:auto
+                    position = right top
                     kind = pe
                 }
                 [
@@ -10312,7 +10312,7 @@ library "xyce_lib" {
                 ]
 
                 port in_n {
-                    position = left:auto
+                    position = left bottom
                     kind = pe
                 }
                 [
@@ -10321,7 +10321,7 @@ library "xyce_lib" {
                 ]
 
                 port out_n {
-                    position = right:auto
+                    position = right bottom
                     kind = pe
                 }
                 [
@@ -10349,7 +10349,7 @@ library "xyce_lib" {
                 connect V.n_node Junction2 as Connection9
 
                 mask {
-                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Power Measurement</p></body></html>"
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
@@ -10367,16 +10367,17 @@ library "xyce_lib" {
                     ENDCODE
 
                     CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/msr_power.svg')
                     ENDCODE
                 }
             }
             [
-                position = 7600, 7952
-                size = 96, 128
+                position = 7616, 7936
+                size = 96, 96
             ]
 
             component Subsystem "Node Voltage" {
-                layout = dynamic
+                layout = static
                 component src_ground gnd1 {
                 }
                 [
@@ -10393,7 +10394,7 @@ library "xyce_lib" {
                 ]
 
                 port node {
-                    position = left:auto
+                    position = left center
                     kind = pe
                 }
                 [
@@ -10425,15 +10426,19 @@ library "xyce_lib" {
                         def empty():
                             pass
                     ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/msr_node_voltage.svg')
+                    ENDCODE
                 }
             }
             [
-                position = 7176, 7904
-                size = 48, 48
+                position = 7184, 7904
+                size = 32, 32
             ]
 
             component Subsystem Probe_ {
-                layout = dynamic
+                layout = static
                 component gen_probe Probe1 {
                 }
                 [
@@ -10441,7 +10446,7 @@ library "xyce_lib" {
                 ]
 
                 port In {
-                    position = left:1
+                    position = left center
                     kind = sp
                     direction =  out
                     sp_type {
@@ -10451,17 +10456,38 @@ library "xyce_lib" {
                 }
                 [
                     position = 8128, 8192
+                    hide_name = True
                 ]
 
                 connect Probe1.in In as Connection1
+
+                mask {
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+
+                    CODE open
+                        from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+
+                        dialog = RegularComponentPropertiesDialog(
+                            component=component,
+                            property_container=component.masks[-1],
+                            current_diagram=current_diagram
+                        )
+                        dialog.exec_()
+
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/probe.svg')
+                    ENDCODE
+                }
             }
             [
-                position = 7176, 8000
-                size = 48, 48
+                position = 7184, 8016
+                size = 32, 32
             ]
 
             component Subsystem "Current Measurement" {
-                layout = dynamic
+                layout = static
                 component "core/Current Measurement" I {
                     execution_rate = "1"
                     sig_output = "True"
@@ -10472,7 +10498,7 @@ library "xyce_lib" {
                 ]
 
                 port n_node {
-                    position = right:1
+                    position = right center
                     kind = pe
                 }
                 [
@@ -10482,7 +10508,7 @@ library "xyce_lib" {
                 ]
 
                 port p_node {
-                    position = left:1
+                    position = left center
                     kind = pe
                 }
                 [
@@ -10494,7 +10520,7 @@ library "xyce_lib" {
                 connect I.n_node n_node as Connection1
 
                 mask {
-                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Voltage Measurement</p></body></html>"
 
                     signal_out {
                         label = "Signal output"
@@ -10549,15 +10575,19 @@ library "xyce_lib" {
                             else:
                                 delete_port(mdl, "signal_out", parent=comp_handle)
                     ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/msr_current.svg')
+                    ENDCODE
                 }
             }
             [
-                position = 7312, 7904
-                size = 48, 48
+                position = 7304, 7904
+                size = 64, 32
             ]
 
             component Subsystem "Voltage Measurement" {
-                layout = dynamic
+                layout = static
                 component "core/Voltage Measurement" V {
                     execution_rate = "1"
                     sig_output = "True"
@@ -10568,7 +10598,7 @@ library "xyce_lib" {
                 ]
 
                 port p_node {
-                    position = left:1
+                    position = left center
                     kind = pe
                 }
                 [
@@ -10577,7 +10607,7 @@ library "xyce_lib" {
                 ]
 
                 port n_node {
-                    position = right:1
+                    position = right center
                     kind = pe
                 }
                 [
@@ -10590,7 +10620,7 @@ library "xyce_lib" {
                 connect V.p_node p_node as Connection1
 
                 mask {
-                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Voltage Measurement</p></body></html>"
 
                     signal_out {
                         label = "Signal output"
@@ -10645,11 +10675,15 @@ library "xyce_lib" {
                             else:
                                 delete_port(mdl, "signal_out", parent=comp_handle)
                     ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/msr_voltage.svg')
+                    ENDCODE
                 }
             }
             [
                 position = 7456, 7904
-                size = 48, 48
+                size = 64, 32
             ]
 
             component Subsystem Signal-to-Power {
@@ -10697,7 +10731,7 @@ library "xyce_lib" {
                 connect node Vsp1.p_node as Connection3
             }
             [
-                position = 7312, 8008
+                position = 7304, 8008
                 size = 48, 48
             ]
         }
@@ -10710,7 +10744,8 @@ library "xyce_lib" {
             layout = dynamic
             component Subsystem "Absolute Value" {
                 layout = dynamic
-                component gen_gain G {
+                component gen_abs Abs1 {
+                    execution_rate = "1"
                 }
                 [
                     position = 7760, 8040
@@ -10742,8 +10777,8 @@ library "xyce_lib" {
                     position = 7840, 8040
                 ]
 
-                connect In G.in as Connection1
-                connect G.out Out as Connection2
+                connect Abs1.out Out as Connection1
+                connect Abs1.in In as Connection2
 
                 mask {
                     description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output is the absolute value of the input.<br></br><br></br>In the Schematic Editor this component is of the signal processing type. In Xyce, however, it is an electrical source.</p></body></html>"
@@ -10769,6 +10804,7 @@ library "xyce_lib" {
             component Subsystem Gain_ {
                 layout = dynamic
                 component gen_gain G {
+                    gain = "gain"
                 }
                 [
                     position = 7656, 7976
@@ -10835,10 +10871,12 @@ library "xyce_lib" {
 
             component Subsystem Saturation {
                 layout = dynamic
-                component gen_gain G {
+                component gen_limiter Limit1 {
+                    lower_limit = "min"
+                    upper_limit = "max"
                 }
                 [
-                    position = 7592, 7968
+                    position = 7584, 7968
                 ]
 
                 port In {
@@ -10867,8 +10905,8 @@ library "xyce_lib" {
                     position = 7672, 7968
                 ]
 
-                connect In G.in as Connection1
-                connect G.out Out as Connection2
+                connect Limit1.out Out as Connection1
+                connect Limit1.in In as Connection2
 
                 mask {
                     description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output is equal to the input limited to the minimum and maximum values entered.<br></br><br></br>In the Schematic Editor this component is of the signal processing type. In Xyce, however, it is an electrical source.</p></body></html>"
@@ -11244,6 +11282,7 @@ library "xyce_lib" {
                 layout = dynamic
                 component src_constant Constant1 {
                     execution_rate = "1"
+                    value = "value"
                 }
                 [
                     position = 7768, 8040

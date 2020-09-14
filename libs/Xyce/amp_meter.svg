@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" baseProfile="basic"
+	 id="svg860" xmlns:cc="http://creativecommons.org/ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:version="0.92.4 (5da689c313, 2019-01-14)" sodipodi:docname="vs_ac.svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-273 365 64 64"
+	 xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-width:1.065;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.926;}
+	.st1{clip-path:url(#SVGID_2_);}
+	.st2{fill:none;stroke:#000000;stroke-width:1.492;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.926;}
+	.st3{fill:none;stroke:#000000;stroke-width:1.492;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2.613;}
+</style>
+<sodipodi:namedview  inkscape:cy="42.666668" inkscape:cx="43.490799" inkscape:zoom="2.7656249" showgrid="false" guidetolerance="10" gridtolerance="10" objecttolerance="10" borderopacity="1" bordercolor="#666666" id="namedview862" pagecolor="#ffffff" inkscape:current-layer="g868" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:window-x="0" inkscape:window-height="480" inkscape:pageshadow="2" inkscape:window-width="640" inkscape:pageopacity="0">
+	</sodipodi:namedview>
+<g id="g868" transform="matrix(1.3333333,0,0,-1.3333333,0,85.333333)" inkscape:label="vs_ac" inkscape:groupmode="layer">
+	<g id="g870" transform="translate(60.4891,23.4453)">
+		<path id="path872" inkscape:connector-curvature="0" class="st0" d="M-220.7-263.5h-5.3"/>
+	</g>
+	<g id="g874" transform="translate(56.8921,19.7973)">
+		<path id="path876" inkscape:connector-curvature="0" class="st0" d="M-219.8-262.5v5.4"/>
+	</g>
+	<g id="g878">
+		<g>
+			<defs>
+				<rect id="SVGID_1_" x="-212.8" y="-265.1" width="64" height="62.8"/>
+			</defs>
+			<clipPath id="SVGID_2_">
+				<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+			</clipPath>
+			<g id="g880" class="st1">
+				<g id="g886" transform="translate(32.6287,49.7493)">
+					<path id="path888" inkscape:connector-curvature="0" class="st2" d="M-213.4-270.4c7.2,0,13-5.8,13-13.1
+						c0-7.2-5.8-13.1-13-13.1c-7.2,0-13,5.8-13,13.1C-226.4-276.3-220.6-270.4-213.4-270.4z"/>
+				</g>
+				<g id="g890" transform="translate(50.3155,32.0427)">
+					<path id="path892" inkscape:connector-curvature="0" class="st2" d="M-218-265.8h10.4"/>
+				</g>
+				<g id="g894" transform="translate(14.9207,32.0427)">
+					<path id="path896" inkscape:connector-curvature="0" class="st2" d="M-208.7-265.8h-10.4"/>
+				</g>
+				<g id="g898" transform="translate(32.6287,32)">
+					<path id="path900" inkscape:connector-curvature="0" class="st3" d="M-213.4-265.8c-5.8-2.9-5.8-5.8,0-8.7"/>
+				</g>
+				<g id="g902" transform="translate(32.6287,43.84)">
+					<path id="path904" inkscape:connector-curvature="0" class="st3" d="M-213.4-268.9c5.8-2.9,5.8-5.8,0-8.7"/>
+				</g>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>

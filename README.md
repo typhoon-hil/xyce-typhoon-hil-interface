@@ -16,6 +16,7 @@ If you already have Control Center installed you can ignore these steps, but we 
 3) Fill in the details and submit
 4) The installation is straightforward
 5) Open the Typhoon HIL Control Center and on the main window, click *Schematic Editor*
+6) Wait for the first run setup to finish and close the Control Center
 
 ## 2) Xyce
 1) Go to Xyce's website: https://xyce.sandia.gov/
@@ -37,19 +38,17 @@ In case the command is not found, check the extra step at the end of this guide.
 1) Go to the master branch of the repository: https://github.com/typhoon-hil/xyce-typhoon-hil-interface
 2) Download the contents by clicking the *Clone or download* button then *Download ZIP*
 3) Extract the *xyce-typhoon-hil-interface-master* folder
-4) With Typhoon Schematic Editor closed, run *install.bat* as administrator
-5) Open the Schematic Editor, click *File* then *Modify library paths*
-6) Add the xyce-typhoon-hil-interface-master folder then click *Apply and Save*
-7) Click *File* then *Reload libraries*. At this point a new library appears in the library explorer, the *xyce_lib*.
+4) With Typhoon HIL Control Center closed, run *install.bat*
 
 ## 4) Building a model and simulating
 
-1) You can use elements from the *xyce_lib* library to build your circuit*
-2) After the circuit is built, add a *XyceSim* component and double-click it to open the mask
-3) Enter the simulation parameters
-4) Click on *Start simulation*
-5) A window opens with the text output from the *Xyce*
-6) If the simulation finishes successfully, a *Signal Analyzer* window opens automatically
+1) Open the Control Center and click on the Schematic Editor
+2) You can use elements from the *xyce_lib* library to build your circuit*
+3) After the circuit is built, add a *XyceSim* component and double-click it to open the mask
+4) Enter the simulation parameters
+5) Click on *Start simulation*
+6) A window opens with the text output from the *Xyce*
+7) If the simulation finishes successfully, a *Signal Analyzer* window opens automatically
 
 You can also find circuit examples within the *xyce-typhoon-hil-interface-master/examples* folder.
 
