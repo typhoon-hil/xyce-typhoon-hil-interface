@@ -10569,7 +10569,7 @@ library "xyce_lib" {
                                 kind='sp',
                                 direction='out',
                                 position=(x0, y0-100),
-                                terminal_position=("top","auto")
+                                terminal_position=("top","center")
                                 )
                                 mdl.create_connection(mdl.term(inner_measure_handle, "out"), out_port)
                             else:
@@ -10669,7 +10669,7 @@ library "xyce_lib" {
                                 kind='sp',
                                 direction='out',
                                 position=(x0, y0-100),
-                                terminal_position=("top","auto")
+                                terminal_position=("top","center")
                                 )
                                 mdl.create_connection(mdl.term(inner_measure_handle, "out"), out_port)
                             else:

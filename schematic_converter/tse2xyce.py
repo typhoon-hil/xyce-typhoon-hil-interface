@@ -271,7 +271,7 @@ def tse2xyce(jsonfile, sim_params_dict):
                 )
 
     # Write a .cir file with the same name as the JSON, and in the same folder
-    with open("".join(jsonfile.split(".")[0:-1])+".cir","w+") as f:
+    with open(os.path.splitext(jsonfile)[0]+".cir","w+") as f:
         f.write(output)
 
     # Program speed test
