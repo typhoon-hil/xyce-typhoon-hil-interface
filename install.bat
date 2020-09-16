@@ -2,31 +2,23 @@
 
 setlocal EnableDelayedExpansion
 
-set c_version=""
-IF EXIST "%appdata%/typhoon/2019.4" (set c_version="2019.4")
-IF EXIST "%appdata%/typhoon/2019.4 SP1" (set c_version="2019.4 SP1")
-IF EXIST "%appdata%/typhoon/2019.4 SP2" (set c_version="2019.4 SP2")
-IF EXIST "%appdata%/typhoon/2020.1" (set c_version="2020.1")
-IF EXIST "%appdata%/typhoon/2020.1 SP1" (set c_version="2020.1 SP1")
-IF EXIST "%appdata%/typhoon/2020.1 SP2" (set c_version="2020.1 SP2")
-IF EXIST "%appdata%/typhoon/2020.2" (set c_version="2020.2")
+ECHO Installing / updating the xyce-typhoon-hil-interface files
 
-IF %c_version%=="" (ECHO No compatible Typhoon HIL Control Center installation found. Make sure to run the Typhoon Schematic Editor once before running this installation script. & pause & exit)
-
-ECHO Installing on the latest Typhoon HIL Control Center version detected:  %c_version%
+set c_version="2020.2"
 
 cd "%~dp0"
 set path_to_this_folder=%~dp0\
 set appdata_folder=%appdata%
 set path_to_userlibs="%appdata%\typhoon\%c_version%\user-libs"
-echo %~dp0
-echo %path_to_userlibs%
-xcopy /E /I "%path_to_this_folder:~0,-2%\gui" "%appdata_folder%\xyce-typhoon-hil-interface\gui"
-xcopy /E /I "%path_to_this_folder:~0,-2%\libs" "%appdata_folder%\xyce-typhoon-hil-interface\libs"
-xcopy /E /I "%path_to_this_folder:~0,-2%\schematic_converter" "%appdata_folder%\xyce-typhoon-hil-interface\schematic_converter"
-xcopy "%path_to_this_folder:~0,-2%\__init__.py" "%appdata_folder%\xyce-typhoon-hil-interface"
-xcopy "%path_to_this_folder:~0,-2%\libs\Xyce.tlib" "%path_to_userlibs%"
-xcopy /E /I "%path_to_this_folder:~0,-2%\libs\Xyce" "%path_to_userlibs%\Xyce"
+set path=%path%;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\
+xcopy /E /I /Y "%path_to_this_folder:~0,-2%\gui" "%appdata_folder%\xyce-typhoon-hil-interface\gui" > NUL
+xcopy /E /I /Y "%path_to_this_folder:~0,-2%\libs" "%appdata_folder%\xyce-typhoon-hil-interface\libs" > NUL
+xcopy /E /I /Y "%path_to_this_folder:~0,-2%\schematic_converter" "%appdata_folder%\xyce-typhoon-hil-interface\schematic_converter" > NUL
+xcopy /Y "%path_to_this_folder:~0,-2%\libs\Xyce.tlib" "%path_to_userlibs%\" > NUL
+xcopy /Y "%path_to_this_folder:~0,-2%\__init__.py" "%appdata_folder%\xyce-typhoon-hil-interface\" > NUL
+xcopy /E /I /Y "%path_to_this_folder:~0,-2%\libs\Xyce" "%path_to_userlibs%\Xyce" > NUL
+
 setx TYPHOON_XYCE_INTERFACE "%appdata_folder%\xyce-typhoon-hil-interface"
-IF %ERRORLEVEL% NEQ 0 (ECHO There was a problem with the installation.) ELSE (ECHO Installation sucessful.)
-pause
+IF %ERRORLEVEL% NEQ 0 (ECHO There was a problem with the installation.) ELSE (ECHO Files copied sucessfully.)
+
+sleep 2
