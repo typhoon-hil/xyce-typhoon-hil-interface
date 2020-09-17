@@ -1,6 +1,6 @@
 //
 // Saved by sw version: 2020.2
-// Save timestamp: 16-Sep-2020 @ 06:04:26 PM
+// Save timestamp: 17-Sep-2020 @ 10:33:26 AM
 //
 
 library "xyce_lib" {
@@ -3767,6 +3767,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TAU1 {
@@ -3774,6 +3778,10 @@ library "xyce_lib" {
                                 widget = edit
                                 type = generic
                                 default_value = "0.005"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             meas_v {
@@ -3809,6 +3817,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0.025"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TAU2 {
@@ -3816,6 +3828,10 @@ library "xyce_lib" {
                                 widget = edit
                                 type = generic
                                 default_value = "0.01"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             CODE open
@@ -3827,23 +3843,107 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_exp.svg')
-                            
-                                V1 = mdl.prop(item_handle, "V1")
-                                V2 = mdl.prop(item_handle, "V2")
-                                min = mdl.get_property_value(V1)
-                                max = mdl.get_property_value(V2)
-                            
-                                min_text = f"{min} V"
-                                max_text = f"{max} V"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
-                                mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                TD1_prop = mdl.prop(item_handle, "TD1")
+                                get_text(TD1_prop, "s")
+                                TAU1_prop = mdl.prop(item_handle, "TAU1")
+                                get_text(TAU1_prop, "s")
+                                TD2_prop = mdl.prop(item_handle, "TD2")
+                                get_text(TD2_prop, "s")
+                                TAU2_prop = mdl.prop(item_handle, "TAU2")
+                                get_text(TAU2_prop, "s")
+                                
+                                ignore = False
+                                V1_prop = mdl.prop(item_handle, "V1")
+                                V1_text, color = get_text(V1_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, V1_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                V2_prop = mdl.prop(item_handle, "V2")
+                                V2_text, color = get_text(V2_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, V2_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.9)
                             ENDCODE
                         }
                     }
@@ -3919,6 +4019,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TR {
@@ -3927,6 +4031,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TF {
@@ -3935,14 +4043,22 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             PW {
                                 label = "Pulse width"
                                 widget = edit
                                 type = generic
-                                default_value = "0.0125"
+                                default_value = "12.5e-3"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             meas_v {
@@ -3976,8 +4092,12 @@ library "xyce_lib" {
                                 label = "Period"
                                 widget = edit
                                 type = generic
-                                default_value = "0.025"
+                                default_value = "25e-3"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             CODE open
@@ -3989,23 +4109,109 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_pulse.svg')
-                            
-                                V1 = mdl.prop(item_handle, "V1")
-                                V2 = mdl.prop(item_handle, "V2")
-                                min = mdl.get_property_value(V1)
-                                max = mdl.get_property_value(V2)
-                            
-                                min_text = f"{min} V"
-                                max_text = f"{max} V"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
-                                mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                TD_prop = mdl.prop(item_handle, "TD")
+                                get_text(TD_prop, "s")
+                                TR_prop = mdl.prop(item_handle, "TR")
+                                get_text(TR_prop, "s")
+                                TF_prop = mdl.prop(item_handle, "TF")
+                                get_text(TF_prop, "s")
+                                PW_prop = mdl.prop(item_handle, "PW")
+                                get_text(PW_prop, "s")
+                                PER_prop = mdl.prop(item_handle, "PER")
+                                get_text(PER_prop, "s")
+                                
+                                ignore = False
+                                V1_prop = mdl.prop(item_handle, "V1")
+                                V1_text, color = get_text(V1_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, V1_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                V2_prop = mdl.prop(item_handle, "V2")
+                                V2_text, color = get_text(V2_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, V2_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.9)
                             ENDCODE
                         }
                     }
@@ -4103,24 +4309,99 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_dc.svg')
-                            
-                                voltage = mdl.prop(item_handle, "voltage")
-                                vdc = mdl.get_property_value(voltage)
-                            
-                                vdc_text = f"{vdc} V"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, vdc_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                #
+                                #PER_prop = mdl.prop(item_handle, "PER")
+                                #get_text(PER_prop, "s")
+                                
+                                ignore = False
+                                voltage_prop = mdl.prop(item_handle, "voltage")
+                                voltage_text, color = get_text(voltage_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, voltage_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
                             ENDCODE
                         }
                     }
                     [
-                        position = 7456, 8072
+                        position = 7456, 8080
                         rotation = left
                         size = 64, 64
                     ]
@@ -4177,7 +4458,7 @@ library "xyce_lib" {
                                 label = "Frequency"
                                 widget = edit
                                 type = generic
-                                default_value = "50"
+                                default_value = "60"
                                 unit = "Hz"
 
                                 CODE property_value_changed
@@ -4191,6 +4472,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "°"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             V0 {
@@ -4199,6 +4484,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "V"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TD {
@@ -4207,6 +4496,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             THETA {
@@ -4214,6 +4507,10 @@ library "xyce_lib" {
                                 widget = edit
                                 type = generic
                                 default_value = "0"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             meas_v {
@@ -4252,28 +4549,108 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_ac.svg')
-                            
-                                VA = mdl.prop(item_handle, "VA")
-                                FREQ = mdl.prop(item_handle, "FREQ")
-                                amplitude = mdl.get_property_value(VA)
-                                frequency = mdl.get_property_value(FREQ)
-                            
-                                amp_text = f"{amplitude} V"
-                                freq_text = f"{frequency} Hz"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, freq_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
-                                mdl.disp_component_icon_text(item_handle, amp_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                V0_prop = mdl.prop(item_handle, "V0")
+                                get_text(V0_prop, "V")
+                                TD_prop = mdl.prop(item_handle, "TD")
+                                get_text(TD_prop, "s")
+                                
+                                ignore = False
+                                VA_prop = mdl.prop(item_handle, "VA")
+                                VA_text, color = get_text(VA_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, VA_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                FREQ_prop = mdl.prop(item_handle, "FREQ")
+                                FREQ_text, color = get_text(FREQ_prop, "Hz")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, FREQ_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
                             ENDCODE
                         }
                     }
                     [
-                        position = 7688, 8072
+                        position = 7688, 8080
                         rotation = left
                         size = 64, 64
                     ]
@@ -4344,6 +4721,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0.5"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             tfall {
@@ -4352,6 +4733,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0.5"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             meas_v {
@@ -4390,23 +4775,103 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/vs_triangular.svg')
-                            
-                                VMIN = mdl.prop(item_handle, "vmin")
-                                VMAX = mdl.prop(item_handle, "vmax")
-                                min = mdl.get_property_value(VMIN)
-                                max = mdl.get_property_value(VMAX)
-                            
-                                min_text = f"{min} V"
-                                max_text = f"{max} V"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
-                                mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                trise_prop = mdl.prop(item_handle, "trise")
+                                get_text(trise_prop, "s")
+                                tfall_prop = mdl.prop(item_handle, "tfall")
+                                get_text(tfall_prop, "s")
+                                
+                                ignore = False
+                                vmin_prop = mdl.prop(item_handle, "vmin")
+                                vmin_text, color = get_text(vmin_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, vmin_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                vmax_prop = mdl.prop(item_handle, "vmax")
+                                vmax_text, color = get_text(vmax_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, vmax_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.9)
                             ENDCODE
                         }
                     }
@@ -4457,7 +4922,7 @@ library "xyce_lib" {
                         connect p_node Is1.p_node as Connection1
 
                         mask {
-                            description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Exponent Current Source</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br>In Xyce, this is an \"I\" type element with a \"EXP\" transient specification.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output starts at the V1* current. At TD1 seconds, it rises exponentially to V2 according to TAU1. At TD2 seconds, it falls exponentially towards V1 according to TAU2.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">*This is the nomenclature used by Xyce.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The following equations describe the waveform:<br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">0 < t < TD1:</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">I(t) = V1 </p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">TD1 < t < TD2:</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">I(t) = V1 + (V2-V1)(1-exp(-(t-TD1)/TAU1))     [Eq1]</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">t > TD2:</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">I(t) = Eq1 + (V1-V2)(1-exp(-(t-TD2)/TAU2))</p></body></html>"
+                            description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Exponent Current Source</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br>In Xyce, this is an \"I\" type element with a \"EXP\" transient specification.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The output starts at the V1* current. At TD1 seconds, it rises exponentially to V2 according to TAU1. At TD2 seconds, it falls exponentially towards V1 according to TAU2.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">*This is the nomenclature used by Xyce.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The following equations describe the waveform:<br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">0 </p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">I(t) = V1 </p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">TD1 </p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">I(t) = V1 + (V2-V1)(1-exp(-(t-TD1)/TAU1))     [Eq1]</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">t > TD2:</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">I(t) = Eq1 + (V1-V2)(1-exp(-(t-TD2)/TAU2))</p></body></html>"
 
                             V1 {
                                 label = "Initial amplitude"
@@ -4489,6 +4954,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TAU1 {
@@ -4496,6 +4965,10 @@ library "xyce_lib" {
                                 widget = edit
                                 type = generic
                                 default_value = "0.01"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TD2 {
@@ -4504,6 +4977,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0.025"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TAU2 {
@@ -4511,6 +4988,10 @@ library "xyce_lib" {
                                 widget = edit
                                 type = generic
                                 default_value = "0.01"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             meas_v {
@@ -4549,23 +5030,107 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_exp.svg')
-                            
-                                V1 = mdl.prop(item_handle, "V1")
-                                V2 = mdl.prop(item_handle, "V2")
-                                min = mdl.get_property_value(V1)
-                                max = mdl.get_property_value(V2)
-                            
-                                min_text = f"{min} A"
-                                max_text = f"{max} A"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
-                                mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                TD1_prop = mdl.prop(item_handle, "TD1")
+                                get_text(TD1_prop, "s")
+                                TAU1_prop = mdl.prop(item_handle, "TAU1")
+                                get_text(TAU1_prop, "s")
+                                TD2_prop = mdl.prop(item_handle, "TD2")
+                                get_text(TD2_prop, "s")
+                                TAU2_prop = mdl.prop(item_handle, "TAU2")
+                                get_text(TAU2_prop, "s")
+                                
+                                ignore = False
+                                V1_prop = mdl.prop(item_handle, "V1")
+                                V1_text, color = get_text(V1_prop, "A")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, V1_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                V2_prop = mdl.prop(item_handle, "V2")
+                                V2_text, color = get_text(V2_prop, "A")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, V2_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.9)
                             ENDCODE
                         }
                     }
@@ -4608,6 +5173,9 @@ library "xyce_lib" {
                         connect p_node Is1.p_node as Connection1
                         connect Is1.n_node n_node as Connection2
 
+                        FREQ = "60"
+                        VA = "1"
+
                         mask {
                             description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">AC Current Source</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br>In Xyce, this is an \"I\" type element with a \"SIN\" transient specification.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">If a positive Delay is set, the source will output a constant current for TD seconds. Negative values are also accepted.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The sine wave is multiplied to the expression exp(-THETA*(t-TD)).</p></body></html>"
 
@@ -4615,7 +5183,7 @@ library "xyce_lib" {
                                 label = "Amplitude"
                                 widget = edit
                                 type = generic
-                                default_value = "1"
+                                default_value = "1e-9"
                                 unit = "A"
 
                                 CODE property_value_changed
@@ -4627,7 +5195,7 @@ library "xyce_lib" {
                                 label = "Frequency"
                                 widget = edit
                                 type = generic
-                                default_value = "50"
+                                default_value = "50e-9"
                                 unit = "Hz"
 
                                 CODE property_value_changed
@@ -4649,6 +5217,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "A"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TD {
@@ -4657,6 +5229,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             THETA {
@@ -4702,23 +5278,103 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_ac.svg')
-                            
-                                VA = mdl.prop(item_handle, "VA")
-                                FREQ = mdl.prop(item_handle, "FREQ")
-                                amplitude = mdl.get_property_value(VA)
-                                frequency = mdl.get_property_value(FREQ)
-                            
-                                amp_text = f"{amplitude} A"
-                                freq_text = f"{frequency} Hz"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, freq_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
-                                mdl.disp_component_icon_text(item_handle, amp_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                V0_prop = mdl.prop(item_handle, "V0")
+                                get_text(V0_prop, "A")
+                                TD_prop = mdl.prop(item_handle, "TD")
+                                get_text(TD_prop, "s")
+                                
+                                ignore = False
+                                VA_prop = mdl.prop(item_handle, "VA")
+                                VA_text, color = get_text(VA_prop, "A")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, VA_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                FREQ_prop = mdl.prop(item_handle, "FREQ")
+                                FREQ_text, color = get_text(FREQ_prop, "Hz")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, FREQ_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
                             ENDCODE
                         }
                     }
@@ -4812,19 +5468,91 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_dc.svg')
-                            
-                                current = mdl.prop(item_handle, "current")
-                                idc = mdl.get_property_value(current)
-                            
-                                idc_text = f"{idc} A"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, idc_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                ignore = False
+                                current_prop = mdl.prop(item_handle, "current")
+                                current_text, color = get_text(current_prop, "A")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, current_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
                             ENDCODE
                         }
                     }
@@ -4900,6 +5628,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TR {
@@ -4908,6 +5640,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             TF {
@@ -4916,6 +5652,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             PW {
@@ -4924,6 +5664,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0.0125"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             PER {
@@ -4932,6 +5676,10 @@ library "xyce_lib" {
                                 type = generic
                                 default_value = "0.025"
                                 unit = "s"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
                             }
 
                             meas_v {
@@ -4970,23 +5718,110 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
                                 mdl.set_component_icon_image(item_handle, 'Xyce/cs_pulse.svg')
-                            
-                                V1 = mdl.prop(item_handle, "V1")
-                                V2 = mdl.prop(item_handle, "V2")
-                                min = mdl.get_property_value(V1)
-                                max = mdl.get_property_value(V2)
-                            
-                                min_text = f"{min} A"
-                                max_text = f"{max} A"
-                            
-                                mdl.set_color(item_handle, "blue")
-                                mdl.disp_component_icon_text(item_handle, min_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.7)
-                                mdl.disp_component_icon_text(item_handle, max_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.7)
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                TD_prop = mdl.prop(item_handle, "TD")
+                                get_text(TD_prop, "s")
+                                TR_prop = mdl.prop(item_handle, "TR")
+                                get_text(TR_prop, "s")
+                                TF_prop = mdl.prop(item_handle, "TF")
+                                get_text(TF_prop, "s")
+                                PW_prop = mdl.prop(item_handle, "PW")
+                                get_text(PW_prop, "s")
+                                PER_prop = mdl.prop(item_handle, "PER")
+                                get_text(PER_prop, "s")
+                                
+                                ignore = False
+                                V1_prop = mdl.prop(item_handle, "V1")
+                                V1_text, color = get_text(V1_prop, "A")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, V1_text, relpos_x = 0.5, relpos_y = 0.9, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                V2_prop = mdl.prop(item_handle, "V2")
+                                V2_text, color = get_text(V2_prop, "A")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, V2_text, relpos_x = 0.5, relpos_y = 0.12, size = 8, trim_factor = 0.9)
+                                
                             ENDCODE
                         }
                     }
