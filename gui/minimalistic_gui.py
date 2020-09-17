@@ -37,23 +37,20 @@ def available_variables(csv_file, cir_file):
                 # Original table header may include extra commas due to
                 # differential voltage measurements V(v+,v-)
                 new_tab =  table.dropna(axis=1) # Drops empty columns
-                for col in new_tab.columns:
-                    if "Re(" in col:
-                        print(col)
                 # Sets the new header
                 last_line = f_cir.readlines()[-1].replace('\n','')
                 cols = ['Time']
-                cols.extend(last_line.split(",")[1:])
+                if len(last_line.split(",")) > 2:
+                    cols.extend(last_line.split(",")[1:])
                 try:
                     new_tab.columns = cols
                     new_tab.to_csv(csv_file, index=False)
                 except ValueError:
-                    print(error)
                     # Length mismatch
                     pass
+                return True
     except FileNotFoundError:
-        print("error")
-        pass
+        return False
 
 
 # Widget definition
@@ -93,7 +90,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         self.setModal(False)
         self.closed_window.connect(self.on_close_window)
 
-        self.textBrowser.append('Loading the Xyce .cir file...')
+        self.textBrowser.append('Preparing the JSON file for conversion...')
         # QProcess used later to run Xyce and display output inside the window
         self.process = QtCore.QProcess(self)
         self.plotprocess = QtCore.QProcess(self)
@@ -120,16 +117,22 @@ class XyceOutput(QDialog, Ui_XyceOutput):
     def convert_JSON_file(self):
         try:
             # Converts the JSON file to a Xyce .cir file using tse2xyce.py
-            tse2xyce.tse2xyce(self.json_file_path, self.sim_params_dict)
+            result, msg = tse2xyce.tse2xyce(self.json_file_path, self.sim_params_dict)
             # The Xyce file path is set by substituting the file extension
-            self.xyce_file_path = re.sub(  r"\.json",r".cir",
-                                                self.json_file_path)
-            return True
-        except:
-            self.textBrowser.setPlainText('''<body><h2 style='color:red;'>
+
+            if result == True:
+                self.xyce_file_path = re.sub(  r"\.json",r".cir",
+                                                    self.json_file_path)
+                self.textBrowser.append(f'{msg}')
+            else:
+                self.textBrowser.append(f"<body><h2 style='color:red;'>Simulation aborted.<br>{msg}</h2></body>")
+            return result
+        except Exception as e:
+            self.textBrowser.append('''<body><h2 style='color:red;'>
                                             Error when trying to convert the
                                              circuit to Xyce syntax.</h2>
                                              </body>''')
+            self.textBrowser.append(f'Debug information:<br>{type(e).__name__}: {e}')
             return False
 
     def test_xyce_file(self):
@@ -151,7 +154,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         if b == None:
             self.textBrowser.setPlainText('''<body><h2 style='color:red;'>
                                             The generated Xyce netlist file is
-                                            invalid.</h2></body>'''"")
+                                            invalid.</h2></body>''')
             self.textBrowser.append(out)
 
     # Writes the Xyce output to the text window
@@ -180,16 +183,21 @@ class XyceOutput(QDialog, Ui_XyceOutput):
             if not "Xyce Abort" in self.textBrowser.toPlainText():
                 self.plot_data_path = "xyce_out.csv" if self.sim_params_dict["analysis_type"] == "Transient" else "xyce_f_out.csv"
 
-                available_variables(self.plot_data_path,
+                csv_ok = available_variables(self.plot_data_path,
                                     self.xyce_file_path)
-                self.textBrowser.append("""<body>
-                    <h2 style='color:green;'>Simulation finished successfully.</h2>
-                    </body>""")
-                if any(err_str in self.textBrowser.toPlainText() for err_str in ["step too small", "Maximum number of local error test failures"]):
+                if csv_ok:
                     self.textBrowser.append("""<body>
-                        <h2 style='color:red;'>Simulation aborted due to convergence errors.</h2>
+                        <h2 style='color:green;'>Simulation finished successfully.</h2>
                         </body>""")
-                self.plot_data()
+                    if any(err_str in self.textBrowser.toPlainText() for err_str in ["step too small", "Maximum number of local error test failures"]):
+                        self.textBrowser.append("""<body>
+                            <h2 style='color:red;'>Simulation aborted due to convergence errors.</h2>
+                            </body>""")
+                    self.plot_data()
+                else:
+                    self.textBrowser.append("""<body>
+                        <h2 style='color:red;'>There was a problem with measurement data.</h2>
+                        </body>""")
             else:
                 self.textBrowser.append("""<body>
                     <h2 style='color:red;'>Simulation ended with errors.</h2>
@@ -198,21 +206,31 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         # Runs when the Abort button is clicked
         elif self.process.exitCode() == 62097:
             self.plot_data_path = "xyce_out.csv"
-            available_variables(self.plot_data_path,
+            csv_ok = available_variables(self.plot_data_path,
                                 self.xyce_file_path)
-            self.textBrowser.append("""<body>
-                <h2 style='color:orange;'>Simulation aborted by the user.</h2>
-                </body>""")
-            self.plot_data()
+            if csv_ok:
+                self.textBrowser.append("""<body>
+                    <h2 style='color:orange;'>Simulation aborted by the user.</h2>
+                    </body>""")
+                self.plot_data()
+            else:
+                self.textBrowser.append("""<body>
+                    <h2 style='color:red;'>There was a problem with measurement data.</h2>
+                    </body>""")
         elif self.process.exitCode() == 1:
             if "step too small" in self.textBrowser.toPlainText():
                 self.textBrowser.append("""<body>
                     <h2 style='color:red;'>Simulation aborted due to convergence errors.</h2>
                     </body>""")
                 self.plot_data_path = "xyce_out.csv"
-                available_variables(self.plot_data_path,
+                csv_ok = available_variables(self.plot_data_path,
                                     self.xyce_file_path)
-                self.plot_data()
+                if csv_ok:
+                    self.plot_data()
+                else:
+                    self.textBrowser.append("""<body>
+                        <h2 style='color:red;'>There was a problem with measurement data.</h2>
+                        </body>""")
             else:
                 self.textBrowser.append("""<body>
                     <h2 style='color:red;'>Simulation ended with errors.</h2>
@@ -265,8 +283,8 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
-    # sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
-    mainwindow = XyceOutput(r"path_to.json", sim_params)
+    #sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
+    sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
+    mainwindow = XyceOutput(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\linear_circuit Target files\linear_circuit.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())
