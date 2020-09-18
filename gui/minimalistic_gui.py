@@ -125,7 +125,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
                                                     self.json_file_path)
                 self.textBrowser.append(f'{msg}')
             else:
-                self.textBrowser.append(f"<body><h2 style='color:red;'>Simulation aborted.<br>{msg}</h2></body>")
+                self.textBrowser.append(f"<body><h2 style='color:red;'>Simulation aborted.</h2></body>{msg}<br>")
             return result
         except Exception as e:
             self.textBrowser.append('''<body><h2 style='color:red;'>
@@ -285,6 +285,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     #sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
     sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
-    mainwindow = XyceOutput(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\linear_circuit Target files\linear_circuit.json", sim_params)
+    mainwindow = XyceOutput(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\buck_control Target files\buck_control.json", sim_params)
     mainwindow.show()
     sys.exit(app.exec_())
