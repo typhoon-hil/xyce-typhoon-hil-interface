@@ -28,6 +28,7 @@ def tse2xyce(jsonfile, sim_params_dict):
     measurements = []
     meas_aliases = []
     groundnodes = []
+    unsupported_components = []
     node_merges = {}
     node_ids = {}
     coupled_L_lines = ""
@@ -151,6 +152,10 @@ def tse2xyce(jsonfile, sim_params_dict):
                 coupled_L_lines += "".join((CoupledInductor.lines))
             # Measurement
             enabled_measurements = []
+            if sim_params_dict["analysis_type"] == "AC small-signal":
+                # Debug unsupported components
+                if elem_type in ["COMP","PWM","D","IdealD","UnidirSwitch","M","J","Q","Z","S","W","T","O","U"]:
+                    unsupported_components.append(this_element.name)
             if elem_type in ["V_meas", "I_meas"]: # Zero value sources
                 # Append the resulting string to the list of measurements
                 measurements.append(this_element.as_measurement(sim_params_dict["analysis_type"]))
@@ -219,6 +224,11 @@ def tse2xyce(jsonfile, sim_params_dict):
                 if term2 in n["terminals"]:
                     n_term2 = str(n['id'])
             node_merges.update({n_term1:n_term2})
+
+    if len(unsupported_components) > 0:
+        uns_string = "<br>".join([comp for comp in unsupported_components])
+        print(uns_string)
+        return [False, f"The following components are not supported for AC-analysis:<br>"+uns_string]
 
     if len(measurements) == 0:
         return [False, "There are no measurements."]
