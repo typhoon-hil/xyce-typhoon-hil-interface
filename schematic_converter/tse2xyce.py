@@ -193,7 +193,6 @@ def tse2xyce(jsonfile, sim_params_dict):
                     measurements.append(meas_string)
                     meas_aliases.extend([meas_alias])
 
-
         # Search for the ground node. It has to be named "0" in Xyce.
         if elem_type == "GND":
             # For each node in the circuit
@@ -220,6 +219,9 @@ def tse2xyce(jsonfile, sim_params_dict):
                 if term2 in n["terminals"]:
                     n_term2 = str(n['id'])
             node_merges.update({n_term1:n_term2})
+
+    if len(measurements) == 0:
+        return [False, "There are no measurements."]
 
     # Convert the lists to proper strings
     measurements = " ".join(measurements)
@@ -271,7 +273,7 @@ def tse2xyce(jsonfile, sim_params_dict):
                 )
 
     # Write a .cir file with the same name as the JSON, and in the same folder
-    with open("".join(jsonfile.split(".")[0:-1])+".cir","w+") as f:
+    with open(os.path.splitext(jsonfile)[0]+".cir","w+") as f:
         f.write(output)
 
     # Program speed test
@@ -280,6 +282,8 @@ def tse2xyce(jsonfile, sim_params_dict):
     # Prepare for another conversion
     # Reset the instance counter for coupled inductors
     CoupledInductor.instance_counter = 0
+
+    return [True, "The conversion to Xyce syntax was successful."]
 
 if __name__ == "__main__":
     # sim_params = {'analysis_type':'Transient','max_ts':'1e-6','sim_time':'1ms'}
