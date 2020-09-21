@@ -1,8 +1,8 @@
 version = 4.2
 
 //
-// Saved by sw version: 2020.2
-// Save timestamp: 12-Aug-2020 @ 06:21:09 PM
+// Saved by sw version: 2020.3 ALPHA26
+// Save timestamp: 21-Sep-2020 @ 01:40:52 PM
 //
 
 model "buck_control" {
@@ -31,6 +31,7 @@ model "buck_control" {
         user_cpu_part_option = "default"
         matrix_based_reduction = True
         cpl_dynamics_analysis = False
+        export_ss_to_pickle = False
         cce_use_relative_names = False
         cce_type_mapping_real = "double"
         cce_type_mapping_uint = "unsigned int"
@@ -594,6 +595,42 @@ model "buck_control" {
             size = 64, 64
         ]
 
+        component Subsystem Subsystem1 {
+            layout = dynamic
+            component "xyce_lib/Ideal Inductor" "Ideal Inductor1" {
+                L = "L"
+            }
+            [
+                position = 8208, 8120
+                scale = -1, 1
+                size = 64, 64
+            ]
+
+            port P1 {
+                position = right:1
+                kind = pe
+            }
+            [
+                position = 8112, 8120
+            ]
+
+            port P2 {
+                position = left:1
+                kind = pe
+            }
+            [
+                position = 8312, 8120
+                rotation = down
+            ]
+
+            connect "Ideal Inductor1.n_node" P2 as Connection2
+            connect "Ideal Inductor1.p_node" P1 as Connection1
+        }
+        [
+            position = 8672, 8136
+            size = 48, 48
+        ]
+
         junction Junction3 pe
         [
             position = 8824, 8400
@@ -674,6 +711,16 @@ model "buck_control" {
             position = 8824, 8216
         ]
 
+        junction Junction46 pe
+        [
+            position = 8824, 8216
+        ]
+
+        junction Junction47 pe
+        [
+            position = 8520, 8216
+        ]
+
         connect Co.n_node Junction3 as Connection13
         connect D.p_node Junction4 as Connection16
         connect Junction3 Junction7 as Connection28
@@ -727,7 +774,6 @@ model "buck_control" {
         [
             breakpoints = 8520, 8216; 8568, 8216
         ]
-        connect S.src Junction38 as Connection368
         connect Junction20 "PI Controller.error" as Connection369
         [
             breakpoints = 9688, 8240; 9688, 8240; 9728, 8240
@@ -768,17 +814,28 @@ model "buck_control" {
         [
             breakpoints = 8824, 8216; 8824, 8216; 8824, 8216
         ]
-        connect "Ideal Inductor1.n_node" Junction45 as Connection424
+        connect "Ideal Inductor1.n_node" Junction46 as Connection425
+        connect Junction46 Junction45 as Connection426
+        connect Subsystem1.P1 Junction46 as Connection427
+        connect S.src Junction47 as Connection428
+        connect Junction47 Junction38 as Connection429
+        connect Subsystem1.P2 Junction47 as Connection430
     }
 
     default {
         "xyce_lib/DC Voltage Source" {
             voltage = "100"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
         }
 
         "xyce_lib/Ideal Capacitor" {
             C = "100e-6"
             IC = "0"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
         }
 
         "xyce_lib/Ideal Comparator" {
@@ -787,15 +844,25 @@ model "buck_control" {
 
         "xyce_lib/Ideal Diode" {
             r_on = "1e-4"
+            vd_on = "0"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
         }
 
         "xyce_lib/Ideal Inductor" {
             L = "10e-6"
             IC = "0"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
         }
 
         "xyce_lib/Ideal Resistor" {
             R = "100"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
         }
 
         "xyce_lib/NodeID" {
@@ -816,12 +883,21 @@ model "buck_control" {
             TD = "0"
             TR = "0"
             TF = "0"
-            PW = "0.0125"
-            PER = "0.025"
+            PW = "12.5e-3"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+            PER = "25e-3"
         }
 
         "xyce_lib/Unidirectional Switch" {
             r_on = "0"
+            vd_on = "0"
+            vsw_on = "0"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+            meas_g = "False"
         }
 
         "core/Voltage Measurement" {
@@ -832,7 +908,7 @@ model "buck_control" {
             threshold = "0"
             cmp_abs_value = "False"
             feed_forward = "false"
-            sig_output = "False"
+            sig_output = "None"
             execution_rate = "100e-6"
             addr = "0"
             nd_msr_estimation = "false"
@@ -848,9 +924,16 @@ model "buck_control" {
 
         "xyce_lib/Voltage-Controlled Voltage Source" {
             gain = "1"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
         }
 
         "xyce_lib/XyceSim" {
+            sim_type = "Transient"
+            start_f = "10"
+            end_f = "10000"
+            num_points = "100"
             sim_time = "0.1ms"
             max_ts = "1e-7"
             start_sim = "Start simulation"

@@ -1,8 +1,8 @@
 import re, os
 from math import sqrt
 import ast
-
-included_models_path = os.getcwd() + "/libs/component_models/included/"
+print(os.getcwd())
+included_models_path = os.getcwd() + "\\libs\\component_models\\included\\"
 
 class Element:
     ''' Element is the main class. Circuit elements inherit from this class and

@@ -1,5 +1,5 @@
 # Built-in #
-import traceback, sys, os, re, io, time
+import traceback, sys, os, re
 from subprocess import Popen, PIPE
 import subprocess
 from functools import partial
@@ -9,14 +9,17 @@ sys.path.append('gui')
 sys.path.append('schematic_converter')
 
 # My modules #
-import tse2xyce
+if __name__ == "__main__":
+    os.chdir(os.path.dirname(os.path.dirname(__file__)))
+    import schematic_converter.tse2xyce as tse2xyce
+else:
+    import schematic_converter.tse2xyce as tse2xyce
 
 # PyQt #
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import pandas as pd
-import numpy as np
 
 # Show tracebacks #
 if QtCore.QT_VERSION >= 0x50501:
@@ -25,10 +28,11 @@ if QtCore.QT_VERSION >= 0x50501:
         QtCore.qFatal('')
 sys.excepthook = excepthook
 
+
 # Function definitions #
 def available_variables(csv_file, cir_file):
-    ''' Uses the last line of the .cir file to determine available
-        variables and changes the headers of the CSV accordingly. '''
+    """ Uses the last line of the .cir file to determine available
+        variables and changes the headers of the CSV accordingly. """
 
     try:
         with open(csv_file) as f_csv:
@@ -36,9 +40,9 @@ def available_variables(csv_file, cir_file):
             with open(cir_file) as f_cir:
                 # Original table header may include extra commas due to
                 # differential voltage measurements V(v+,v-)
-                new_tab =  table.dropna(axis=1) # Drops empty columns
+                new_tab = table.dropna(axis=1)  # Drops empty columns
                 # Sets the new header
-                last_line = f_cir.readlines()[-1].replace('\n','')
+                last_line = f_cir.readlines()[-1].replace('\n', '')
                 cols = ['Time']
                 if len(last_line.split(",")) > 2:
                     cols.extend(last_line.split(",")[1:])
@@ -80,7 +84,6 @@ class Ui_XyceOutput(object):
 
 
 class XyceOutput(QDialog, Ui_XyceOutput):
-
     closed_window = QtCore.pyqtSignal()
 
     def __init__(self, json_file_path, sim_params_dict):
@@ -121,8 +124,8 @@ class XyceOutput(QDialog, Ui_XyceOutput):
             # The Xyce file path is set by substituting the file extension
 
             if result == True:
-                self.xyce_file_path = re.sub(  r"\.json",r".cir",
-                                                    self.json_file_path)
+                self.xyce_file_path = re.sub(r"\.json", r".cir",
+                                             self.json_file_path)
                 self.textBrowser.append(f'{msg}')
             else:
                 self.textBrowser.append(f"<body><h2 style='color:red;'>Simulation aborted.</h2></body>{msg}<br>")
@@ -150,7 +153,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         # In case Xyce validates the syntax, display the part of the output
         # that includes topology information.
         b = re.match(r"([\S\s]*)(\*{5} Reading)([\S\s]*)(\*{5} Total Ela)",
-                    out)
+                     out)
         if b == None:
             self.textBrowser.setPlainText('''<body><h2 style='color:red;'>
                                             The generated Xyce netlist file is
@@ -167,29 +170,30 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         # Print only Xyce stdout
         if "Welcome to" in currenttext:
             self.keep_printing = True
-        if self.keep_printing == True:
+        if self.keep_printing:
             # if the end of Xyce output was detected
-            if ("XyceSim>More") in currenttext:
+            if "XyceSim>More" in currenttext:
                 self.keep_printing = False
                 self.textBrowser.append('\n'.join(currenttext.split('\n')[1:-1]))
             else:
                 # Append the new text available from the process output
                 self.textBrowser.append(currenttext)
 
-
     def proc_finished(self):
 
         if self.process.exitCode() == 0:
             if not "Xyce Abort" in self.textBrowser.toPlainText():
-                self.plot_data_path = "xyce_out.csv" if self.sim_params_dict["analysis_type"] == "Transient" else "xyce_f_out.csv"
+                self.plot_data_path = "xyce_out.csv" if self.sim_params_dict[
+                                                            "analysis_type"] == "Transient" else "xyce_f_out.csv"
 
                 csv_ok = available_variables(self.plot_data_path,
-                                    self.xyce_file_path)
+                                             self.xyce_file_path)
                 if csv_ok:
                     self.textBrowser.append("""<body>
                         <h2 style='color:green;'>Simulation finished successfully.</h2>
                         </body>""")
-                    if any(err_str in self.textBrowser.toPlainText() for err_str in ["step too small", "Maximum number of local error test failures"]):
+                    if any(err_str in self.textBrowser.toPlainText() for err_str in
+                           ["step too small", "Maximum number of local error test failures"]):
                         self.textBrowser.append("""<body>
                             <h2 style='color:red;'>Simulation aborted due to convergence errors.</h2>
                             </body>""")
@@ -207,7 +211,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         elif self.process.exitCode() == 62097:
             self.plot_data_path = "xyce_out.csv"
             csv_ok = available_variables(self.plot_data_path,
-                                self.xyce_file_path)
+                                         self.xyce_file_path)
             if csv_ok:
                 self.textBrowser.append("""<body>
                     <h2 style='color:orange;'>Simulation aborted by the user.</h2>
@@ -224,7 +228,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
                     </body>""")
                 self.plot_data_path = "xyce_out.csv"
                 csv_ok = available_variables(self.plot_data_path,
-                                    self.xyce_file_path)
+                                             self.xyce_file_path)
                 if csv_ok:
                     self.plot_data()
                 else:
@@ -235,10 +239,15 @@ class XyceOutput(QDialog, Ui_XyceOutput):
                 self.textBrowser.append("""<body>
                     <h2 style='color:red;'>Simulation ended with errors.</h2>
                     </body>""")
+                if "Duplicate device" in self.textBrowser.toPlainText():
+                    self.textBrowser.append("""Subsystem syntax is not completely supported at this moment.<br>
+                                            Please make sure that components in subsystems have different
+                                            names than those on upper levels.""")
         else:
             self.textBrowser.append("""<body>
                 <h2 style='color:red;'>The Xyce Simulator process was terminated.</h2>
                 </body>""")
+        self.textBrowser.append(str(self.process.exitCode()))
 
     def on_close_window(self):
         self.process.kill()
@@ -251,10 +260,10 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         self.params_path = os.path.dirname(os.path.abspath(self.xyce_file_path)) + "/xyce_params.t"
         # Write the parameters to a file
         if self.sim_params_dict['analysis_type'] == "Transient":
-            with open(self.params_path,"w") as f:
-                f.writelines([  f"t_step = {self.sim_params_dict['max_ts']}\n",
-                                f"total_time = {self.sim_params_dict['sim_time']}\n"
-                                f"decimation = {float(self.sim_params_dict['max_ts'])}\n"])
+            with open(self.params_path, "w") as f:
+                f.writelines([f"t_step = {self.sim_params_dict['max_ts']}\n",
+                              f"total_time = {self.sim_params_dict['sim_time']}\n"
+                              f"decimation = {float(self.sim_params_dict['max_ts'])}\n"])
         # Xyce simulation command
         command = f'xyce -prf "{self.params_path}" "{self.xyce_file_path}"\n'
         # Start the Xyce process
@@ -272,14 +281,19 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         filename = "xyce_out" if self.sim_params_dict['analysis_type'] == "Transient" else "xyce_f_out"
         try:
             thcc_folder = os.environ["TYPHOONPATH"]
-            self.plotprocess.startDetached(f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv"')
+            self.plotprocess.startDetached(
+                f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv"')
         except KeyError:
-            self.plotprocess.startDetached(f'cmd /c pushd "C:" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv"')
+            self.plotprocess.startDetached(
+                f'cmd /c pushd "C:" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv"')
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
-    #sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
-    mainwindow = XyceOutput(r"C:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\buck_control Target files\buck_control.json", sim_params)
+    #sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
+    mainwindow = XyceOutput(
+        r"C:\Dropbox\Typhoon HIL\Repository\xyce-typhoon-hil-interface\examples\buck_control Target files\buck_control.json",
+        sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

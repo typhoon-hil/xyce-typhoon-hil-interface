@@ -1,0 +1,354 @@
+version = 4.2
+
+//
+// Saved by sw version: 2020.3 ALPHA26
+// Save timestamp: 21-Sep-2020 @ 01:41:13 PM
+//
+
+model "New schematic 21-Sep-2020@12-58-01" {
+    configuration {
+        hil_device = "HIL402"
+        hil_configuration_id = 1
+        simulation_method = exact
+        simulation_time_step = auto
+        simulation_discret_scaling = 1.0
+        dsp_timer_periods = 100e-6, 50e-3
+        ss_calc_method = "systematic elimination"
+        enb_pole_shift = True
+        enb_gds_oversampling = True
+        show_modes = False
+        device_ao_limit_enable = False
+        cpl_stb = False
+        enb_dep_sw_detect = False
+        code_section = "internal memory"
+        data_section = "internal memory"
+        sys_sp_rate_1 = 0.0001
+        sys_sp_rate_2 = 0.05
+        sys_real_type_precision = "default"
+        user_real_type_precision = "default"
+        sys_cpu_optimization = "high"
+        user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        export_ss_to_pickle = False
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
+    }
+
+    component Subsystem Root {
+        component Subsystem Subsystem1 {
+            layout = dynamic
+
+            port P1 {
+                position = left:auto
+                kind = pe
+            }
+            [
+                position = 7768, 8064
+            ]
+
+            port P2 {
+                position = right:auto
+                kind = pe
+            }
+            [
+                position = 8040, 8064
+                scale = -1, 1
+            ]
+
+            connect P2 P1 as Connection1
+
+            mask {
+                description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+
+                asd {
+                    widget = button
+                    type = string
+                    default_value = "asds"
+                    no_evaluate
+
+                    CODE button_clicked
+                        h = return_all_level_items()
+                        names = [mdl.get_name(comp) for comp in h]
+                        mdl.info(names)
+                    ENDCODE
+                }
+
+                CODE open
+                    from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                
+                    dialog = RegularComponentPropertiesDialog(
+                        component=component,
+                        property_container=component.masks[-1],
+                        current_diagram=current_diagram
+                    )
+                    dialog.exec_()
+                    
+                ENDCODE
+
+                CODE init
+                    def return_all_level_items(parent=None):
+                    # Constants used for specifying item types.
+                        component_handles = []
+                        for item in mdl.get_items(parent):
+                            if item.item_type in ["component", "masked_component"]:
+                                item_str = mdl.get_component_type_name(item)
+                                if not item_str or item_str == "":
+                                    mdl.info("Subsystem found: "+mdl.get_name(item))
+                                    subs_handles = return_all_level_items(parent=item)
+                                    component_handles.extend(subs_handles)
+                                else:
+                                    mdl.info("Component found: "+mdl.get_name(item))
+                                    component_handles.append(item)
+                                    mdl.info(mdl.get_name(item)+" of type "+item_str)
+                            
+                        return component_handles
+                ENDCODE
+            }
+        }
+        [
+            position = 8160, 8264
+            size = 112, 56
+        ]
+
+        component Subsystem Subsystem2 {
+            layout = dynamic
+            component pas_resistor R1 {
+            }
+            [
+                position = 7896, 8064
+            ]
+
+            port P1 {
+                position = left:auto
+                kind = pe
+            }
+            [
+                position = 7768, 8064
+            ]
+
+            port P2 {
+                position = right:auto
+                kind = pe
+            }
+            [
+                position = 8040, 8064
+                scale = -1, 1
+            ]
+
+            connect P2 R1.n_node as Connection1
+            connect R1.p_node P1 as Connection2
+        }
+        [
+            position = 8392, 8264
+            size = 112, 56
+        ]
+
+        component "xyce_lib/Ideal Resistor" "Ideal Resistor1" {
+        }
+        [
+            position = 8296, 8400
+            rotation = down
+            scale = 1, -1
+            size = 64, 64
+        ]
+
+        component Subsystem Subsystem3 {
+            layout = dynamic
+            component pas_resistor R1 {
+            }
+            [
+                position = 7896, 8064
+            ]
+
+            component "xyce_lib/Node Voltage" "Node Voltage1" {
+            }
+            [
+                position = 8064, 8136
+                size = 32, 32
+            ]
+
+            component "xyce_lib/Ideal Capacitor" "Ideal Capacitor1" {
+            }
+            [
+                position = 7896, 7936
+                rotation = down
+                scale = 1, -1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Voltage Measurement" "Voltage Measurement1" {
+                signal_out = "True"
+            }
+            [
+                position = 7880, 8224
+                size = 64, 32
+            ]
+
+            component "xyce_lib/Probe_" Probe_1 {
+            }
+            [
+                position = 7920, 8144
+                size = 32, 32
+            ]
+
+            component Subsystem subnested1 {
+                layout = dynamic
+                component pas_resistor R1 {
+                }
+                [
+                    position = 7896, 8064
+                ]
+
+                port P1 {
+                    position = left:auto
+                    kind = pe
+                }
+                [
+                    position = 7768, 8064
+                ]
+
+                port P2 {
+                    position = right:auto
+                    kind = pe
+                }
+                [
+                    position = 8040, 8064
+                    scale = -1, 1
+                ]
+
+                connect P2 R1.n_node as Connection1
+                connect R1.p_node P1 as Connection2
+            }
+            [
+                position = 7528, 8128
+                size = 112, 56
+            ]
+
+            component Subsystem subnested2 {
+                layout = dynamic
+                component pas_resistor R1 {
+                }
+                [
+                    position = 7896, 8064
+                ]
+
+                port P1 {
+                    position = left:auto
+                    kind = pe
+                }
+                [
+                    position = 7768, 8064
+                ]
+
+                port P2 {
+                    position = right:auto
+                    kind = pe
+                }
+                [
+                    position = 8040, 8064
+                    scale = -1, 1
+                ]
+
+                connect P2 R1.n_node as Connection1
+                connect R1.p_node P1 as Connection2
+            }
+            [
+                position = 7552, 8232
+                size = 112, 56
+            ]
+
+            port P1 {
+                position = left:auto
+                kind = pe
+            }
+            [
+                position = 7768, 8064
+            ]
+
+            port P2 {
+                position = right:auto
+                kind = pe
+            }
+            [
+                position = 8040, 8064
+                scale = -1, 1
+            ]
+
+            junction Junction1 pe
+            [
+                position = 7976, 8064
+            ]
+
+            junction Junction2 pe
+            [
+                position = 7816, 8064
+            ]
+
+            junction Junction3 pe
+            [
+                position = 7976, 8064
+            ]
+
+            junction Junction4 pe
+            [
+                position = 7968, 8136
+            ]
+
+            junction Junction5 pe
+            [
+                position = 7816, 8056
+            ]
+
+            connect P2 Junction1 as Connection3
+            connect Junction1 R1.n_node as Connection4
+            connect R1.p_node Junction2 as Connection6
+            connect Junction2 P1 as Connection7
+            connect Junction3 Junction1 as Connection10
+            connect "Ideal Capacitor1.n_node" Junction3 as Connection11
+            connect "Node Voltage1.node" Junction4 as Connection12
+            connect Junction4 Junction3 as Connection13
+            connect "Voltage Measurement1.n_node" Junction4 as Connection14
+            connect "Ideal Capacitor1.p_node" Junction5 as Connection15
+            connect Junction5 Junction2 as Connection16
+            connect "Voltage Measurement1.p_node" Junction5 as Connection17
+            connect Probe_1.In "Voltage Measurement1.signal_out" as Connection18
+        }
+        [
+            position = 8600, 8264
+            size = 112, 56
+        ]
+    }
+
+    default {
+        pas_resistor {
+            resistance = "1"
+        }
+
+        "xyce_lib/Ideal Capacitor" {
+            C = "100e-6"
+            IC = "0"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+        }
+
+        "xyce_lib/Ideal Resistor" {
+            R = "100"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+        }
+
+        "xyce_lib/Voltage Measurement" {
+            signal_out = "False"
+        }
+    }
+}

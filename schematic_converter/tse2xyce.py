@@ -1,19 +1,15 @@
-from libfqn_dict import determine_elem
-from elements import *
+from schematic_converter.libfqn_dict import determine_elem
+from schematic_converter.elements import *
 
 import time
 import json
 
-# Simple file verification (checks the first three JSON entries)
-def test_tse_file(jsonfile):
-    with open(jsonfile) as f:
-        data = json.load(f)
-    return ["ver","_cls","name"] == list(data.keys())[0:3]
 
 # Converts jsonfile to a Xyce compatible syntax
 def tse2xyce(jsonfile, sim_params_dict):
     t0 = time.time()
     analysis_type = sim_params_dict["analysis_type"]
+    error
 
     with open(jsonfile) as f:
         data = json.load(f)
