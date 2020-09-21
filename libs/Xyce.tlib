@@ -45,6 +45,7 @@ library "xyce_lib" {
             layout = dynamic
             component Subsystem "Current-Controlled Switch" {
                 layout = static
+                label = "CCSW"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -226,6 +227,7 @@ library "xyce_lib" {
 
             component Subsystem "Voltage-Controlled Switch" {
                 layout = static
+                label = "VCSW"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -373,6 +375,7 @@ library "xyce_lib" {
 
             component Subsystem MESFET {
                 layout = static
+                label = "S"
                 component el_short "Short Circuit 2" {
                 }
                 [
@@ -663,6 +666,7 @@ library "xyce_lib" {
 
             component Subsystem BJT {
                 layout = static
+                label = "S"
                 component el_short "Short Circuit 2" {
                 }
                 [
@@ -951,6 +955,7 @@ library "xyce_lib" {
 
             component Subsystem JFET {
                 layout = static
+                label = "S"
                 component el_short "Short Circuit 2" {
                 }
                 [
@@ -1239,6 +1244,7 @@ library "xyce_lib" {
 
             component Subsystem MOSFET {
                 layout = static
+                label = "S"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -1526,6 +1532,7 @@ library "xyce_lib" {
 
             component Subsystem Diode {
                 layout = static
+                label = "D"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -1780,6 +1787,7 @@ library "xyce_lib" {
 
             component Subsystem "Ideal Diode" {
                 layout = static
+                label = "D"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -1892,6 +1900,7 @@ library "xyce_lib" {
 
             component Subsystem "Unidirectional Switch" {
                 layout = static
+                label = "S"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -2051,6 +2060,7 @@ library "xyce_lib" {
             layout = dynamic
             component Subsystem "Ideal Inductor" {
                 layout = static
+                label = "L"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -2248,6 +2258,7 @@ library "xyce_lib" {
 
             component Subsystem "Ideal Resistor" {
                 layout = static
+                label = "R"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -2690,6 +2701,7 @@ library "xyce_lib" {
 
             component Subsystem "Ideal Capacitor" {
                 layout = static
+                label = "C"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -3023,6 +3035,7 @@ library "xyce_lib" {
 
             component Subsystem "Coupled Inductor" {
                 layout = static
+                label = "CI"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -3712,6 +3725,7 @@ library "xyce_lib" {
                     layout = dynamic
                     component Subsystem "Exponent Voltage Source" {
                         layout = static
+                        label = "Vexp"
                         component src_voltage Vs1 {
                         }
                         [
@@ -3964,6 +3978,7 @@ library "xyce_lib" {
 
                     component Subsystem "Pulse Voltage Source" {
                         layout = static
+                        label = "Vpulse"
                         component src_voltage Vs1 {
                         }
                         [
@@ -4232,6 +4247,7 @@ library "xyce_lib" {
 
                     component Subsystem "DC Voltage Source" {
                         layout = static
+                        label = "Vdc"
                         component src_voltage Vs1 {
                         }
                         [
@@ -4417,6 +4433,7 @@ library "xyce_lib" {
 
                     component Subsystem "AC Voltage Source" {
                         layout = static
+                        label = "Vac"
                         component src_voltage Vs1 {
                         }
                         [
@@ -4666,6 +4683,7 @@ library "xyce_lib" {
 
                     component Subsystem "Triangular Voltage Source" {
                         layout = static
+                        label = "Vtri"
                         component src_voltage Vs1 {
                         }
                         [
@@ -4899,6 +4917,7 @@ library "xyce_lib" {
                     layout = dynamic
                     component Subsystem "Exponent Current Source" {
                         layout = static
+                        label = "Iexp"
                         component src_current Is1 {
                         }
                         [
@@ -5151,6 +5170,7 @@ library "xyce_lib" {
 
                     component Subsystem "AC Current Source" {
                         layout = static
+                        label = "Iac"
                         component src_current Is1 {
                         }
                         [
@@ -5395,6 +5415,7 @@ library "xyce_lib" {
 
                     component Subsystem "DC Current Source" {
                         layout = static
+                        label = "Idc"
                         component src_current Is1 {
                         }
                         [
@@ -5573,6 +5594,7 @@ library "xyce_lib" {
 
                     component Subsystem "Pulse Current Source" {
                         layout = static
+                        label = "Ipulse"
                         component src_current Is1 {
                         }
                         [
@@ -5854,6 +5876,7 @@ library "xyce_lib" {
                 layout = dynamic
                 component Subsystem "Voltage-Controlled Current Source" {
                     layout = static
+                    label = "VCCS"
                     component el_short "Short Circuit1" {
                     }
                     [
@@ -5987,6 +6010,7 @@ library "xyce_lib" {
 
                 component Subsystem "Current-Controlled Current Source" {
                     layout = static
+                    label = "CCCS"
                     component el_short "Short Circuit" {
                     }
                     [
@@ -6140,6 +6164,7 @@ library "xyce_lib" {
 
                 component Subsystem "Current-Controlled Voltage Source" {
                     layout = static
+                    label = "CCVS"
                     component el_short "Short Circuit" {
                     }
                     [
@@ -6299,6 +6324,7 @@ library "xyce_lib" {
 
                 component Subsystem "Voltage-Controlled Voltage Source" {
                     layout = static
+                    label = "VCVS"
                     component el_short "Short Circuit" {
                     }
                     [
@@ -6471,6 +6497,7 @@ library "xyce_lib" {
             layout = dynamic
             component Subsystem "Lossy Transmission Line" {
                 layout = static
+                label = "TL"
                 component el_short "Short Circuit1" {
                 }
                 [
@@ -6702,6 +6729,7 @@ library "xyce_lib" {
 
             component Subsystem "Lumped Transmission Line" {
                 layout = static
+                label = "TL"
                 component el_short "Short Circuit1" {
                 }
                 [
@@ -6886,6 +6914,7 @@ library "xyce_lib" {
 
             component Subsystem "Ideal Transmission Line" {
                 layout = static
+                label = "TL"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -7084,6 +7113,7 @@ library "xyce_lib" {
             layout = dynamic
             component Subsystem "Operational Amplifier" {
                 layout = static
+                label = "OpAmp"
                 component "xyce_lib/Ideal Resistor" Rin {
                     R = "10e6"
                 }
@@ -7357,6 +7387,7 @@ library "xyce_lib" {
 
             component Subsystem "Ideal Comparator" {
                 layout = static
+                label = "CMP"
                 component src_ground gnd1 {
                 }
                 [
@@ -7526,6 +7557,7 @@ library "xyce_lib" {
 
             component Subsystem "Pulse Width Modulator" {
                 layout = static
+                label = "PWM"
                 component src_ground gnd1 {
                 }
                 [
@@ -7669,6 +7701,7 @@ library "xyce_lib" {
 
             component Subsystem "Model-based OpAmp" {
                 layout = static
+                label = "OpAmp"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -11158,6 +11191,7 @@ library "xyce_lib" {
             layout = dynamic
             component Subsystem "Power Measurement" {
                 layout = static
+                label = "P"
                 component "core/Current Measurement" I {
                 }
                 [
@@ -11259,6 +11293,7 @@ library "xyce_lib" {
 
             component Subsystem "Node Voltage" {
                 layout = static
+                label = "V"
                 component src_ground gnd1 {
                 }
                 [
@@ -11320,6 +11355,7 @@ library "xyce_lib" {
 
             component Subsystem Probe_ {
                 layout = static
+                label = "Probe"
                 component gen_probe Probe1 {
                 }
                 [
@@ -11369,6 +11405,7 @@ library "xyce_lib" {
 
             component Subsystem "Current Measurement" {
                 layout = static
+                label = "I"
                 component "core/Current Measurement" I {
                     execution_rate = "1"
                     sig_output = "Full Bandwidth"
@@ -11469,6 +11506,7 @@ library "xyce_lib" {
 
             component Subsystem "Voltage Measurement" {
                 layout = static
+                label = "V"
                 component "core/Voltage Measurement" V {
                     execution_rate = "1"
                     sig_output = "Full Bandwidth"
@@ -11569,6 +11607,7 @@ library "xyce_lib" {
 
             component Subsystem Signal-to-Power {
                 layout = dynamic
+                label = "Sig2Pwr"
                 component "core/Signal Controlled Voltage Source" Vsp1 {
                 }
                 [
@@ -11665,6 +11704,7 @@ library "xyce_lib" {
             layout = dynamic
             component Subsystem "Absolute Value" {
                 layout = dynamic
+                label = "Abs"
                 component gen_abs Abs1 {
                     execution_rate = "1"
                 }
@@ -11724,6 +11764,7 @@ library "xyce_lib" {
 
             component Subsystem Gain_ {
                 layout = dynamic
+                label = "Gain"
                 component gen_gain G {
                     gain = "gain"
                 }
@@ -11792,6 +11833,7 @@ library "xyce_lib" {
 
             component Subsystem Saturation {
                 layout = dynamic
+                label = "Sat"
                 component gen_limiter Limit1 {
                     lower_limit = "min"
                     upper_limit = "max"
@@ -11935,6 +11977,7 @@ library "xyce_lib" {
 
             component Subsystem Sum_ {
                 layout = dynamic
+                label = "Sum"
                 component gen_sum Sum1 {
                     execution_rate = "1"
                     signs = "++"
@@ -12068,6 +12111,7 @@ library "xyce_lib" {
 
             component Subsystem Product_ {
                 layout = dynamic
+                label = "Product"
                 component gen_product Product1 {
                     execution_rate = "1"
                     signs = "**"
@@ -12201,6 +12245,7 @@ library "xyce_lib" {
 
             component Subsystem Constant_ {
                 layout = dynamic
+                label = "Constant"
                 component src_constant Constant1 {
                     execution_rate = "1"
                     value = "value"

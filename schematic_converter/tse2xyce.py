@@ -9,7 +9,6 @@ import json
 def tse2xyce(jsonfile, sim_params_dict):
     t0 = time.time()
     analysis_type = sim_params_dict["analysis_type"]
-    error
 
     with open(jsonfile) as f:
         data = json.load(f)
@@ -223,7 +222,6 @@ def tse2xyce(jsonfile, sim_params_dict):
 
     if len(unsupported_components) > 0:
         uns_string = "<br>".join([comp for comp in unsupported_components])
-        print(uns_string)
         return [False, f"The following components are not supported for AC-analysis:<br>"+uns_string]
 
     if len(measurements) == 0:

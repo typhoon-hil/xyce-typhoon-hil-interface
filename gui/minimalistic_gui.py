@@ -247,7 +247,6 @@ class XyceOutput(QDialog, Ui_XyceOutput):
             self.textBrowser.append("""<body>
                 <h2 style='color:red;'>The Xyce Simulator process was terminated.</h2>
                 </body>""")
-        self.textBrowser.append(str(self.process.exitCode()))
 
     def on_close_window(self):
         self.process.kill()
