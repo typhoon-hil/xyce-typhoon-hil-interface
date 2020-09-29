@@ -217,7 +217,28 @@ class Ui_Scope(object):
         icon7.addPixmap(QtGui.QPixmap("colors/black.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionBlack.setIcon(icon7)
         self.actionBlack.setObjectName("actionBlack")
+        self.actionRed = QtWidgets.QAction(Scope)
 
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap("linetypes/solid.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionSolid.setIcon(icon8)
+        self.actionSolid.setObjectName("actionSolid")
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(QtGui.QPixmap("linetypes/dashed.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionDashed.setIcon(icon9)
+        self.actionDashed.setObjectName("actionDashed")
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap("linetypes/dotted.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionDotted.setIcon(icon10)
+        self.actionDotted.setObjectName("actionDotted")
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(QtGui.QPixmap("linetypes/dash-dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionDashDot.setIcon(icon11)
+        self.actionDashDot.setObjectName("actionDashDot")
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(QtGui.QPixmap("linetypes/dash-dot-dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionDashDotDot.setIcon(icon12)
+        self.actionDashDotDot.setObjectName("actionDashDotDot")
         self.retranslateUi(Scope)
         QtCore.QMetaObject.connectSlotsByName(Scope)
 
@@ -249,7 +270,11 @@ class Ui_Scope(object):
         self.actionOrange.setText(_translate("Scope", "Orange"))
         self.actionYellow.setText(_translate("Scope", "Yellow"))
         self.actionBlack.setText(_translate("Scope", "Black"))
-
+        self.actionSolid.setText(_translate("Scope", "Solid"))
+        self.actionDotted.setText(_translate("Scope", "Dotted"))
+        self.actionDashed.setText(_translate("Scope", "Dashed"))
+        self.actionDashDot.setText(_translate("Scope", "Dash-dot"))
+        self.actionDashDotDot.setText(_translate("Scope", "Dash-dot-dot"))
 
 class Scope(QDialog, Ui_Scope):
     meas_colors = {"red": QtCore.Qt.red, "blue": QtCore.Qt.blue, "green": QtCore.Qt.green,
@@ -341,10 +366,18 @@ class Scope(QDialog, Ui_Scope):
     def viewport_menu(self, pos):
         clicked_viewport = self.sender()
         m = QMenu(clicked_viewport)
+        # Color submenu
         color_submenu = QMenu(m)
         color_submenu.setTitle("Set color")
         m.addMenu(color_submenu)
+        # Line submenu
+        line_submenu = QMenu(m)
+        line_submenu.setTitle("Line type")
+        m.addMenu(line_submenu)
 
+        # Main menu actions
+
+        m.addAction("Remove")
         # Add color actions
         color_submenu.addAction(self.actionRed)
         color_submenu.addAction(self.actionBlue)

@@ -1,8 +1,8 @@
 version = 4.2
 
 //
-// Saved by sw version: 2020.3 ALPHA26
-// Save timestamp: 21-Sep-2020 @ 01:40:52 PM
+// Saved by sw version: 2020.3 ALPHA28
+// Save timestamp: 29-Sep-2020 @ 02:48:13 PM
 //
 
 model "buck_control" {
@@ -579,7 +579,7 @@ model "buck_control" {
             sim_time = "20ms"
         }
         [
-            position = 9096, 8072
+            position = 9016, 8064
             size = 112, 56
         ]
 
@@ -593,42 +593,6 @@ model "buck_control" {
             position = 9312, 8352
             rotation = right
             size = 64, 64
-        ]
-
-        component Subsystem Subsystem1 {
-            layout = dynamic
-            component "xyce_lib/Ideal Inductor" "Ideal Inductor1" {
-                L = "L"
-            }
-            [
-                position = 8208, 8120
-                scale = -1, 1
-                size = 64, 64
-            ]
-
-            port P1 {
-                position = right:1
-                kind = pe
-            }
-            [
-                position = 8112, 8120
-            ]
-
-            port P2 {
-                position = left:1
-                kind = pe
-            }
-            [
-                position = 8312, 8120
-                rotation = down
-            ]
-
-            connect "Ideal Inductor1.n_node" P2 as Connection2
-            connect "Ideal Inductor1.p_node" P1 as Connection1
-        }
-        [
-            position = 8672, 8136
-            size = 48, 48
         ]
 
         junction Junction3 pe
@@ -709,16 +673,6 @@ model "buck_control" {
         junction Junction45 pe
         [
             position = 8824, 8216
-        ]
-
-        junction Junction46 pe
-        [
-            position = 8824, 8216
-        ]
-
-        junction Junction47 pe
-        [
-            position = 8520, 8216
         ]
 
         connect Co.n_node Junction3 as Connection13
@@ -814,12 +768,14 @@ model "buck_control" {
         [
             breakpoints = 8824, 8216; 8824, 8216; 8824, 8216
         ]
-        connect "Ideal Inductor1.n_node" Junction46 as Connection425
-        connect Junction46 Junction45 as Connection426
-        connect Subsystem1.P1 Junction46 as Connection427
-        connect S.src Junction47 as Connection428
-        connect Junction47 Junction38 as Connection429
-        connect Subsystem1.P2 Junction47 as Connection430
+        connect "Ideal Inductor1.n_node" Junction45 as Connection432
+        [
+            breakpoints = 8824, 8216
+        ]
+        connect Junction38 S.src as Connection431
+        [
+            breakpoints = 8520, 8216; 8520, 8216
+        ]
     }
 
     default {

@@ -8884,6 +8884,7 @@ library "xyce_lib" {
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
                         from PyQt5 import QtWidgets, QtCore
+                        import os
 
                         start_sim_prop = mdl.prop(item_handle, "start_sim")
                         if mdl.get_model_file_path() == "":

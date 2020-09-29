@@ -44,7 +44,7 @@ def available_variables(csv_file, cir_file):
                 # Sets the new header
                 last_line = f_cir.readlines()[-1].replace('\n', '')
                 cols = ['Time']
-                if len(last_line.split(",")) > 2:
+                if len(last_line.split(",")) > 1:
                     cols.extend(last_line.split(",")[1:])
                 try:
                     new_tab.columns = cols
@@ -264,7 +264,8 @@ class XyceOutput(QDialog, Ui_XyceOutput):
                               f"total_time = {self.sim_params_dict['sim_time']}\n"
                               f"decimation = {float(self.sim_params_dict['max_ts'])}\n"])
         # Xyce simulation command
-        command = f'xyce -prf "{self.params_path}" "{self.xyce_file_path}"\n'
+        os.chdir(os.path.dirname(self.xyce_file_path))
+        command = f'cmd /c pushd "{os.path.abspath(self.xyce_file_path)}" & xyce -prf "{self.params_path}" "{self.xyce_file_path}"\n'
         # Start the Xyce process
         self.process.start(command)
 
@@ -292,7 +293,7 @@ if __name__ == "__main__":
     sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
     #sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
     mainwindow = XyceOutput(
-        r"C:\Dropbox\Typhoon HIL\Repository\xyce-typhoon-hil-interface\examples\buck_control Target files\buck_control.json",
+        r"C:\Users\marco\AppData\Roaming\xyce-typhoon-hil-interface\examples\delete_this Target files\delete_this.json",
         sim_params)
     mainwindow.show()
     sys.exit(app.exec_())
