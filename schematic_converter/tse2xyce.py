@@ -295,4 +295,4 @@ def tse2xyce(jsonfile, sim_params_dict):
 if __name__ == "__main__":
     # sim_params = {'analysis_type':'Transient','max_ts':'1e-6','sim_time':'1ms'}
     sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
-    tse2xyce(r"C:\Dropbox\Typhoon HIL\Repository\xyce-typhoon-hil-interface\examples\delete_this Target files\delete_this.json", sim_params)
+    tse2xyce(r"path_to.json", sim_params)

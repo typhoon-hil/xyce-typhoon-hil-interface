@@ -11656,46 +11656,7 @@ library "xyce_lib" {
                 size = 48, 48
             ]
 
-            component Subsystem Scope {
-                layout = dynamic
-
-                mask {
-                    description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
-
-                    k {
-                        widget = edit
-                        type = generic
-                        default_value = "0"
-                    }
-
-                    CODE open
-                        import os, sys
-
-                        # Xyce converter path
-                        try:
-                            xycesim_path = os.environ['TYPHOON_XYCE_INTERFACE']
-                        except:
-                            raise Exception("The TYPHOON_XYCE_INTERFACE system environment variable could not be found. "\
-                                            "Make sure Control Center is restarted after running install.bat in the xyce-typhoon-hil-interface folder.")
-
-
-                        xycesim_path = r"C:\Dropbox\Typhoon HIL\Repository\xyce-typhoon-hil-interface"
-                        os.chdir(xycesim_path)
-                        sys.path.append(xycesim_path)
-                        sys.path.append(xycesim_path+'\gui')
-                        sys.path.append(xycesim_path+'\schematic_converter')
-                        import scope
-
-                        new_scope = scope.Scope(scope_config={"voltages": ["v1", "v2", "v3"], "currents": ["i1"], "powers": ["P1"]})
-                        new_scope.show()
-                    ENDCODE
-                }
             }
-            [
-                position = 7616, 8144
-                size = 104, 112
-            ]
-        }
         [
             position = 8096, 8400
             size = 96, 104
