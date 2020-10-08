@@ -4,7 +4,6 @@ from schematic_converter.elements import *
 import time
 import json
 
-
 # Converts jsonfile to a Xyce compatible syntax
 def tse2xyce(jsonfile, sim_params_dict):
     t0 = time.time()
@@ -15,6 +14,8 @@ def tse2xyce(jsonfile, sim_params_dict):
 
     # List of elements present in the JSON
     elem_list = data["dev_partitions"][0]["components"]
+    # List of subsystems present in the JSON
+    subsys_list = data["dev_partitions"][0]["parent_components"]
     # List of nodes present in the JSON
     node_data = data["dev_partitions"][0]["nodes"]
     # Initialization of Xyce text
@@ -31,10 +32,20 @@ def tse2xyce(jsonfile, sim_params_dict):
     def get_elem_data(elem_json):
         ''' Returns the pertinent data of an element in the JSON file. '''
         # Cannot have spaces in the name
-        elem_name = elem_json["name"].replace(" ","_")
+        elem_name = elem_json["name"]
         # Determine the element type by searching for the libfqn entry in a dict
         # using libfqn_dict.py
         elem_type = determine_elem(elem_json["lib_fqn"])
+        # Create a proper preceding string if the component is located inside subsystem(s)
+        subsys_id = elem_json["parent_comp_id"]
+        prefix_subs = ""
+        while subsys_id:
+            for subsystem in subsys_list:
+                if subsystem["id"] == subsys_id:
+                    prefix_subs = subsystem["name"] + "." + prefix_subs
+                    subsys_id = subsystem["parent_comp_id"]
+        elem_name = prefix_subs + elem_name
+        elem_name = elem_name.replace(" ", "_")
         # Initialization of the data to be returned
         elem_data = {}
 
@@ -236,8 +247,8 @@ def tse2xyce(jsonfile, sim_params_dict):
 
     # Replace the ground node name with "0" in the lines and measurements
     for g in groundnodes:
-        lines = lines.replace("n_" + g,"0") #.replace("  "," ") use to get rid of double spaces
-        measurements = measurements.replace("n_" + g,"0")
+        lines = lines.replace("n_" + g, "0")
+        measurements = measurements.replace("n_" + g, "0")
 
     for node in node_merges:
         lines = lines.replace("n_" + node, "n_" + node_merges[node])
@@ -295,4 +306,4 @@ def tse2xyce(jsonfile, sim_params_dict):
 if __name__ == "__main__":
     # sim_params = {'analysis_type':'Transient','max_ts':'1e-6','sim_time':'1ms'}
     sim_params = {'analysis_type':'AC small-signal','start_f':'10','end_f':'100000', 'num_points':'1000'}
-    tse2xyce(r"C:\Dropbox\Typhoon HIL\Repository\xyce-typhoon-hil-interface\examples\delete_this Target files\delete_this.json", sim_params)
+    tse2xyce(r"C:\Users\marco\Desktop\delete_this Target files\delete_this.json", sim_params)

@@ -8774,27 +8774,14 @@ library "xyce_lib" {
                     size = 64, 32
                 ]
 
-                component src_ground gnd1 {
-                }
-                [
-                    position = 8080, 8200
-                ]
-
                 component pas_resistor R1 {
                 }
                 [
                     position = 8248, 8152
                 ]
 
-                component src_ground gnd2 {
-                }
-                [
-                    position = 8320, 8200
-                ]
-
-                connect gnd1.node not_used.p_node as Connection1
+                connect not_used.p_node R1.n_node as Connection1
                 connect not_used.n_node R1.p_node as Connection2
-                connect gnd2.node R1.n_node as Connection3
 
                 mask {
                     description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Perform the simulation using the Xyce solver.</p></body></html>"
@@ -11657,7 +11644,7 @@ library "xyce_lib" {
             ]
 
             component Subsystem Scope {
-                layout = dynamic
+                layout = static
 
                 mask {
                     description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
@@ -11669,7 +11656,7 @@ library "xyce_lib" {
                     }
 
                     CODE open
-                        import os, sys
+                        import os, sys, pathlib
 
                         # Xyce converter path
                         try:
@@ -11678,17 +11665,82 @@ library "xyce_lib" {
                             raise Exception("The TYPHOON_XYCE_INTERFACE system environment variable could not be found. "\
                                             "Make sure Control Center is restarted after running install.bat in the xyce-typhoon-hil-interface folder.")
 
-
-                        xycesim_path = r"C:\Dropbox\Typhoon HIL\Repository\xyce-typhoon-hil-interface"
                         os.chdir(xycesim_path)
                         sys.path.append(xycesim_path)
                         sys.path.append(xycesim_path+'\gui')
                         sys.path.append(xycesim_path+'\schematic_converter')
                         import scope
 
-                        new_scope = scope.Scope(scope_config={"voltages": ["v1", "v2", "v3"], "currents": ["i1"], "powers": ["P1"]})
-                        new_scope.show()
+                        all_components = all_circuit_components(mdl)
+
+                        voltages = []
+                        currents = []
+                        powers = []
+                        # [correct list for the measurement type, string added to the UI]
+                        prop_name_dict = {  "meas_v":[voltages, lambda y: f'V({y})'],
+                                            "meas_i":[currents, lambda y: f'I({y})'],
+                                            "meas_p":[powers, lambda y: f'P({y})'],
+                                            "meas_g":[voltages, lambda y: f'Vg({y})']}
+                        for component in all_components:
+                            component_name = component.fqn
+                           # mdl.info(mdl.get_parent(component))
+                            if mdl.get_component_type_name(component) in ["Voltage Measurement", "Node Voltage"]:
+                                voltages.append(component_name)
+                            elif mdl.get_component_type_name(component) == "Current Measurement":
+                                currents.append(component_name)
+                            elif mdl.get_component_type_name(component) == "Power Measurement":
+                                powers.append(component_name)
+                            else:
+                                for prop_name in prop_name_dict.keys():
+                                    try:
+                                        prop_handle = mdl.prop(component, prop_name)
+                                        if mdl.get_property_value(prop_handle):  # If the checkbox is marked
+                                            prop_name_dict[prop_name][0].append(prop_name_dict[prop_name][1](component_name))
+                                    except Exception as e:
+                                        if e.__context__ == prop_name:
+                                            # Component doesn't have the measurement property
+                                            pass
+
+                        mdlfile = mdl.get_model_file_path()
+                        mdlfile_name = pathlib.Path(mdlfile).stem
+                        targetfiles_folder = pathlib.Path(mdlfile).parent.joinpath(mdlfile_name + " Target files")
+                        plot_cfg_file = targetfiles_folder.joinpath("plot_cfg.json")
+
+                        new_scope = scope.Scope(available_measurements={"voltages": voltages,
+                                                                        "currents": currents,
+                                                                        "powers": powers},
+                                                plot_cfg_file=str(plot_cfg_file))
+                        new_scope.exec()
                     ENDCODE
+
+                    CODE init
+                        # Build the list of available measurements
+                        def all_circuit_components(model, parent_comp=None):
+                            component_list = []
+                            if parent_comp: # Component inside a subsystem
+                                all_components = model.get_items(parent_comp)
+                            else: # Top level call
+                                all_components = model.get_items()
+
+                            for comp in all_components:
+                                try:
+                                    type_name = model.get_component_type_name(comp)
+                                    if type_name:
+                                        component_list.append(comp)
+                                    else: # Component is a subsystem
+                                        component_list.extend(all_circuit_components(model, comp))
+                                except:
+                                    # Some components (such as ports and connections) cannot be used with
+                                    # get_component_type_name
+                                    pass
+                            # Return the list of component handles
+                            return component_list
+                    ENDCODE
+
+                    CODE define_icon
+                        mdl.set_component_icon_image(item_handle, 'Xyce/scope.svg')
+                    ENDCODE
+
                 }
             }
             [

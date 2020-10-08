@@ -1,6 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication, QMenu
-import sys, traceback
+import sys
+import traceback
+import pathlib
+import json
 
 # Show tracebacks #
 if QtCore.QT_VERSION >= 0x50501:
@@ -9,39 +12,67 @@ if QtCore.QT_VERSION >= 0x50501:
         QtCore.qFatal('')
 sys.excepthook = excepthook
 
-
 class ViewportListWidget(QtWidgets.QListWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
+        self.config_dict = {}
 
     def avoid_duplicates(self, incoming_measurement):
         measurement_already_in_list = False
         for idx in range(self.count()):
             if self.item(idx).text() == incoming_measurement:
                 measurement_already_in_list = True
-        if not measurement_already_in_list:
-            self.addItem(incoming_measurement)
 
         return measurement_already_in_list
 
     def dragMoveEvent(self, event):
         if event.source() == self:
             event.mimeData().setText(event.source().item(self.currentRow()).text())
+            event.mimeData().setData("config", json.dumps(self.config_dict).encode('utf-8'))
 
     def dropEvent(self, event):
         incoming_measurement = event.mimeData().text()
-        is_duplicate = self.avoid_duplicates(incoming_measurement)
-        if type(event.source()) == ViewportListWidget and not event.source() == self:
-            for idx in range(event.source().count()):
-                if event.source().item(idx).text() == incoming_measurement and not is_duplicate:
-                    event.source().takeItem(idx)
-                    break
+        if not incoming_measurement == "":
+            if type(event.source()) == type(self): # Moved between viewports
+                config = json.loads(str(event.mimeData().data("config"), encoding='utf-8'))
+            else:
+                config = {incoming_measurement: {'color': self.new_color(), 'linetype': 'solid'}}
+            is_duplicate = self.avoid_duplicates(incoming_measurement)
+            if not is_duplicate:
+                self.config_dict.update(config)
+                self.addItem(incoming_measurement)
+                if type(event.source()) == type(self) and not event.source() == self:
+                    for idx in range(event.source().count()):
+                        if event.source().item(idx).text() == incoming_measurement:
+                            event.source().takeItem(idx)
+                            event.source().clearSelection()
+                            break
+
+    def new_color(self):
+        colors = [
+                    "#FF0000",  # red
+                    "#00FF00",  # green
+                    "#0000FF",  # blue
+                    "#A349A4",  # purple
+                    "#FF7F40",  # orange
+                    "#FFFF00",  # yellow
+                    "#000000",  # black
+                    "#7F7F7F"   # grey
+                  ]
+        for color in colors:
+            repeated_color = False
+            for measurement in self.config_dict:
+                if self.config_dict.get(measurement).get("color").upper() == color.upper():
+                    repeated_color = True
+            if not repeated_color:
+                return color
 
 class MeasurementsListWidget(QtWidgets.QListWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
+        self.clicked_item = None
 
     def dragMoveEvent(self, e):
         if not e.source() == self:
@@ -49,15 +80,21 @@ class MeasurementsListWidget(QtWidgets.QListWidget):
         else:
             e.mimeData().setText(self.item(self.currentRow()).text())
 
+    def dropEvent(self, event):
+        pass
+
 class Ui_Scope(object):
     def setupUi(self, Scope):
+        self.base_path = pathlib.Path(__file__).parent
+        self.colors_path = self.base_path.joinpath("colors")
+        self.linetypes_path = self.base_path.joinpath("linetypes")
         Scope.setObjectName("Scope")
         Scope.resize(640, 410)
         Scope.setMinimumSize(QtCore.QSize(640, 410))
         Scope.setMaximumSize(QtCore.QSize(640, 410))
-        self.plot_button = QtWidgets.QPushButton(Scope)
-        self.plot_button.setGeometry(QtCore.QRect(230, 380, 91, 23))
-        self.plot_button.setObjectName("plot_button")
+        self.save_button = QtWidgets.QPushButton(Scope)
+        self.save_button.setGeometry(QtCore.QRect(230, 380, 91, 23))
+        self.save_button.setObjectName("save_button")
         self.box_available = QtWidgets.QGroupBox(Scope)
         self.box_available.setGeometry(QtCore.QRect(10, 80, 311, 291))
         self.box_available.setAlignment(QtCore.Qt.AlignCenter)
@@ -66,12 +103,12 @@ class Ui_Scope(object):
         self.list_voltages.setGeometry(QtCore.QRect(10, 40, 91, 231))
         self.list_voltages.setMouseTracking(True)
         self.list_voltages.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-        self.list_voltages.setAcceptDrops(False)
         self.list_voltages.setToolTip("")
         self.list_voltages.setDragEnabled(True)
         self.list_voltages.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.list_voltages.setDefaultDropAction(QtCore.Qt.IgnoreAction)
         self.list_voltages.setObjectName("list_voltages")
+        #self.list_voltages.setAcceptDrops(True)
         self.label_voltages = QtWidgets.QLabel(self.box_available)
         self.label_voltages.setGeometry(QtCore.QRect(30, 22, 50, 16))
         self.label_voltages.setAlignment(QtCore.Qt.AlignCenter)
@@ -88,14 +125,16 @@ class Ui_Scope(object):
         self.list_currents.setGeometry(QtCore.QRect(110, 40, 91, 231))
         self.list_currents.setDragEnabled(True)
         self.list_currents.setMouseTracking(True)
-        self.list_currents.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
+        #self.list_currents.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.list_currents.setObjectName("list_currents")
+        self.list_currents.setAcceptDrops(True)
         self.list_powers = MeasurementsListWidget(self.box_available)
         self.list_powers.setGeometry(QtCore.QRect(210, 40, 91, 231))
         self.list_currents.setMouseTracking(True)
         self.list_powers.setDragEnabled(True)
-        self.list_powers.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
+        #self.list_powers.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.list_powers.setObjectName("list_powers")
+        self.list_powers.setAcceptDrops(True)
         self.groupBox = QtWidgets.QGroupBox(Scope)
         self.groupBox.setGeometry(QtCore.QRect(330, 80, 301, 291))
         self.groupBox.setAlignment(QtCore.Qt.AlignCenter)
@@ -177,66 +216,72 @@ class Ui_Scope(object):
         self.cancel_button.setObjectName("cancel_button")
         self.actionSet_color = QtWidgets.QAction(Scope)
         self.actionSet_color.setObjectName("actionSet_color")
+
         self.actionRed = QtWidgets.QAction(Scope)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("colors/red.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon.addPixmap(QtGui.QPixmap(str(self.colors_path.joinpath("red.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionRed.setIcon(icon)
         self.actionRed.setObjectName("actionRed")
+
         self.actionBlue = QtWidgets.QAction(Scope)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("colors/blue.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon1.addPixmap(QtGui.QPixmap(str(self.colors_path.joinpath("blue.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
         self.actionBlue.setIcon(icon1)
         self.actionBlue.setObjectName("actionBlue")
+
         self.actionGreen = QtWidgets.QAction(Scope)
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("colors/green.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon2.addPixmap(QtGui.QPixmap(str(self.colors_path.joinpath("green.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
         self.actionGreen.setIcon(icon2)
         self.actionGreen.setObjectName("actionGreen")
         self.actionPurple = QtWidgets.QAction(Scope)
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("colors/purple.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap(str(self.colors_path.joinpath("purple.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionPurple.setIcon(icon3)
         self.actionPurple.setObjectName("actionPurple")
         self.actionGrey = QtWidgets.QAction(Scope)
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("colors/grey.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon4.addPixmap(QtGui.QPixmap(str(self.colors_path.joinpath("grey.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionGrey.setIcon(icon4)
         self.actionGrey.setObjectName("actionGrey")
         self.actionOrange = QtWidgets.QAction(Scope)
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("colors/orange.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(str(self.colors_path.joinpath("orange.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionOrange.setIcon(icon5)
         self.actionOrange.setObjectName("actionOrange")
         self.actionYellow = QtWidgets.QAction(Scope)
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("colors/yellow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon6.addPixmap(QtGui.QPixmap(str(self.colors_path.joinpath("yellow.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionYellow.setIcon(icon6)
         self.actionYellow.setObjectName("actionYellow")
         self.actionBlack = QtWidgets.QAction(Scope)
         icon7 = QtGui.QIcon()
-        icon7.addPixmap(QtGui.QPixmap("colors/black.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon7.addPixmap(QtGui.QPixmap(str(self.colors_path.joinpath("black.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionBlack.setIcon(icon7)
         self.actionBlack.setObjectName("actionBlack")
-        self.actionRed = QtWidgets.QAction(Scope)
-
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap("linetypes/solid.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon8.addPixmap(QtGui.QPixmap(str(self.linetypes_path.joinpath("solid.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionSolid = QtWidgets.QAction(Scope)
         self.actionSolid.setIcon(icon8)
         self.actionSolid.setObjectName("actionSolid")
         icon9 = QtGui.QIcon()
-        icon9.addPixmap(QtGui.QPixmap("linetypes/dashed.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon9.addPixmap(QtGui.QPixmap(str(self.linetypes_path.joinpath("dashed.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionDashed = QtWidgets.QAction(Scope)
         self.actionDashed.setIcon(icon9)
         self.actionDashed.setObjectName("actionDashed")
         icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap("linetypes/dotted.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon10.addPixmap(QtGui.QPixmap(str(self.linetypes_path.joinpath("dotted.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionDotted = QtWidgets.QAction(Scope)
         self.actionDotted.setIcon(icon10)
         self.actionDotted.setObjectName("actionDotted")
         icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap("linetypes/dash-dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon11.addPixmap(QtGui.QPixmap(str(self.linetypes_path.joinpath("dash-dot.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionDashDot = QtWidgets.QAction(Scope)
         self.actionDashDot.setIcon(icon11)
         self.actionDashDot.setObjectName("actionDashDot")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap("linetypes/dash-dot-dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon12.addPixmap(QtGui.QPixmap(str(self.linetypes_path.joinpath("dash-dot-dot.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.actionDashDotDot = QtWidgets.QAction(Scope)
         self.actionDashDotDot.setIcon(icon12)
         self.actionDashDotDot.setObjectName("actionDashDotDot")
         self.retranslateUi(Scope)
@@ -245,7 +290,7 @@ class Ui_Scope(object):
     def retranslateUi(self, Scope):
         _translate = QtCore.QCoreApplication.translate
         Scope.setWindowTitle(_translate("Scope", "Scope"))
-        self.plot_button.setText(_translate("Scope", "Save"))
+        self.save_button.setText(_translate("Scope", "OK"))
         self.box_available.setTitle(_translate("Scope", "Available measurements"))
         self.label_voltages.setText(_translate("Scope", "Voltage"))
         self.label_voltages_3.setText(_translate("Scope", "Power"))
@@ -256,10 +301,10 @@ class Ui_Scope(object):
         self.label_vp_2.setText(_translate("Scope", "Viewport 2"))
         self.label_vp_4.setText(_translate("Scope", "Viewport 4"))
         self.label_desc_1.setText(_translate("Scope",
-                                             "Use the Scope to set up the displayed measurements on a Signal Analyzer tab before simulating."))
-        self.label_desc_2.setText(_translate("Scope", "Drag and drop a measurement into a viewport to add it."))
+                                             "Use the Scope to set up the Signal Analyzer before starting the simulation."))
+        self.label_desc_2.setText(_translate("Scope", "Drag and drop a measurement into a viewport to add it. You can also move it between viewports."))
         self.label_desc_3.setText(
-            _translate("Scope", "You may right click a measurement on a viewport for extra options."))
+            _translate("Scope", "Right-click a measurement on a viewport to set its color and line type."))
         self.cancel_button.setText(_translate("Scope", "Cancel"))
         self.actionSet_color.setText(_translate("Scope", "Set color"))
         self.actionRed.setText(_translate("Scope", "Red"))
@@ -277,15 +322,17 @@ class Ui_Scope(object):
         self.actionDashDotDot.setText(_translate("Scope", "Dash-dot-dot"))
 
 class Scope(QDialog, Ui_Scope):
-    meas_colors = {"red": QtCore.Qt.red, "blue": QtCore.Qt.blue, "green": QtCore.Qt.green,
-                   "purple": QtGui.QColor(163, 73, 164), "orange": QtGui.QColor(255, 128, 64),
-                   "yellow": QtCore.Qt.yellow, "black": QtCore.Qt.black, "grey": QtGui.QColor(127, 127, 127)}
+    meas_colors = {"red": "#FF0000", "blue":"#0000FF", "green": "#00FF00",
+                   "purple": "#A349A4", "orange": "#FF7F40",
+                   "yellow": "#FFFF00", "black": "#000000", "grey": "#7F7F7F"}
 
-    def __init__(self, scope_config):
+    def __init__(self, available_measurements, plot_cfg_file):
         super().__init__()
         self.setupUi(self)
         self.added_terminals = []
-        self.scope_config = scope_config
+        self.available_measurements = available_measurements
+        self.plot_cfg_file = plot_cfg_file
+        self.current_plot_cfg = {}
 
         # Used colors
         self.color_order = ["red", "blue", "green", "purple", "orange", "yellow", "black", "grey"]
@@ -301,67 +348,158 @@ class Scope(QDialog, Ui_Scope):
 
         # Connect menu signal
         self.viewport_1.customContextMenuRequested.connect(self.viewport_menu)
-        self.viewport_1.model().rowsInserted.connect(self.dropped_item_vp1)
         self.viewport_2.customContextMenuRequested.connect(self.viewport_menu)
-        self.viewport_2.model().rowsInserted.connect(self.dropped_item_vp2)
         self.viewport_3.customContextMenuRequested.connect(self.viewport_menu)
-        self.viewport_3.model().rowsInserted.connect(self.dropped_item_vp3)
         self.viewport_4.customContextMenuRequested.connect(self.viewport_menu)
-        self.viewport_4.model().rowsInserted.connect(self.dropped_item_vp4)
 
-    def dropped_item_vp1(self, model, row):
-        viewport = self.viewport_1
-        next_color = "black"
-        for color in self.color_order:
-            if color not in self.vp1_used_colors:
-                self.vp1_used_colors.append(color)
-                next_color = color
-                break
-        self.change_color_std(viewport, row, next_color)
+        # Adding and removing items from the viewport widget
+        self.viewport_1.model().rowsAboutToBeRemoved.connect(
+            lambda model, row: self.row_removed(model, row, self.viewport_1))
+        self.viewport_1.model().rowsInserted.connect(lambda model, row: self.row_added(model, row, self.viewport_1))
+        self.viewport_2.model().rowsAboutToBeRemoved.connect(
+            lambda model, row: self.row_removed(model, row, self.viewport_2))
+        self.viewport_2.model().rowsInserted.connect(lambda model, row: self.row_added(model, row, self.viewport_2))
+        self.viewport_3.model().rowsAboutToBeRemoved.connect(
+            lambda model, row: self.row_removed(model, row, self.viewport_3))
+        self.viewport_3.model().rowsInserted.connect(lambda model, row: self.row_added(model, row, self.viewport_3))
+        self.viewport_4.model().rowsAboutToBeRemoved.connect(
+            lambda model, row: self.row_removed(model, row, self.viewport_4))
+        self.viewport_4.model().rowsInserted.connect(lambda model, row: self.row_added(model, row, self.viewport_4))
 
-    def dropped_item_vp2(self, model, row):
-        viewport = self.viewport_2
-        next_color = "black"
-        for color in self.color_order:
-            if color not in self.vp2_used_colors:
-                self.vp2_used_colors.append(color)
-                next_color = color
-                break
-        self.change_color_std(viewport, row, next_color)
+        # Connect double clicks
+        self.viewport_1.itemDoubleClicked.connect(self.remove_from_viewport)
+        self.viewport_2.itemDoubleClicked.connect(self.remove_from_viewport)
+        self.viewport_3.itemDoubleClicked.connect(self.remove_from_viewport)
+        self.viewport_4.itemDoubleClicked.connect(self.remove_from_viewport)
 
-    def dropped_item_vp3(self, model, row):
-        viewport = self.viewport_3
-        next_color = "black"
-        for color in self.color_order:
-            if color not in self.vp3_used_colors:
-                self.vp3_used_colors.append(color)
-                next_color = color
-                break
-        self.change_color_std(viewport, row, next_color)
+        # Connect save/cancel buttons
+        self.save_button.clicked.connect(self.save_config)
+        self.cancel_button.clicked.connect(self.reject)
 
-    def dropped_item_vp4(self, model, row):
-        viewport = self.viewport_4
-        next_color = "red"
+        # Load plot configuration file
+        self.load_config()
 
-        found_color = False
-        if viewport.count() > 1:
+    def row_added(self, model, row, viewport, color="red", linetype="solid"):
+        added_item = viewport.item(row).text()
+
+        if viewport.config_dict:
+            # Apply the color
+            keep_color = QtGui.QColor()
+            keep_color.setNamedColor(viewport.config_dict.get(added_item).get('color'))
+            viewport.item(row).setForeground(keep_color)
+            keep_linetype = viewport.config_dict.get(added_item).get('linetype')
+            self.added_update_cfg_dict(viewport, added_item, keep_color.name(), keep_linetype)
+        else:
+            next_color = "black"
             for color in self.color_order:
-                if found_color:
+                if color not in self.vp1_used_colors:
+                    self.vp1_used_colors.append(color)
+                    next_color = color
                     break
-                for idx in range(viewport.count()):
-                    if not viewport.item(idx).foreground() == self.meas_colors[color]:
-                        next_color = color
-                        found_color = True
-                        print(next_color)
-                        break
+            self.change_color_std(viewport, row, next_color)
+            self.added_update_cfg_dict(viewport, added_item, self.meas_colors[color], linetype)
+        self.mark_measurement_not_found(viewport.item(row))
 
-        self.change_color_std(viewport, row, next_color)
+    def added_update_cfg_dict(self, viewport, added_item, hexcolor, linetype):
+        # Update current plot cfg
+        for n in range(1, 5):
+            if viewport == getattr(self, "viewport_" + str(n)):
+                item_exists = self.current_plot_cfg.get("signals").get(added_item)
+                if item_exists:
+                    # Viewports
+                    curr_viewports = item_exists.get("viewports")
+                    if not n in curr_viewports:
+                        curr_viewports.append(n)
+                    # Colors
+                    curr_colors = item_exists.get("color")
+                    curr_colors.update({str(n): hexcolor})
+                    # Linetypes
+                    curr_linetypes = item_exists.get("display")
+                    curr_linetypes.update({str(n): linetype})
+                    viewport.config_dict.update({added_item: {"color": hexcolor, "linetype": linetype}})
+                else:
+                    # Viewports
+                    self.current_plot_cfg.get("signals").update(
+                        {
+                            added_item: {
+                                        "viewports": [n],
+                                        "type": "analog",
+                                        "color": {
+                                            str(n): hexcolor
+                                        },
+                                        "display": {
+                                            str(n): "solid"
+                                        }
+                                        }
+                        })
+                    viewport.config_dict.update({added_item: {"color": hexcolor, "linetype": "solid"}})
 
-    def change_color_std(self, viewport, row, next_color="black"):
-        viewport.item(row).setForeground(self.meas_colors[next_color])
+    def change_color_std(self, viewport, row, next_color="#000000"):
+        this_color = QtGui.QColor()
+        this_color.setNamedColor(next_color)
+        viewport.item(row).setForeground(this_color)
+        # item_dict = viewport.config_dict.get(viewport.item(row).text())
+        # item_dict.update({"color": next_color})
+        # Update current plot cfg
 
-    def change_selected_color(self, clicked_item, color):
-        clicked_item.setForeground(self.meas_colors[color])
+    def remove_from_viewport(self, clicked_item):
+        viewport = clicked_item.listWidget()
+        row = viewport.indexFromItem(clicked_item).row()
+        viewport.takeItem(row)
+
+
+    def row_removed(self, model, row, viewport):
+        took_item = viewport.item(row).text()
+        self.removed_update_cfg_dict(viewport, took_item)
+
+    def removed_update_cfg_dict(self, viewport, took_item):
+        for n in range(1, 5):
+            if viewport == getattr(self, "viewport_" + str(n)):
+                took_item_dict = self.current_plot_cfg.get("signals").get(took_item)
+                viewport_list = took_item_dict.get("viewports")
+                viewport_list.remove(n)
+                color_dict = took_item_dict.get("color")
+                color_dict.pop(str(n))
+                linetype_dict = took_item_dict.get("display")
+                linetype_dict.pop(str(n))
+                viewport.config_dict.pop(took_item)
+
+    def change_selected_color(self, clicked_item, hexcolor):
+        this_color = QtGui.QColor()
+        this_color.setNamedColor(hexcolor)
+        clicked_item.setForeground(this_color)
+        viewport = clicked_item.listWidget()
+        # Update current plot cfg
+        for n in range(1, 5):
+            if viewport == getattr(self, "viewport_" + str(n)):
+                color_dict = self.current_plot_cfg.get("signals").get(clicked_item.text()).get("color")
+                color_dict.update({str(n): hexcolor})
+                item_dict = viewport.config_dict.get(clicked_item.text())
+                item_dict.update({"color": hexcolor})
+
+    def change_selected_linetype(self, clicked_item, linetype):
+        viewport = clicked_item.listWidget()
+        # Update current plot cfg
+        for n in range(1, 5):
+            if viewport == getattr(self, "viewport_" + str(n)):
+                linetype_dict = self.current_plot_cfg.get("signals").get(clicked_item.text()).get("display")
+                linetype_dict.update({str(n): linetype})
+                item_dict = viewport.config_dict.get(clicked_item.text())
+                item_dict.update({"linetype": linetype})
+
+    def mark_measurement_not_found(self, viewport_measurement):
+        # Check if the measurement exists on the circuit
+        all_measurements = []
+        all_measurements.extend(self.available_measurements.get("voltages"))
+        all_measurements.extend(self.available_measurements.get("currents"))
+        all_measurements.extend(self.available_measurements.get("powers"))
+        if viewport_measurement.text() not in all_measurements:
+            bg_color = QtGui.QColor()
+            bg_color.setNamedColor("#BB0000")
+            fg_color = QtGui.QColor()
+            fg_color.setNamedColor("#FFFFFF")
+            viewport_measurement.setBackground(bg_color)
+            viewport_measurement.setForeground(fg_color)
 
     def viewport_menu(self, pos):
         clicked_viewport = self.sender()
@@ -376,58 +514,119 @@ class Scope(QDialog, Ui_Scope):
         m.addMenu(line_submenu)
 
         # Main menu actions
+        self.actionRemove = QtWidgets.QAction("Remove", self)
+        m.addAction(self.actionRemove)
 
-        m.addAction("Remove")
-        # Add color actions
-        color_submenu.addAction(self.actionRed)
-        color_submenu.addAction(self.actionBlue)
-        color_submenu.addAction(self.actionGreen)
-        color_submenu.addAction(self.actionPurple)
-        color_submenu.addAction(self.actionOrange)
-        color_submenu.addAction(self.actionYellow)
-        color_submenu.addAction(self.actionBlack)
-        color_submenu.addAction(self.actionGrey)
+        action_dict = {
+            self.actionRed: ["color", "#FF0000"],  # red
+            self.actionGreen: ["color", "#00FF00"],  # green
+            self.actionBlue: ["color", "#0000FF"],  # blue
+            self.actionPurple: ["color", "#A349A4"],  # purple
+            self.actionOrange: ["color", "#FF7F40"],  # orange
+            self.actionYellow: ["color", "#FFFF00"],  # yellow
+            self.actionBlack: ["color", "#000000"],  # black
+            self.actionGrey: ["color", "#7F7F7F"],  # grey
+            self.actionSolid: ["linetype", "solid"],
+            self.actionDotted: ["linetype", "dotted"],
+            self.actionDashed: ["linetype", "dashed"],
+            self.actionDashDot: ["linetype", "dash-dot"],
+            self.actionDashDotDot: ["linetype", "dash-dot-dot"],
+            self.actionRemove: ["remove", ""]
+        }
+
+        for action in action_dict:
+            if action_dict.get(action)[0] == "color":
+                color_submenu.addAction(action)
+            elif action_dict.get(action)[0] == "linetype":
+                line_submenu.addAction(action)
+
+        self.font = QtGui.QFont()
 
         clicked_item = clicked_viewport.itemAt(pos)
+
         if clicked_item:
+            current_color = clicked_viewport.config_dict.get(clicked_item.text()).get("color").upper()
+            current_linetype = clicked_viewport.config_dict.get(clicked_item.text()).get("linetype")
+
+            for k, v in action_dict.items():
+                if v[1] in [current_color, current_linetype]:
+                    self.font.setWeight(85)
+                else:
+                    self.font.setWeight(40)
+                k.setFont(self.font)
+
             pos = clicked_viewport.mapToGlobal(pos)
             m.move(pos)
             clicked_action = m.exec()
-            if clicked_action == self.actionRed:
-                self.change_selected_color(clicked_item, "red")
-            elif clicked_action == self.actionBlue:
-                self.change_selected_color(clicked_item, "blue")
-            elif clicked_action == self.actionGreen:
-                self.change_selected_color(clicked_item, "green")
-            elif clicked_action == self.actionPurple:
-                self.change_selected_color(clicked_item, "purple")
-            elif clicked_action == self.actionOrange:
-                self.change_selected_color(clicked_item, "orange")
-            elif clicked_action == self.actionYellow:
-                self.change_selected_color(clicked_item, "yellow")
-            elif clicked_action == self.actionBlack:
-                self.change_selected_color(clicked_item, "black")
-            elif clicked_action == self.actionGrey:
-                self.change_selected_color(clicked_item, "grey")
+
+            if clicked_action:
+                clicked_viewport.clearSelection()
+                if action_dict.get(clicked_action)[0] == "color":
+                    self.change_selected_color(clicked_item, action_dict.get(clicked_action)[1])
+                elif action_dict.get(clicked_action)[0] == "linetype":
+                    self.change_selected_linetype(clicked_item, action_dict.get(clicked_action)[1])
+                elif action_dict.get(clicked_action)[0] == "remove":
+                    self.remove_from_viewport(clicked_item)
+            else:
+                clicked_viewport.clearSelection()
 
     def av_voltages(self):
-        voltages = self.scope_config.get("voltages")
+        voltages = self.available_measurements.get("voltages")
         for v in voltages:
             self.list_voltages.addItem(v)
 
     def av_currents(self):
-        currents = self.scope_config.get("currents")
+        currents = self.available_measurements.get("currents")
         for v in currents:
             self.list_currents.addItem(v)
 
     def av_powers(self):
-        powers = self.scope_config.get("powers")
+        powers = self.available_measurements.get("powers")
         for v in powers:
             self.list_powers.addItem(v)
 
+    def save_config(self):
+        with open(self.plot_cfg_file, 'w') as f:
+            json.dump(self.current_plot_cfg, f, indent=4)
+        self.accept()
+
+    def load_config(self):
+        try:
+            with open(self.plot_cfg_file) as f:
+                plot_config_dict = json.load(f)
+        except FileNotFoundError:
+            self.current_plot_cfg = {"signals": {},
+                                     "viewports":   {
+                                                    "1":{"x_label": "time (s)"},
+                                                    "2": {"x_label": "time (s)"},
+                                                    "3": {"x_label": "time (s)"},
+                                                    "4": {"x_label": "time (s)"}
+                                                    }
+                                     }
+            return
+
+        signals_dict = plot_config_dict.get("signals")
+        self.current_plot_cfg = plot_config_dict
+
+        for signal in signals_dict.keys():
+            if signal:
+                subplot_list = signals_dict.get(signal).get("viewports")
+                colors = signals_dict.get(signal).get("color")
+                linetypes = signals_dict.get(signal).get("display")
+                for n in subplot_list:
+                    # Get viewport handle
+                    vp = getattr(self, "viewport_" + str(n))
+                    vp.config_dict.update({signal: {'color':colors.get(str(n)), 'linetype':linetypes.get(str(n))}})
+                    # Add item to list
+                    vp.addItem(signal)
+                    # Set the item color
+                    self.change_selected_color(vp.item(vp.count()-1), colors.get(str(n)))
+                    # Mark if the measurement is not found in the circuit
+                    self.mark_measurement_not_found(vp.item(vp.count()-1))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    mainwindow = Scope(scope_config={"voltages": ["v1", "v2", "v3"], "currents": ["i1"], "powers": ["P1"]})
+    mainwindow = Scope(available_measurements={"voltages": ["v1", "v2", "v3"], "currents": ["i1"], "powers": ["P1"]},
+                       plot_cfg_file="plot_cfg3.json")
     mainwindow.show()
     sys.exit(app.exec_())

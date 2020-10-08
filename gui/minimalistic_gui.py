@@ -279,13 +279,16 @@ class XyceOutput(QDialog, Ui_XyceOutput):
         # Starts windows command prompt in the THCC drive, otherwise the typhoon_hil.cmd
         # batch can result in errors.
         filename = "xyce_out" if self.sim_params_dict['analysis_type'] == "Transient" else "xyce_f_out"
+        cfg_file = os.path.join(os.path.dirname(os.path.abspath(self.xyce_file_path)), "plot_cfg.json")
+
         try:
             thcc_folder = os.environ["TYPHOONPATH"]
+            print(thcc_folder)
             self.plotprocess.startDetached(
-                f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv"')
+                f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file="{os.getcwd()}\\{filename}.csv" --config_file="{cfg_file}" ')
         except KeyError:
             self.plotprocess.startDetached(
-                f'cmd /c pushd "C:" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv"')
+                f'cmd /c pushd "C:" & typhoon_hil sa --config_file="{cfg_file}" --data_file "{os.getcwd()}\\{filename}.csv"')
 
 
 if __name__ == "__main__":
@@ -293,7 +296,7 @@ if __name__ == "__main__":
     sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
     #sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
     mainwindow = XyceOutput(
-        r"C:\Users\marco\AppData\Roaming\xyce-typhoon-hil-interface\examples\delete_this Target files\delete_this.json",
+        r"C:\Users\marco\Desktop\delete_this Target files\delete_this.json",
         sim_params)
     mainwindow.show()
     sys.exit(app.exec_())
