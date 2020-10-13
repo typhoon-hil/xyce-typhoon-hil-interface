@@ -15,6 +15,7 @@ sys.excepthook = excepthook
 class ViewportListWidget(QtWidgets.QListWidget):
 
     def __init__(self, parent):
+        self.parent = parent
         super().__init__(parent)
         self.config_dict = {}
 
@@ -25,6 +26,14 @@ class ViewportListWidget(QtWidgets.QListWidget):
                 measurement_already_in_list = True
 
         return measurement_already_in_list
+
+    def mousePressEvent(self, e):
+        for vp in self.parent.findChildren(ViewportListWidget):
+            if not vp == self:
+                vp.clearSelection()
+        if self.itemAt(e.pos()) == None:  # Clicking on empty space
+            self.clearSelection()
+        super().mousePressEvent(e)
 
     def dragMoveEvent(self, event):
         if event.source() == self:
@@ -92,13 +101,12 @@ class Ui_Scope(object):
         Scope.resize(640, 410)
         Scope.setMinimumSize(QtCore.QSize(640, 410))
         Scope.setMaximumSize(QtCore.QSize(640, 410))
-        self.save_button = QtWidgets.QPushButton(Scope)
-        self.save_button.setGeometry(QtCore.QRect(230, 380, 91, 23))
-        self.save_button.setObjectName("save_button")
+
         self.box_available = QtWidgets.QGroupBox(Scope)
-        self.box_available.setGeometry(QtCore.QRect(10, 80, 311, 291))
+        self.box_available.setGeometry(QtCore.QRect(10, 80, 311, 320))
         self.box_available.setAlignment(QtCore.Qt.AlignCenter)
         self.box_available.setObjectName("box_available")
+
         self.list_voltages = MeasurementsListWidget(self.box_available)
         self.list_voltages.setGeometry(QtCore.QRect(10, 40, 91, 231))
         self.list_voltages.setMouseTracking(True)
@@ -108,11 +116,12 @@ class Ui_Scope(object):
         self.list_voltages.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.list_voltages.setDefaultDropAction(QtCore.Qt.IgnoreAction)
         self.list_voltages.setObjectName("list_voltages")
-        #self.list_voltages.setAcceptDrops(True)
+
         self.label_voltages = QtWidgets.QLabel(self.box_available)
         self.label_voltages.setGeometry(QtCore.QRect(30, 22, 50, 16))
         self.label_voltages.setAlignment(QtCore.Qt.AlignCenter)
         self.label_voltages.setObjectName("label_voltages")
+
         self.label_voltages_3 = QtWidgets.QLabel(self.box_available)
         self.label_voltages_3.setGeometry(QtCore.QRect(230, 22, 50, 16))
         self.label_voltages_3.setAlignment(QtCore.Qt.AlignCenter)
@@ -121,34 +130,47 @@ class Ui_Scope(object):
         self.label_voltages_2.setGeometry(QtCore.QRect(130, 22, 50, 16))
         self.label_voltages_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_voltages_2.setObjectName("label_voltages_2")
+
         self.list_currents = MeasurementsListWidget(self.box_available)
         self.list_currents.setGeometry(QtCore.QRect(110, 40, 91, 231))
         self.list_currents.setDragEnabled(True)
         self.list_currents.setMouseTracking(True)
-        #self.list_currents.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.list_currents.setObjectName("list_currents")
         self.list_currents.setAcceptDrops(True)
+        self.list_currents.setMouseTracking(True)
+
+        self.mode_transient = QtWidgets.QRadioButton("Transient analysis", self.box_available)
+        self.mode_transient.setObjectName("mode_transient")
+        self.mode_transient.setGeometry(QtCore.QRect(35, 285, 150, 23))
+
+        self.mode_AC = QtWidgets.QRadioButton("AC analysis", self.box_available)
+        self.mode_AC.setObjectName("mode_AC")
+        self.mode_AC.setGeometry(QtCore.QRect(180, 285, 150, 23))
+
         self.list_powers = MeasurementsListWidget(self.box_available)
         self.list_powers.setGeometry(QtCore.QRect(210, 40, 91, 231))
-        self.list_currents.setMouseTracking(True)
         self.list_powers.setDragEnabled(True)
-        #self.list_powers.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.list_powers.setObjectName("list_powers")
         self.list_powers.setAcceptDrops(True)
+
         self.groupBox = QtWidgets.QGroupBox(Scope)
         self.groupBox.setGeometry(QtCore.QRect(330, 80, 301, 291))
         self.groupBox.setAlignment(QtCore.Qt.AlignCenter)
         self.groupBox.setObjectName("groupBox")
+
         self.label_vp_3 = QtWidgets.QLabel(self.groupBox)
         self.label_vp_3.setGeometry(QtCore.QRect(50, 152, 61, 16))
         self.label_vp_3.setAlignment(QtCore.Qt.AlignCenter)
         self.label_vp_3.setObjectName("label_vp_3")
+
         self.label_vp_1 = QtWidgets.QLabel(self.groupBox)
         self.label_vp_1.setGeometry(QtCore.QRect(50, 22, 61, 16))
         self.label_vp_1.setAlignment(QtCore.Qt.AlignCenter)
         self.label_vp_1.setObjectName("label_vp_1")
+
         self.viewports_font = QtGui.QFont()
         self.viewports_font.setWeight(75)
+
         self.viewport_3 = ViewportListWidget(self.groupBox)
         self.viewport_3.setGeometry(QtCore.QRect(20, 170, 121, 101))
         self.viewport_3.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -158,6 +180,7 @@ class Ui_Scope(object):
         self.viewport_3.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.viewport_3.setObjectName("viewport_3")
         self.viewport_3.setFont(self.viewports_font)
+
         self.viewport_1 = ViewportListWidget(self.groupBox)
         self.viewport_1.setGeometry(QtCore.QRect(20, 40, 121, 101))
         self.viewport_1.setMouseTracking(True)
@@ -170,10 +193,12 @@ class Ui_Scope(object):
         self.viewport_1.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.viewport_1.setObjectName("viewport_1")
         self.viewport_1.setFont(self.viewports_font)
+
         self.label_vp_2 = QtWidgets.QLabel(self.groupBox)
         self.label_vp_2.setGeometry(QtCore.QRect(190, 22, 61, 16))
         self.label_vp_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_vp_2.setObjectName("label_vp_2")
+
         self.viewport_2 = ViewportListWidget(self.groupBox)
         self.viewport_2.setGeometry(QtCore.QRect(160, 40, 121, 101))
         self.viewport_2.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -183,10 +208,12 @@ class Ui_Scope(object):
         self.viewport_2.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.viewport_2.setObjectName("viewport_2")
         self.viewport_2.setFont(self.viewports_font)
+
         self.label_vp_4 = QtWidgets.QLabel(self.groupBox)
         self.label_vp_4.setGeometry(QtCore.QRect(190, 152, 61, 16))
         self.label_vp_4.setAlignment(QtCore.Qt.AlignCenter)
         self.label_vp_4.setObjectName("label_vp_4")
+
         self.viewport_4 = ViewportListWidget(self.groupBox)
         self.viewport_4.setGeometry(QtCore.QRect(160, 170, 121, 101))
         self.viewport_4.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -197,23 +224,33 @@ class Ui_Scope(object):
         self.viewport_4.setViewMode(QtWidgets.QListView.ListMode)
         self.viewport_4.setObjectName("viewport_4")
         self.viewport_4.setFont(self.viewports_font)
+
         self.frame = QtWidgets.QFrame(Scope)
         self.frame.setGeometry(QtCore.QRect(10, 5, 621, 70))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
+
         self.label_desc_1 = QtWidgets.QLabel(self.frame)
         self.label_desc_1.setGeometry(QtCore.QRect(10, 5, 531, 16))
         self.label_desc_1.setObjectName("label_desc_1")
+
         self.label_desc_2 = QtWidgets.QLabel(self.frame)
         self.label_desc_2.setGeometry(QtCore.QRect(10, 25, 531, 16))
         self.label_desc_2.setObjectName("label_desc_2")
+
         self.label_desc_3 = QtWidgets.QLabel(self.frame)
         self.label_desc_3.setGeometry(QtCore.QRect(10, 45, 531, 16))
         self.label_desc_3.setObjectName("label_desc_3")
+
+        self.save_button = QtWidgets.QPushButton(Scope)
+        self.save_button.setGeometry(QtCore.QRect(385.5, 380, 91, 23))
+        self.save_button.setObjectName("save_button")
+
         self.cancel_button = QtWidgets.QPushButton(Scope)
-        self.cancel_button.setGeometry(QtCore.QRect(330, 380, 91, 23))
+        self.cancel_button.setGeometry(QtCore.QRect(485.5, 380, 91, 23))
         self.cancel_button.setObjectName("cancel_button")
+
         self.actionSet_color = QtWidgets.QAction(Scope)
         self.actionSet_color.setObjectName("actionSet_color")
 
@@ -326,13 +363,14 @@ class Scope(QDialog, Ui_Scope):
                    "purple": "#A349A4", "orange": "#FF7F40",
                    "yellow": "#FFFF00", "black": "#000000", "grey": "#7F7F7F"}
 
-    def __init__(self, available_measurements, plot_cfg_file):
+    def __init__(self, available_measurements, plot_cfg_file, mode="transient"):
         super().__init__()
         self.setupUi(self)
         self.added_terminals = []
         self.available_measurements = available_measurements
         self.plot_cfg_file = plot_cfg_file
         self.current_plot_cfg = {}
+        self.current_mode = mode
 
         # Used colors
         self.color_order = ["red", "blue", "green", "purple", "orange", "yellow", "black", "grey"]
@@ -342,15 +380,24 @@ class Scope(QDialog, Ui_Scope):
         self.vp4_used_colors = []
 
         # Available measurements
-        self.av_voltages()
-        self.av_currents()
-        self.av_powers()
+        self.fill_av_measurements()
 
         # Connect menu signal
         self.viewport_1.customContextMenuRequested.connect(self.viewport_menu)
         self.viewport_2.customContextMenuRequested.connect(self.viewport_menu)
         self.viewport_3.customContextMenuRequested.connect(self.viewport_menu)
         self.viewport_4.customContextMenuRequested.connect(self.viewport_menu)
+
+        # Mode radio buttons
+        if mode == "transient":
+            self.mode_transient.setChecked(True)
+            self.mode_AC.setChecked(False)
+        elif mode == "ac":
+            self.mode_transient.setChecked(False)
+            self.mode_AC.setChecked(True)
+
+        self.mode_transient.clicked.connect(self.toggle_mode)
+        self.mode_AC.clicked.connect(self.toggle_mode)
 
         # Adding and removing items from the viewport widget
         self.viewport_1.model().rowsAboutToBeRemoved.connect(
@@ -378,6 +425,36 @@ class Scope(QDialog, Ui_Scope):
 
         # Load plot configuration file
         self.load_config()
+
+    def toggle_mode(self):
+        if self.mode_transient.isChecked():
+            self.current_mode = "transient"
+        if self.mode_AC.isChecked():
+            self.current_mode = "ac"
+        self.clear_av_measurements()
+        self.fill_av_measurements()
+        for vp in [self.viewport_1, self.viewport_2, self.viewport_3, self.viewport_4]:
+            for idx in range(vp.count()):
+                self.mark_measurement_not_found(vp.item(idx))
+
+
+    def clear_av_measurements(self):
+
+        self.list_voltages.clear()
+        self.list_currents.clear()
+        self.list_powers.clear()
+
+    def fill_av_measurements(self):
+
+        voltages = self.available_measurements.get(self.current_mode).get("voltages")
+        for v in voltages:
+            self.list_voltages.addItem(v)
+        currents = self.available_measurements.get(self.current_mode).get("currents")
+        for v in currents:
+            self.list_currents.addItem(v)
+        powers = self.available_measurements.get(self.current_mode).get("powers")
+        for v in powers:
+            self.list_powers.addItem(v)
 
     def row_added(self, model, row, viewport, color="red", linetype="solid"):
         added_item = viewport.item(row).text()
@@ -438,15 +515,11 @@ class Scope(QDialog, Ui_Scope):
         this_color = QtGui.QColor()
         this_color.setNamedColor(next_color)
         viewport.item(row).setForeground(this_color)
-        # item_dict = viewport.config_dict.get(viewport.item(row).text())
-        # item_dict.update({"color": next_color})
-        # Update current plot cfg
 
     def remove_from_viewport(self, clicked_item):
         viewport = clicked_item.listWidget()
         row = viewport.indexFromItem(clicked_item).row()
         viewport.takeItem(row)
-
 
     def row_removed(self, model, row, viewport):
         took_item = viewport.item(row).text()
@@ -487,19 +560,22 @@ class Scope(QDialog, Ui_Scope):
                 item_dict = viewport.config_dict.get(clicked_item.text())
                 item_dict.update({"linetype": linetype})
 
-    def mark_measurement_not_found(self, viewport_measurement):
+    def mark_measurement_not_found(self, vp_meas):
         # Check if the measurement exists on the circuit
         all_measurements = []
-        all_measurements.extend(self.available_measurements.get("voltages"))
-        all_measurements.extend(self.available_measurements.get("currents"))
-        all_measurements.extend(self.available_measurements.get("powers"))
-        if viewport_measurement.text() not in all_measurements:
-            bg_color = QtGui.QColor()
+        all_measurements.extend(self.available_measurements.get(self.current_mode).get("voltages"))
+        all_measurements.extend(self.available_measurements.get(self.current_mode).get("currents"))
+        all_measurements.extend(self.available_measurements.get(self.current_mode).get("powers"))
+        bg_color = QtGui.QColor()
+        fg_color = QtGui.QColor()
+        if vp_meas.text() not in all_measurements:
             bg_color.setNamedColor("#BB0000")
-            fg_color = QtGui.QColor()
             fg_color.setNamedColor("#FFFFFF")
-            viewport_measurement.setBackground(bg_color)
-            viewport_measurement.setForeground(fg_color)
+        else:
+            bg_color.setNamedColor("#FFFFFF")
+            fg_color.setNamedColor(vp_meas.listWidget().config_dict.get(vp_meas.text()).get("color"))
+        vp_meas.setBackground(bg_color)
+        vp_meas.setForeground(fg_color)
 
     def viewport_menu(self, pos):
         clicked_viewport = self.sender()
@@ -570,21 +646,6 @@ class Scope(QDialog, Ui_Scope):
             else:
                 clicked_viewport.clearSelection()
 
-    def av_voltages(self):
-        voltages = self.available_measurements.get("voltages")
-        for v in voltages:
-            self.list_voltages.addItem(v)
-
-    def av_currents(self):
-        currents = self.available_measurements.get("currents")
-        for v in currents:
-            self.list_currents.addItem(v)
-
-    def av_powers(self):
-        powers = self.available_measurements.get("powers")
-        for v in powers:
-            self.list_powers.addItem(v)
-
     def save_config(self):
         with open(self.plot_cfg_file, 'w') as f:
             json.dump(self.current_plot_cfg, f, indent=4)
@@ -626,7 +687,14 @@ class Scope(QDialog, Ui_Scope):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    mainwindow = Scope(available_measurements={"voltages": ["v1", "v2", "v3"], "currents": ["i1"], "powers": ["P1"]},
-                       plot_cfg_file="plot_cfg3.json")
+    mainwindow = Scope(available_measurements={
+                                                "transient": {"voltages": ["v1", "v2", "v3"],
+                                                              "currents": ["i1"],
+                                                              "powers": ["P1"]},
+                                                "ac": {"voltages": ["VP(v1)", "VM(v1)", "VP(v2)", "VP(v2)"],
+                                                              "currents": ["i1"],
+                                                              "powers": []},
+                                                },
+                       plot_cfg_file="plot_cfg3.json", mode="transient")
     mainwindow.show()
     sys.exit(app.exec_())

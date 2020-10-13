@@ -11396,7 +11396,7 @@ library "xyce_lib" {
                 label = "I"
                 component "core/Current Measurement" I {
                     execution_rate = "1"
-                    sig_output = "Full Bandwidth"
+                    sig_output = "True"
                 }
                 [
                     position = 8192, 8192
@@ -11497,7 +11497,7 @@ library "xyce_lib" {
                 label = "V"
                 component "core/Voltage Measurement" V {
                     execution_rate = "1"
-                    sig_output = "Full Bandwidth"
+                    sig_output = "True"
                 }
                 [
                     position = 8192, 8192
@@ -11649,12 +11649,6 @@ library "xyce_lib" {
                 mask {
                     description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
 
-                    k {
-                        widget = edit
-                        type = generic
-                        default_value = "0"
-                    }
-
                     CODE open
                         import os, sys, pathlib
 
@@ -11673,23 +11667,35 @@ library "xyce_lib" {
 
                         all_components = all_circuit_components(mdl)
 
+                        for comp in all_components:
+                            if mdl.get_component_type_name(comp) == "XyceSim":
+                                sim_type_prop = mdl.prop(comp, "sim_type")
+                                sim_type = mdl.get_property_value(sim_type_prop)
+                                if sim_type == "Transient":
+                                    analysis_type = "transient"
+                                else:
+                                    analysis_type = "ac"
+                                break
+
+                        available_measurements = {}
+
+                        # Transient mode
                         voltages = []
                         currents = []
                         powers = []
                         # [correct list for the measurement type, string added to the UI]
-                        prop_name_dict = {  "meas_v":[voltages, lambda y: f'V({y})'],
-                                            "meas_i":[currents, lambda y: f'I({y})'],
-                                            "meas_p":[powers, lambda y: f'P({y})'],
-                                            "meas_g":[voltages, lambda y: f'Vg({y})']}
+                        prop_name_dict = {  "meas_v":[voltages, lambda y: f'V({y.replace(" ", "_")})'],
+                                            "meas_i":[currents, lambda y: f'I({y.replace(" ", "_")})'],
+                                            "meas_p":[powers, lambda y: f'P({y.replace(" ", "_")})'],
+                                            "meas_g":[voltages, lambda y: f'Vg({y.replace(" ", "_")})']}
                         for component in all_components:
                             component_name = component.fqn
-                           # mdl.info(mdl.get_parent(component))
                             if mdl.get_component_type_name(component) in ["Voltage Measurement", "Node Voltage"]:
-                                voltages.append(component_name)
+                                voltages.append(component_name.replace(" ", "_"))
                             elif mdl.get_component_type_name(component) == "Current Measurement":
-                                currents.append(component_name)
+                                currents.append(component_name.replace(" ", "_"))
                             elif mdl.get_component_type_name(component) == "Power Measurement":
-                                powers.append(component_name)
+                                powers.append(component_name.replace(" ", "_"))
                             else:
                                 for prop_name in prop_name_dict.keys():
                                     try:
@@ -11700,16 +11706,56 @@ library "xyce_lib" {
                                         if e.__context__ == prop_name:
                                             # Component doesn't have the measurement property
                                             pass
+                        available_measurements['transient'] = { "voltages": voltages,
+                                                                "currents": currents,
+                                                                "powers": powers}
+
+                        # AC analysis mode
+                        voltages = []
+                        currents = []
+                        powers = []
+                        # [correct list for the measurement type, string added to the UI]
+                        prop_name_dict = {  "meas_v":[  voltages,
+                                                        lambda y: f'VP({y.replace(" ", "_")})',
+                                                        lambda y: f'VM({y.replace(" ", "_")})'],
+                                            "meas_i":[  currents,
+                                                        lambda y: f'IP({y.replace(" ", "_")})',
+                                                        lambda y: f'IM({y.replace(" ", "_")})'],
+                                            #"meas_g":[  voltages,
+                                            #            lambda y: f'VgP({y.replace(" ", "_")})',
+                                            #            lambda y: f'VgM({y.replace(" ", "_")})'],
+                                          }
+                        for component in all_components:
+                            component_name = component.fqn
+                            if mdl.get_component_type_name(component) in ["Voltage Measurement", "Node Voltage"]:
+                                voltages.append(f'Mag({component_name.replace(" ", "_")})')
+                                voltages.append(f'Ph({component_name.replace(" ", "_")})')
+                            elif mdl.get_component_type_name(component) == "Current Measurement":
+                                currents.append(f'Mag({component_name.replace(" ", "_")})')
+                                currents.append(f'Ph({component_name.replace(" ", "_")})')
+                            else:
+                                for prop_name in prop_name_dict.keys():
+                                    try:
+                                        prop_handle = mdl.prop(component, prop_name)
+                                        if mdl.get_property_value(prop_handle):  # If the checkbox is marked
+                                            prop_name_dict[prop_name][0].append(prop_name_dict[prop_name][1](component_name))
+                                            prop_name_dict[prop_name][0].append(prop_name_dict[prop_name][2](component_name))
+                                    except Exception as e:
+                                        if e.__context__ == prop_name:
+                                            # Component doesn't have the measurement property
+                                            pass
+                        available_measurements['ac'] = {"voltages": voltages,
+                                                        "currents": currents,
+                                                        "powers": powers}
 
                         mdlfile = mdl.get_model_file_path()
                         mdlfile_name = pathlib.Path(mdlfile).stem
                         targetfiles_folder = pathlib.Path(mdlfile).parent.joinpath(mdlfile_name + " Target files")
                         plot_cfg_file = targetfiles_folder.joinpath("plot_cfg.json")
 
-                        new_scope = scope.Scope(available_measurements={"voltages": voltages,
-                                                                        "currents": currents,
-                                                                        "powers": powers},
-                                                plot_cfg_file=str(plot_cfg_file))
+                        new_scope = scope.Scope(available_measurements,
+                                                str(plot_cfg_file),
+                                                analysis_type)
                         new_scope.exec()
                     ENDCODE
 

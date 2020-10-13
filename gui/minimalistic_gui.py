@@ -1,6 +1,7 @@
 # Built-in #
 import traceback, sys, os, re
 from subprocess import Popen, PIPE
+import gui.temp_log_plot as logplot
 import subprocess
 from functools import partial
 
@@ -216,7 +217,6 @@ class XyceOutput(QDialog, Ui_XyceOutput):
                 self.textBrowser.append("""<body>
                     <h2 style='color:orange;'>Simulation aborted by the user.</h2>
                     </body>""")
-                self.plot_data()
             else:
                 self.textBrowser.append("""<body>
                     <h2 style='color:red;'>There was a problem with measurement data.</h2>
@@ -278,23 +278,29 @@ class XyceOutput(QDialog, Ui_XyceOutput):
             </body>""")
         # Starts windows command prompt in the THCC drive, otherwise the typhoon_hil.cmd
         # batch can result in errors.
-        filename = "xyce_out" if self.sim_params_dict['analysis_type'] == "Transient" else "xyce_f_out"
+
         cfg_file = os.path.join(os.path.dirname(os.path.abspath(self.xyce_file_path)), "plot_cfg.json")
-
-        try:
-            thcc_folder = os.environ["TYPHOONPATH"]
-            print(thcc_folder)
-            self.plotprocess.startDetached(
-                f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file="{os.getcwd()}\\{filename}.csv" --config_file="{cfg_file}" ')
-        except KeyError:
-            self.plotprocess.startDetached(
-                f'cmd /c pushd "C:" & typhoon_hil sa --config_file="{cfg_file}" --data_file "{os.getcwd()}\\{filename}.csv"')
-
+        if self.sim_params_dict['analysis_type'] == "Transient":
+            filename = "xyce_out"
+            try:
+                thcc_folder = os.environ["TYPHOONPATH"]
+                self.plotprocess.startDetached(
+                    f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file="{os.getcwd()}\\{filename}.csv" --config_file="{cfg_file}" ')
+            except KeyError:
+                self.plotprocess.startDetached(
+                    f'cmd /c pushd "C:" & typhoon_hil sa --config_file="{cfg_file}" --data_file "{os.getcwd()}\\{filename}.csv"')
+        else:
+            filename = "xyce_f_out"
+            # Use the temporary log-plot solution
+            print(f"{os.getcwd()}\\{filename}.csv")
+            logplot.PlotWindow.plot_instances.append(logplot.PlotWindow(f"{os.getcwd()}\\{filename}.csv"))
+            # Show this new instance
+            logplot.PlotWindow.plot_instances[-1].show()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
-    #sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
+    # sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
+    sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
     mainwindow = XyceOutput(
         r"C:\Users\marco\Desktop\delete_this Target files\delete_this.json",
         sim_params)
