@@ -1,10 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication
 from matplotlib.backends.backend_qt5agg import FigureCanvas, NavigationToolbar2QT
+from matplotlib.widgets import Cursor
 import matplotlib
 import matplotlib.figure
 import sys
 import pandas as pd
+import numpy as np
 import re
 import traceback
 import math
@@ -85,16 +87,72 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Log-plot tool (temporary)"))
+        Form.setWindowTitle(_translate("Form", "Bode-plot tool (temporary)"))
         self.pushButton_hide_show.setText(_translate("Form", ">"))
         self.pushButton_add.setText(_translate("Form", "Add"))
         self.pushButton_remove.setText(_translate("Form", "Remove"))
         self.label_add.setText(_translate("Form", "Add a measurement"))
         self.label_remove.setText(_translate("Form", "Remove a measurement"))
 
+
+class Cursor(object):
+    def __init__(self, ax):
+        self.ax = ax
+        self.ly = ax.axvline(color='k', linewidth="0.5", label="Cursor")  # the vert line
+        self.picked_line = None
+
+        # text location in axes coords
+        self.cursor_txt = ax.text(0.02, 0.25, '', transform=ax.transAxes)
+        self.indicator_circle,  = self.ax.plot(0, 0, 'bo')
+
+        self.freq_txt = ax.text(0.02, 0.15, '', transform=ax.transAxes)
+        self.y_txt = ax.text(0.02, 0.05, '', transform=ax.transAxes)
+
+        self.ax.figure.canvas.draw()
+
+        self.ax.figure.canvas.mpl_connect('pick_event', self.onpick)
+
+    def onpick(self, event):
+
+        if event.artist in self.ax.get_lines():
+            self.picked_line = event.artist
+
+    def mouse_down(self, event):
+        self.mouse_down_pos = (event.xdata, event.ydata)
+
+    def mouse_up(self, event):
+
+        if not event.inaxes:
+            return
+
+        x, y = (event.xdata, event.ydata)
+
+        if self.mouse_down_pos == (x, y): # No drag
+            # update the line positions
+
+            if self.picked_line:
+                self.ly.set_xdata(x)
+
+                xdata = self.picked_line.get_xdata()
+                ydata = self.picked_line.get_ydata()
+
+                indx = min(np.searchsorted(xdata, x), len(xdata) - 1)
+                y = ydata[indx]
+
+                self.cursor_txt.set_text(f'{self.picked_line.get_label()} cursor data:')
+                self.freq_txt.set_text('f = %1.2f Hz' % x)
+                self.y_txt.set_text('y = %1.2f' % y)
+
+                self.indicator_circle.set_xdata(x)
+                self.indicator_circle.set_ydata(y)
+
+                self.ax.figure.canvas.draw()
+
 class Ui_MatplotlibWindow(QtWidgets.QMainWindow):
     ''' Widget used for the maplotlib plots. '''
+
     def __init__(self, csvpath, av_vars):
+
         # plotlist is the list of variables to be plotted.
         super().__init__()
         self.av_vars = av_vars
@@ -102,6 +160,7 @@ class Ui_MatplotlibWindow(QtWidgets.QMainWindow):
         self.main_widget = QtWidgets.QWidget()
         self.setCentralWidget(self.main_widget)
         self.csvpath = csvpath
+        self.my_cursor = None
 
         # Get the device standard window color
         rgba = self.main_widget.palette().color(QtGui.QPalette.Window).getRgb()
@@ -110,6 +169,7 @@ class Ui_MatplotlibWindow(QtWidgets.QMainWindow):
         # Add widgets from the matplotlib backend
         self.figure = matplotlib.figure.Figure(tight_layout=True)
         self.figure.set_facecolor(rgba)
+
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
         self.toolbar.setStyleSheet('QToolBar{spacing:5px;}')
@@ -126,12 +186,14 @@ class Ui_MatplotlibWindow(QtWidgets.QMainWindow):
         self.drawing_phase = self.figure.add_subplot(212, sharex=self.drawing_mag, xscale="log")
         first_instance_mag = self.drawing_mag.plot()
         first_instance_phase = self.drawing_phase.plot()
-        self.mag_legend = set()
-        self.phase_legend = set()
+        self.mag_legend = {}
+        self.phase_legend = {}
+
+        #self.canvas.mpl_connect('button_press_event', self.create_cursor)
 
         # Create a dictionary of curve instances
-        self.ax_instances_mag = {0: first_instance_mag}
-        self.ax_instances_phase = {1: first_instance_phase}
+        self.ax_instances_mag = {}
+        self.ax_instances_phase = {}
         self.drawing_mag.grid(which="both")
         self.drawing_phase.grid(which="both")
 
@@ -146,6 +208,15 @@ class Ui_MatplotlibWindow(QtWidgets.QMainWindow):
             self.drawing_mag.set_ylabel("Magnitude (dB)")
             self.drawing_phase.set_ylabel("Phase (°)")
 
+        # Cursors
+        mag_cursor = Cursor(self.drawing_mag)
+        self.canvas.mpl_connect('button_release_event', mag_cursor.mouse_up)
+        self.canvas.mpl_connect('button_press_event', mag_cursor.mouse_down)
+
+        phase_cursor = Cursor(self.drawing_phase)
+        self.canvas.mpl_connect('button_release_event', phase_cursor.mouse_up)
+        self.canvas.mpl_connect('button_press_event', phase_cursor.mouse_down)
+
     # Add or remove the curves contained in add_var or remove_var.
     def update_plot(self, add_var, remove_var):
         # Read data from the CSV file
@@ -158,26 +229,32 @@ class Ui_MatplotlibWindow(QtWidgets.QMainWindow):
                     mag = self.av_vars.get(add_var)[2*idx]
                     phase = self.av_vars.get(add_var)[2*idx+1]
 
-                    new_ax, = self.drawing_mag.plot(table["Time"][1:], [20*math.log10(v) if not v == 0 else -1000 for v in table[mag][1:]])
+                    new_line, = self.drawing_mag.plot(table["Time"][1:], [20*math.log10(v) if not v == 0 else -1000 for v in table[mag][1:]])
                     # Update the ax_instances dict to include this new instance
-                    self.ax_instances_mag.update({mag: new_ax})
-                    self.mag_legend.add(self.av_vars.get(add_var)[2*idx])
+                    self.ax_instances_mag.update({mag: new_line})
+                    new_line.set_label(self.av_vars.get(add_var)[2*idx])
+                    new_line.set_picker(2)
+                    self.mag_legend.update({self.av_vars.get(add_var)[2*idx]: new_line})
 
-                    new_ax, = self.drawing_phase.plot(table["Time"][1:], table[phase][1:])
+                    new_line, = self.drawing_phase.plot(table["Time"][1:], table[phase][1:])
                     # Update the ax_instances dict to include this new instance
-                    self.ax_instances_phase.update({phase: new_ax})
-                    self.phase_legend.add(self.av_vars.get(add_var)[2*idx+1])
+                    self.ax_instances_phase.update({phase: new_line})
+                    new_line.set_label(self.av_vars.get(add_var)[2 * idx+1])
+                    new_line.set_picker(2)
+                    self.phase_legend.update({self.av_vars.get(add_var)[2*idx+1]: new_line})
 
             if remove_var:
-                self.ax_instances_mag.get(self.av_vars.get(remove_var)[0]).remove()
-                self.ax_instances_phase.get(self.av_vars.get(remove_var)[1]).remove()
+                for idx in range(int(len(self.av_vars.get(remove_var)) / 2)):
 
-                self.mag_legend.remove(self.av_vars.get(remove_var)[0])
-                self.phase_legend.remove(self.av_vars.get(remove_var)[1])
+                    self.ax_instances_mag.get(self.av_vars.get(remove_var)[2*idx]).remove()
+                    self.ax_instances_phase.get(self.av_vars.get(remove_var)[2*idx+1]).remove()
+
+                    self.mag_legend.pop(self.av_vars.get(remove_var)[2*idx])
+                    self.phase_legend.pop(self.av_vars.get(remove_var)[2*idx+1])
 
             # Update legends
-            self.drawing_mag.legend(self.mag_legend, loc='upper right')
-            self.drawing_phase.legend(self.phase_legend, loc='upper right')
+            self.drawing_mag.legend(list(self.mag_legend.values()), list(self.mag_legend.keys()), loc='upper right')
+            self.drawing_phase.legend(list(self.phase_legend.values()), list(self.phase_legend.keys()), loc='upper right')
 
             self.canvas.draw()
 
@@ -206,10 +283,6 @@ class PlotWindow(QtWidgets.QWidget, Ui_Form):
         self.mdi_plot = self.mdiArea.addSubWindow(self.matplot)
         self.mdi_plot.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.matplot.showMaximized()
-
-    # Rewriting the inherited closeEvent method to update the list of instances
-    # def closeEvent(self, event):
-    #     PlotWindow.plot_instances.remove(self)
 
     # pushButton_hide_show toggles options visibility to gain plot window area
     def hide_show_options(self):

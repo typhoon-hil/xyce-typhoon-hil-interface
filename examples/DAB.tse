@@ -1,11 +1,11 @@
 version = 4.2
 
 //
-// Saved by sw version: 2020.3 ALPHA26
-// Save timestamp: 21-Sep-2020 @ 10:19:58 AM
+// Saved by sw version: 2020.3
+// Save timestamp: 19-Oct-2020 @ 03:04:19 PM
 //
 
-model "dab" {
+model "DAB" {
     configuration {
         hil_device = "HIL402"
         hil_configuration_id = 1
@@ -32,6 +32,7 @@ model "dab" {
         matrix_based_reduction = True
         cpl_dynamics_analysis = False
         export_ss_to_pickle = False
+        cce_platform = "generic"
         cce_use_relative_names = False
         cce_type_mapping_real = "double"
         cce_type_mapping_uint = "unsigned int"
@@ -53,12 +54,12 @@ model "dab" {
             L = "4.7e-6"
         }
         [
-            position = 7824, 8224
+            position = 7800, 8224
             size = 64, 64
         ]
 
         component "xyce_lib/Unidirectional Switch" Q1 {
-            meas_i = "True"
+            meas_g = "True"
             r_on = "r_on"
             vd_on = "vd_on"
         }
@@ -69,23 +70,22 @@ model "dab" {
         ]
 
         component "xyce_lib/Unidirectional Switch" Q2 {
-            meas_i = "True"
-            meas_v = "True"
             r_on = "r_on"
             vd_on = "vd_on"
         }
         [
-            position = 7424, 8440
+            position = 7424, 8496
             rotation = right
             size = 64, 64
         ]
 
         component "xyce_lib/Unidirectional Switch" Q3 {
+            meas_g = "True"
             r_on = "r_on"
             vd_on = "vd_on"
         }
         [
-            position = 7664, 8096
+            position = 7664, 8120
             rotation = right
             size = 64, 64
         ]
@@ -95,12 +95,13 @@ model "dab" {
             vd_on = "vd_on"
         }
         [
-            position = 7664, 8520
+            position = 7664, 8496
             rotation = right
             size = 64, 64
         ]
 
         component "xyce_lib/Transformer" Transformer1 {
+            n1 = "50"
             n2 = "10"
         }
         [
@@ -109,7 +110,7 @@ model "dab" {
         ]
 
         component "xyce_lib/Unidirectional Switch" Q5 {
-            meas_i = "True"
+            meas_g = "True"
             r_on = "r_on"
             vd_on = "vd_on"
         }
@@ -120,7 +121,6 @@ model "dab" {
         ]
 
         component "xyce_lib/Unidirectional Switch" Q6 {
-            meas_i = "True"
             r_on = "r_on"
             vd_on = "vd_on"
         }
@@ -131,6 +131,7 @@ model "dab" {
         ]
 
         component "xyce_lib/Unidirectional Switch" Q7 {
+            meas_g = "True"
             r_on = "r_on"
             vd_on = "vd_on"
         }
@@ -151,18 +152,20 @@ model "dab" {
         ]
 
         component "xyce_lib/Ideal Resistor" Rin {
-            R = "0.01"
+            R = "0.001"
         }
         [
-            position = 7032, 8040
+            position = 7040, 8040
+            scale = -1, 1
             size = 64, 64
         ]
 
         component "xyce_lib/Ideal Resistor" Rtrace {
-            R = "10e-3"
+            R = "1e-3"
         }
         [
-            position = 7312, 8040
+            position = 7320, 8040
+            scale = -1, 1
             size = 64, 64
         ]
 
@@ -177,11 +180,12 @@ model "dab" {
         ]
 
         component "xyce_lib/Ideal Resistor" Rout {
-            R = "0.5"
+            R = "5"
         }
         [
             position = 8864, 8328
             rotation = right
+            scale = -1, -1
             size = 64, 64
         ]
 
@@ -195,6 +199,7 @@ model "dab" {
         ]
 
         component "xyce_lib/Ideal Capacitor" Cout {
+            C = "5e-6"
         }
         [
             position = 8712, 8328
@@ -203,6 +208,7 @@ model "dab" {
         ]
 
         component "xyce_lib/DC Voltage Source" V_dc {
+            meas_v = "True"
         }
         [
             position = 6968, 8320
@@ -211,6 +217,7 @@ model "dab" {
         ]
 
         component "core/Voltage Measurement" v_o {
+            sig_output = "None"
         }
         [
             position = 9008, 8328
@@ -222,7 +229,7 @@ model "dab" {
             node_id = "s_Q1Q4"
         }
         [
-            position = 7504, 8120
+            position = 7488, 8120
             rotation = left
             hide_name = True
             size = 32, 32
@@ -232,7 +239,7 @@ model "dab" {
             node_id = "s_Q2Q3"
         }
         [
-            position = 7744, 8096
+            position = 7736, 8120
             rotation = left
             hide_name = True
             size = 32, 32
@@ -242,7 +249,7 @@ model "dab" {
             node_id = "s_Q1Q4"
         }
         [
-            position = 7744, 8520
+            position = 7752, 8496
             rotation = left
             hide_name = True
             size = 32, 32
@@ -252,7 +259,7 @@ model "dab" {
             node_id = "s_Q2Q3"
         }
         [
-            position = 7504, 8440
+            position = 7504, 8496
             rotation = left
             hide_name = True
             size = 32, 32
@@ -392,11 +399,11 @@ model "dab" {
         ]
 
         component "xyce_lib/XyceSim" XyceSim1 {
-            max_ts = "1e-8"
-            sim_time = "0.4ms"
+            max_ts = "1e-9"
+            sim_time = "0.2ms"
         }
         [
-            position = 7968, 8056
+            position = 7864, 8072
             size = 112, 56
         ]
 
@@ -414,6 +421,31 @@ model "dab" {
             size = 64, 32
         ]
 
+        component "xyce_lib/Scope" Scope1 {
+        }
+        [
+            position = 8048, 8064
+            size = 122, 96
+        ]
+
+        component "core/Voltage Measurement" v_prim {
+            sig_output = "None"
+        }
+        [
+            position = 7848, 8328
+            rotation = right
+            size = 64, 32
+        ]
+
+        component "core/Voltage Measurement" v_sec {
+            sig_output = "None"
+        }
+        [
+            position = 8112, 8328
+            rotation = right
+            size = 64, 32
+        ]
+
         junction Junction2 pe
         [
             position = 8472, 8416
@@ -422,11 +454,6 @@ model "dab" {
         junction Junction3 pe
         [
             position = 7664, 8416
-        ]
-
-        junction Junction5 pe
-        [
-            position = 7424, 8040
         ]
 
         junction Junction6 pe
@@ -454,16 +481,6 @@ model "dab" {
             position = 8712, 8592
         ]
 
-        junction Junction17 pe
-        [
-            position = 8864, 8024
-        ]
-
-        junction Junction18 pe
-        [
-            position = 8864, 8592
-        ]
-
         junction Junction20 pe
         [
             position = 7960, 8816
@@ -477,11 +494,6 @@ model "dab" {
         junction Junction22 pe
         [
             position = 7872, 8816
-        ]
-
-        junction Junction23 pe
-        [
-            position = 7224, 8040
         ]
 
         junction Junction24 pe
@@ -504,19 +516,50 @@ model "dab" {
             position = 8712, 8024
         ]
 
-        connect "Ideal Inductor1.p_node" Transformer1.prm_1 as Connection1103
+        junction Junction28 pe
+        [
+            position = 7424, 8040
+        ]
+
+        junction Junction29 pe
+        [
+            position = 7224, 8040
+        ]
+
+        junction Junction30 pe
+        [
+            position = 8864, 8024
+        ]
+
+        junction Junction31 pe
+        [
+            position = 8864, 8592
+        ]
+
+        junction Junction32 pe
+        [
+            position = 7848, 8224
+        ]
+
+        junction Junction33 pe
+        [
+            position = 7848, 8416
+        ]
+
+        junction Junction34 pe
+        [
+            position = 8112, 8224
+        ]
+
+        junction Junction35 pe
+        [
+            position = 8112, 8416
+        ]
+
         connect Q8.drain Junction2 as Connection1112
         connect Junction2 Q7.src as Connection1113
-        connect Transformer1.sec_2 Junction2 as Connection1114
         connect Q4.drain Junction3 as Connection1115
         connect Junction3 Q3.src as Connection1116
-        connect Transformer1.prm_2 Junction3 as Connection1117
-        connect V_dc.p_node Rin.n_node as Connection1121
-        connect Junction5 Q1.drain as Connection1131
-        [
-            breakpoints = 7424, 8040
-        ]
-        connect Rtrace.p_node Junction5 as Connection1132
         connect Junction6 Q2.src as Connection1135
         [
             breakpoints = 7424, 8592
@@ -533,15 +576,6 @@ model "dab" {
         ]
         connect Cout.n_node Junction16 as Connection1173
         connect Junction16 Junction14 as Connection1174
-        connect Rout.n_node Junction17 as Connection1176
-        connect v_o.p_node Junction17 as Connection1178
-        connect Rout.p_node Junction18 as Connection1179
-        connect Junction18 Junction16 as Connection1180
-        connect v_o.n_node Junction18 as Connection1181
-        connect Junction5 Q3.drain as Connection1204
-        [
-            breakpoints = 7424, 8040; 7424, 8040; 7664, 8040; 7664, 8040; 7664, 8040
-        ]
         connect Q2.gate NodeID4.node as Connection1207
         connect Q4.gate NodeID3.node as Connection1208
         connect Q6.gate NodeID8.node as Connection1209
@@ -567,13 +601,6 @@ model "dab" {
         connect s23.n_node Junction22 as Connection1230
         connect Q1.gate NodeID1.node as Connection1231
         connect Q3.gate NodeID2.node as Connection1232
-        connect i_in.p_node Rin.p_node as Connection1234
-        connect Cin.p_node Junction23 as Connection1235
-        connect Junction23 Rtrace.n_node as Connection1236
-        [
-            breakpoints = 7224, 8040
-        ]
-        connect i_in.n_node Junction23 as Connection1237
         connect Junction6 Q4.src as Connection1247
         [
             breakpoints = 7424, 8592; 7560, 8592; 7664, 8592
@@ -586,7 +613,6 @@ model "dab" {
         ]
         connect iL.p_node Junction24 as Connection1252
         connect Q5.src Junction25 as Connection1254
-        connect Junction25 Transformer1.sec_1 as Connection1255
         connect Q6.drain Junction25 as Connection1256
         connect Q5.drain Junction26 as Connection1259
         [
@@ -598,11 +624,48 @@ model "dab" {
         ]
         connect R4.p_node Junction26 as Connection1261
         connect Cout.p_node Junction27 as Connection1262
-        connect Junction27 Junction17 as Connection1263
-        [
-            breakpoints = 8712, 8024
-        ]
         connect R4.n_node Junction27 as Connection1264
+        connect Rin.n_node i_in.p_node as Connection1265
+        connect Rin.p_node V_dc.p_node as Connection1266
+        connect Q1.drain Junction28 as Connection1269
+        connect Junction28 Q3.drain as Connection1270
+        [
+            breakpoints = 7424, 8040; 7424, 8040; 7424, 8040; 7424, 8040; 7664, 8040; 7664, 8040; 7664, 8040
+        ]
+        connect Rtrace.n_node Junction28 as Connection1271
+        connect i_in.n_node Junction29 as Connection1272
+        connect Junction29 Cin.p_node as Connection1273
+        [
+            breakpoints = 7224, 8040
+        ]
+        connect Rtrace.p_node Junction29 as Connection1274
+        connect v_o.p_node Junction30 as Connection1277
+        connect Junction30 Junction27 as Connection1278
+        [
+            breakpoints = 8864, 8024; 8712, 8024
+        ]
+        connect Rout.p_node Junction30 as Connection1279
+        connect Junction16 Junction31 as Connection1280
+        [
+            breakpoints = 8712, 8592
+        ]
+        connect Junction31 v_o.n_node as Connection1281
+        [
+            breakpoints = 8864, 8592
+        ]
+        connect Rout.n_node Junction31 as Connection1282
+        connect "Ideal Inductor1.p_node" Junction32 as Connection1283
+        connect Junction32 Transformer1.prm_1 as Connection1284
+        connect v_prim.p_node Junction32 as Connection1285
+        connect Transformer1.prm_2 Junction33 as Connection1286
+        connect Junction33 Junction3 as Connection1287
+        connect v_prim.n_node Junction33 as Connection1288
+        connect Junction25 Junction34 as Connection1289
+        connect Junction34 Transformer1.sec_1 as Connection1290
+        connect v_sec.p_node Junction34 as Connection1291
+        connect Transformer1.sec_2 Junction35 as Connection1292
+        connect Junction35 Junction2 as Connection1293
+        connect v_sec.n_node Junction35 as Connection1294
     }
 
     default {
@@ -683,7 +746,8 @@ model "dab" {
             threshold = "0"
             cmp_abs_value = "False"
             feed_forward = "false"
-            sig_output = "None"
+            sig_output = "False"
+            sig_output_filt_and_full_bw = "False"
             execution_rate = "100e-6"
             addr = "0"
             nd_msr_estimation = "false"
@@ -718,6 +782,6 @@ model "dab" {
         
         r_on = 1e-4
         vd_on = 0
-        sec_delay = 0.25e-6
+        sec_delay = 0.37e-6
     ENDCODE
 }

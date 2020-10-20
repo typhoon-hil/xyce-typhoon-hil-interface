@@ -42,6 +42,7 @@ class ViewportListWidget(QtWidgets.QListWidget):
 
     def dropEvent(self, event):
         incoming_measurement = event.mimeData().text()
+        keyboard_mod = QApplication.keyboardModifiers()
         if not incoming_measurement == "":
             if type(event.source()) == type(self): # Moved between viewports
                 config = json.loads(str(event.mimeData().data("config"), encoding='utf-8'))
@@ -51,20 +52,23 @@ class ViewportListWidget(QtWidgets.QListWidget):
             if not is_duplicate:
                 self.config_dict.update(config)
                 self.addItem(incoming_measurement)
-                if type(event.source()) == type(self) and not event.source() == self:
-                    for idx in range(event.source().count()):
-                        if event.source().item(idx).text() == incoming_measurement:
-                            event.source().takeItem(idx)
-                            event.source().clearSelection()
-                            break
+                if keyboard_mod and keyboard_mod == QtCore.Qt.ControlModifier:
+                    pass
+                else:
+                    if type(event.source()) == type(self) and not event.source() == self:
+                        for idx in range(event.source().count()):
+                            if event.source().item(idx).text() == incoming_measurement:
+                                event.source().takeItem(idx)
+                                event.source().clearSelection()
+                                break
 
     def new_color(self):
         colors = [
                     "#FF0000",  # red
-                    "#00FF00",  # green
                     "#0000FF",  # blue
                     "#A349A4",  # purple
                     "#FF7F40",  # orange
+                    "#00FF00",  # green
                     "#FFFF00",  # yellow
                     "#000000",  # black
                     "#7F7F7F"   # grey
@@ -236,7 +240,7 @@ class Ui_Scope(object):
         self.label_desc_1.setObjectName("label_desc_1")
 
         self.label_desc_2 = QtWidgets.QLabel(self.frame)
-        self.label_desc_2.setGeometry(QtCore.QRect(10, 25, 531, 16))
+        self.label_desc_2.setGeometry(QtCore.QRect(10, 25, 600, 16))
         self.label_desc_2.setObjectName("label_desc_2")
 
         self.label_desc_3 = QtWidgets.QLabel(self.frame)
@@ -339,7 +343,7 @@ class Ui_Scope(object):
         self.label_vp_4.setText(_translate("Scope", "Viewport 4"))
         self.label_desc_1.setText(_translate("Scope",
                                              "Use the Scope to set up the Signal Analyzer before starting the simulation."))
-        self.label_desc_2.setText(_translate("Scope", "Drag and drop a measurement into a viewport to add it. You can also move it between viewports."))
+        self.label_desc_2.setText(_translate("Scope", "Drag and drop a measurement into a viewport to add it. You can also move it between viewports (hold Ctrl to copy)."))
         self.label_desc_3.setText(
             _translate("Scope", "Right-click a measurement on a viewport to set its color and line type."))
         self.cancel_button.setText(_translate("Scope", "Cancel"))
@@ -466,15 +470,6 @@ class Scope(QDialog, Ui_Scope):
             viewport.item(row).setForeground(keep_color)
             keep_linetype = viewport.config_dict.get(added_item).get('linetype')
             self.added_update_cfg_dict(viewport, added_item, keep_color.name(), keep_linetype)
-        else:
-            next_color = "black"
-            for color in self.color_order:
-                if color not in self.vp1_used_colors:
-                    self.vp1_used_colors.append(color)
-                    next_color = color
-                    break
-            self.change_color_std(viewport, row, next_color)
-            self.added_update_cfg_dict(viewport, added_item, self.meas_colors[color], linetype)
         self.mark_measurement_not_found(viewport.item(row))
 
     def added_update_cfg_dict(self, viewport, added_item, hexcolor, linetype):

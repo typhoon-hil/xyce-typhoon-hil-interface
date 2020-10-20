@@ -1,8 +1,8 @@
 version = 4.2
 
 //
-// Saved by sw version: 2020.3 ALPHA28
-// Save timestamp: 29-Sep-2020 @ 02:48:13 PM
+// Saved by sw version: 2020.3
+// Save timestamp: 19-Oct-2020 @ 03:09:00 PM
 //
 
 model "buck_control" {
@@ -32,6 +32,7 @@ model "buck_control" {
         matrix_based_reduction = True
         cpl_dynamics_analysis = False
         export_ss_to_pickle = False
+        cce_platform = "generic"
         cce_use_relative_names = False
         cce_type_mapping_real = "double"
         cce_type_mapping_uint = "unsigned int"
@@ -44,6 +45,7 @@ model "buck_control" {
 
     component Subsystem Root {
         component "xyce_lib/Unidirectional Switch" S {
+            meas_g = "True"
             r_on = "1e-4"
         }
         [
@@ -102,6 +104,7 @@ model "buck_control" {
         ]
 
         component "core/Voltage Measurement" vo {
+            sig_output = "None"
         }
         [
             position = 9072, 8312
@@ -557,6 +560,7 @@ model "buck_control" {
         ]
 
         component "core/Voltage Measurement" vref {
+            sig_output = "None"
         }
         [
             position = 9384, 8352
@@ -576,10 +580,10 @@ model "buck_control" {
 
         component "xyce_lib/XyceSim" XyceSim1 {
             max_ts = "5e-7"
-            sim_time = "20ms"
+            sim_time = "30ms"
         }
         [
-            position = 9016, 8064
+            position = 8888, 8064
             size = 112, 56
         ]
 
@@ -593,6 +597,13 @@ model "buck_control" {
             position = 9312, 8352
             rotation = right
             size = 64, 64
+        ]
+
+        component "xyce_lib/Scope" Scope1 {
+        }
+        [
+            position = 9080, 8056
+            size = 122, 96
         ]
 
         junction Junction3 pe
@@ -864,7 +875,8 @@ model "buck_control" {
             threshold = "0"
             cmp_abs_value = "False"
             feed_forward = "false"
-            sig_output = "None"
+            sig_output = "False"
+            sig_output_filt_and_full_bw = "False"
             execution_rate = "100e-6"
             addr = "0"
             nd_msr_estimation = "false"
