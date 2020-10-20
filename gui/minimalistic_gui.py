@@ -141,7 +141,7 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
     def test_xyce_file(self):
         # Binary encoding needed to send the commands
-        commands = f'''xyce -syntax "{self.xyce_file_path}"'''#.encode('utf-8')
+        commands = f'''xyce -syntax "{self.xyce_file_path}"'''  # .encode('utf-8')
         # Quickly tests the syntax with Xyce (-syntax)
         p = Popen(commands, stdin=PIPE, stdout=PIPE, shell=True)
         # Run the command line and read the output
@@ -299,10 +299,10 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # sim_params = {'analysis_type':'Transient','max_ts':'1e-4','sim_time':'0.5ms'}
-    sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
+    sim_params = {'analysis_type': 'Transient', 'max_ts': '1e-4', 'sim_time': '0.5ms'}
+    # sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
     mainwindow = XyceOutput(
-        r"C:\Users\marco\Desktop\delete_this Target files\delete_this.json",
+        r"path_to.json",
         sim_params)
     mainwindow.show()
     sys.exit(app.exec_())

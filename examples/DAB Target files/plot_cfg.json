@@ -1,0 +1,132 @@
+{
+    "signals": {
+        "V(V_dc)": {
+            "viewports": [
+                1
+            ],
+            "type": "analog",
+            "color": {
+                "1": "#ff0000"
+            },
+            "display": {
+                "1": "solid"
+            }
+        },
+        "v_o": {
+            "viewports": [
+                1
+            ],
+            "type": "analog",
+            "color": {
+                "1": "#0000ff"
+            },
+            "display": {
+                "1": "solid"
+            }
+        },
+        "i_in": {
+            "viewports": [],
+            "type": "analog",
+            "color": {},
+            "display": {}
+        },
+        "iL": {
+            "viewports": [
+                2
+            ],
+            "type": "analog",
+            "color": {
+                "2": "#ff0000"
+            },
+            "display": {
+                "2": "solid"
+            }
+        },
+        "I(R4)": {
+            "viewports": [
+                2
+            ],
+            "type": "analog",
+            "color": {
+                "2": "#0000ff"
+            },
+            "display": {
+                "2": "solid"
+            }
+        },
+        "Vg(Q1)": {
+            "viewports": [
+                3
+            ],
+            "type": "analog",
+            "color": {
+                "3": "#ff0000"
+            },
+            "display": {
+                "3": "solid"
+            }
+        },
+        "Vg(Q3)": {
+            "viewports": [],
+            "type": "analog",
+            "color": {},
+            "display": {}
+        },
+        "Vg(Q5)": {
+            "viewports": [
+                3
+            ],
+            "type": "analog",
+            "color": {
+                "3": "#0000ff"
+            },
+            "display": {
+                "3": "solid"
+            }
+        },
+        "Vg(Q7)": {
+            "viewports": [],
+            "type": "analog",
+            "color": {},
+            "display": {}
+        },
+        "v_prim": {
+            "viewports": [
+                4
+            ],
+            "type": "analog",
+            "color": {
+                "4": "#ff0000"
+            },
+            "display": {
+                "4": "solid"
+            }
+        },
+        "v_sec": {
+            "viewports": [
+                4
+            ],
+            "type": "analog",
+            "color": {
+                "4": "#0000FF"
+            },
+            "display": {
+                "4": "solid"
+            }
+        }
+    },
+    "viewports": {
+        "1": {
+            "x_label": "time (s)"
+        },
+        "2": {
+            "x_label": "time (s)"
+        },
+        "3": {
+            "x_label": "time (s)"
+        },
+        "4": {
+            "x_label": "time (s)"
+        }
+    }
+}

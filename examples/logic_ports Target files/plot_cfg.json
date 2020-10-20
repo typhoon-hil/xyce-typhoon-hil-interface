@@ -1,0 +1,168 @@
+{
+    "signals": {
+        "vA": {
+            "viewports": [],
+            "type": "analog",
+            "color": {},
+            "display": {}
+        },
+        "vB": {
+            "viewports": [],
+            "type": "analog",
+            "color": {},
+            "display": {}
+        },
+        "v_and": {
+            "viewports": [
+                1
+            ],
+            "type": "analog",
+            "color": {
+                "1": "#ff0000"
+            },
+            "display": {
+                "1": "solid"
+            }
+        },
+        "v_nand": {
+            "viewports": [
+                1
+            ],
+            "type": "analog",
+            "color": {
+                "1": "#0000ff"
+            },
+            "display": {
+                "1": "solid"
+            }
+        },
+        "v_buf": {
+            "viewports": [
+                2
+            ],
+            "type": "analog",
+            "color": {
+                "2": "#ff0000"
+            },
+            "display": {
+                "2": "solid"
+            }
+        },
+        "v_not": {
+            "viewports": [
+                2
+            ],
+            "type": "analog",
+            "color": {
+                "2": "#0000ff"
+            },
+            "display": {
+                "2": "solid"
+            }
+        },
+        "v_or": {
+            "viewports": [
+                3
+            ],
+            "type": "analog",
+            "color": {
+                "3": "#ff0000"
+            },
+            "display": {
+                "3": "solid"
+            }
+        },
+        "v_nor": {
+            "viewports": [
+                3
+            ],
+            "type": "analog",
+            "color": {
+                "3": "#0000ff"
+            },
+            "display": {
+                "3": "solid"
+            }
+        },
+        "v_xor": {
+            "viewports": [
+                4
+            ],
+            "type": "analog",
+            "color": {
+                "4": "#ff0000"
+            },
+            "display": {
+                "4": "solid"
+            }
+        },
+        "v_xnor": {
+            "viewports": [
+                4
+            ],
+            "type": "analog",
+            "color": {
+                "4": "#0000ff"
+            },
+            "display": {
+                "4": "solid"
+            }
+        },
+        "V(SourceA)": {
+            "viewports": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "type": "analog",
+            "color": {
+                "1": "#00ff00",
+                "2": "#00ff00",
+                "3": "#00ff00",
+                "4": "#00ff00"
+            },
+            "display": {
+                "1": "solid",
+                "2": "solid",
+                "3": "solid",
+                "4": "solid"
+            }
+        },
+        "V(SourceB)": {
+            "viewports": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "type": "analog",
+            "color": {
+                "1": "#ff7f40",
+                "2": "#ff7f40",
+                "3": "#ff7f40",
+                "4": "#ff7f40"
+            },
+            "display": {
+                "1": "solid",
+                "2": "solid",
+                "3": "solid",
+                "4": "solid"
+            }
+        }
+    },
+    "viewports": {
+        "1": {
+            "x_label": "time (s)"
+        },
+        "2": {
+            "x_label": "time (s)"
+        },
+        "3": {
+            "x_label": "time (s)"
+        },
+        "4": {
+            "x_label": "time (s)"
+        }
+    }
+}
