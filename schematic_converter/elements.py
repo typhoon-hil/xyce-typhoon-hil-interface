@@ -77,7 +77,7 @@ class Element:
             return PWM(elem_type, **elem_data)
         elif any(elem_type == t for t in ["Vdc", "Vsin", "Vpulse", "Vexp", "Vtri", "I_meas"]):
             return VoltageSource(elem_type,**elem_data)
-        elif any(elem_type == t for t in ["Idc", "Iac", "Ipulse", "Iexp", "V_meas"]):
+        elif any(elem_type == t for t in ["Idc", "Isin", "Ipulse", "Iexp", "V_meas"]):
             return CurrentSource(elem_type, **elem_data)
         elif elem_type == "I_meas_out" or elem_type == "V_meas_out":
             return MeasureWithOutput(elem_type, **elem_data)
