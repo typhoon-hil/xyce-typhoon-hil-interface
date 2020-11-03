@@ -3222,7 +3222,8 @@ library "xyce_lib" {
 
                         def update_all_inductors(item_handle):
 
-                            items = mdl.get_items()
+                            #items = mdl.get_items()
+                            items = all_circuit_components(mdl)
 
                             ind_count = 0
                             for item in items:
@@ -3402,6 +3403,28 @@ library "xyce_lib" {
                         # dialog.exec_()
                         import ast
 
+                        # Return all components (including inside subsystems)
+                        def all_circuit_components(model, parent_comp=None):
+                            component_list = []
+                            if parent_comp: # Component inside a subsystem (recursive function)
+                                all_components = model.get_items(parent_comp)
+                            else: # Top level call
+                                all_components = model.get_items()
+
+                            for comp in all_components:
+                                try:
+                                    type_name = model.get_component_type_name(comp)
+                                    if type_name:
+                                        component_list.append(comp)
+                                    else: # Component is a subsystem
+                                        component_list.extend(all_circuit_components(model, comp))
+                                except:
+                                    # Some components (such as ports and connections) cannot be used with
+                                    # get_component_type_name
+                                    pass
+                            # Return the list of component handles
+                            return component_list
+
                         def update_display(mask_handle, edited=None):
                             this_ind_mask = mask_handle
                             this_ind = mdl.get_parent(this_ind_mask)
@@ -3503,7 +3526,7 @@ library "xyce_lib" {
                                 couplings_dict.update({ind_handle.item_fqid:counterpart_coupled_to_dict})
 
                                 # Update couplings_dict of all inductors:
-                                for item in mdl.get_items():
+                                for item in all_circuit_components(mdl):
                                     try:
                                         if mdl.get_component_type_name(item) == "Coupled Inductor":
                                             couplings_dict_property = mdl.prop(item, "couplings_dict")
@@ -3547,7 +3570,7 @@ library "xyce_lib" {
                             counterpart_coupled_to_dict.pop(this_ind.item_fqid)
 
                             # Update couplings_dict of all inductors:
-                            for item in mdl.get_items():
+                            for item in all_circuit_components(mdl):
                                 try:
                                     if mdl.get_component_type_name(item) == "Coupled Inductor":
                                         couplings_dict_property = mdl.prop(item, "couplings_dict")
@@ -3578,7 +3601,7 @@ library "xyce_lib" {
                             counterpart_coupled_to_dict.update({this_ind.item_fqid:new_value})
 
                             # Update couplings_dict of all inductors:
-                            for item in mdl.get_items():
+                            for item in all_circuit_components(mdl):
                                 try:
                                     if mdl.get_component_type_name(item) == "Coupled Inductor":
                                         couplings_dict_property = mdl.prop(item, "couplings_dict")
@@ -3624,7 +3647,7 @@ library "xyce_lib" {
                         inductors_dict_prop = mdl.prop(this_ind_mask, "inductors_dict")
                         inductors_dict = ast.literal_eval(mdl.get_property_value(inductors_dict_prop))
 
-                        items = mdl.get_items()
+                        items = all_circuit_components(mdl)
                         ind_count = 0
                         raise_error_topology_change = False
 
@@ -3668,7 +3691,7 @@ library "xyce_lib" {
                                             coupled_to_dict.update({ind_name:ind_self})
                             except: pass
 
-                        for item in mdl.get_items():
+                        for item in all_circuit_components(mdl):
                             try:
                                 if mdl.get_component_type_name(item) == "Coupled Inductor":
                                     xyce_couplings_dict_property = mdl.prop(item, "xyce_couplings_dict")
