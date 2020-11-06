@@ -2,7 +2,7 @@ version = 4.2
 
 //
 // Saved by sw version: 2020.3
-// Save timestamp: 19-Oct-2020 @ 03:04:19 PM
+// Save timestamp: 06-Nov-2020 @ 02:54:15 PM
 //
 
 model "DAB" {
@@ -55,6 +55,7 @@ model "DAB" {
         }
         [
             position = 7800, 8224
+            scale = -1, 1
             size = 64, 64
         ]
 
@@ -156,7 +157,6 @@ model "DAB" {
         }
         [
             position = 7040, 8040
-            scale = -1, 1
             size = 64, 64
         ]
 
@@ -165,7 +165,6 @@ model "DAB" {
         }
         [
             position = 7320, 8040
-            scale = -1, 1
             size = 64, 64
         ]
 
@@ -176,6 +175,7 @@ model "DAB" {
         [
             position = 8584, 8024
             rotation = down
+            scale = -1, 1
             size = 64, 64
         ]
 
@@ -185,7 +185,7 @@ model "DAB" {
         [
             position = 8864, 8328
             rotation = right
-            scale = -1, -1
+            scale = -1, 1
             size = 64, 64
         ]
 
@@ -195,6 +195,7 @@ model "DAB" {
         [
             position = 7224, 8328
             rotation = left
+            scale = 1, -1
             size = 64, 64
         ]
 
@@ -204,6 +205,7 @@ model "DAB" {
         [
             position = 8712, 8328
             rotation = left
+            scale = 1, -1
             size = 64, 64
         ]
 

@@ -1,6 +1,6 @@
 //
 // Saved by sw version: 2020.3
-// Save timestamp: 03-Nov-2020 @ 10:21:24 AM
+// Save timestamp: 06-Nov-2020 @ 09:39:16 AM
 //
 
 library "xyce_lib" {
@@ -2259,6 +2259,7 @@ library "xyce_lib" {
 
             component Subsystem "Ideal Resistor" {
                 layout = static
+                label = "R"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -3034,7 +3035,7 @@ library "xyce_lib" {
 
             component Subsystem "Coupled Inductor" {
                 layout = static
-                label = "CI"
+                label = "Coupled"
                 component el_short "Short Circuit" {
                 }
                 [
@@ -4486,6 +4487,8 @@ library "xyce_lib" {
                         connect Vs1.n_node n_node as Connection2
                         connect p_node Vs1.p_node as Connection1
 
+                        VA = "100"
+
                         mask {
                             description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">AC Voltage Source</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br>In Xyce, this is a \"V\" type element with a \"SIN\" transient specification.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">If a positive Delay is set, the source will output a constant voltage for TD seconds. Negative values are also accepted.</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The sine wave is multiplied to the expression exp(-THETA*(t-TD)).</p></body></html>"
 
@@ -4928,6 +4931,207 @@ library "xyce_lib" {
                         rotation = left
                         size = 64, 64
                     ]
+
+                    component Subsystem "Small-signal AC Voltage Source" {
+                        layout = static
+                        label = "Vsmall"
+                        component src_voltage Vs1 {
+                        }
+                        [
+                            position = 7904, 8064
+                            rotation = right
+                        ]
+
+                        port n_node {
+                            position = left center
+                            kind = pe
+                        }
+                        [
+                            position = 7904, 8144
+                            rotation = left
+                            hide_name = True
+                            scale = -1, 1
+                        ]
+
+                        port p_node {
+                            position = right center
+                            kind = pe
+                        }
+                        [
+                            position = 7904, 7992
+                            rotation = right
+                            hide_name = True
+                        ]
+
+                        connect Vs1.n_node n_node as Connection2
+                        connect p_node Vs1.p_node as Connection1
+
+                        PHASE = "0"
+                        VA = "1"
+
+                        mask {
+                            description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Small-signal AC Voltage Source</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br>Use this source to perform the AC small-signal analysis.</p></body></html>"
+
+                            VA {
+                                label = "Amplitude"
+                                widget = edit
+                                type = generic
+                                default_value = "311"
+                                unit = "V"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
+                            }
+
+                            PHASE {
+                                label = "Phase"
+                                widget = edit
+                                type = generic
+                                default_value = "1"
+                                unit = "°"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
+                            }
+
+                            meas_v {
+                                label = "Voltage"
+                                widget = checkbox
+                                type = bool
+                                default_value = "False"
+                                group = "Measurements"
+                                no_evaluate
+                            }
+
+                            meas_i {
+                                label = "Current"
+                                widget = checkbox
+                                type = bool
+                                default_value = "False"
+                                group = "Measurements"
+                                no_evaluate
+                            }
+
+                            meas_p {
+                                label = "Power"
+                                widget = checkbox
+                                type = bool
+                                default_value = "False"
+                                group = "Measurements"
+                                no_evaluate
+                            }
+
+                            CODE open
+                                from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                            
+                                dialog = RegularComponentPropertiesDialog(
+                                    component=component,
+                                    property_container=component.masks[-1],
+                                    current_diagram=current_diagram
+                                )
+                                dialog.exec_()
+                                
+                            ENDCODE
+
+                            CODE define_icon
+                                mdl.set_component_icon_image(item_handle, 'Xyce/small_signal_vac.svg')
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                ignore = False
+                                VA_prop = mdl.prop(item_handle, "VA")
+                                VA_text, color = get_text(VA_prop, "V")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, VA_text, relpos_x = 0.5, relpos_y = 0.2, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                PHASE_prop = mdl.prop(item_handle, "PHASE")
+                                PHASE_text, color = get_text(PHASE_prop, "°")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, PHASE_text, relpos_x = 0.5, relpos_y = 0.8, size = 8, trim_factor = 0.9)
+                            ENDCODE
+                        }
+                    }
+                    [
+                        position = 7944, 8080
+                        rotation = left
+                        size = 64, 64
+                    ]
                 }
                 [
                     position = 10504, 10408
@@ -5328,7 +5532,7 @@ library "xyce_lib" {
                                     current_diagram=current_diagram
                                 )
                                 dialog.exec_()
-                            
+                                
                             ENDCODE
 
                             CODE define_icon
@@ -5879,6 +6083,204 @@ library "xyce_lib" {
                     }
                     [
                         position = 8152, 8176
+                        rotation = left
+                        size = 64, 64
+                    ]
+
+                    component Subsystem "Small-signal AC Current Source" {
+                        layout = static
+                        label = "Ismall"
+                        component src_voltage Vs1 {
+                        }
+                        [
+                            position = 7904, 8064
+                            rotation = right
+                        ]
+
+                        port n_node {
+                            position = left center
+                            kind = pe
+                        }
+                        [
+                            position = 7904, 8144
+                            rotation = left
+                            hide_name = True
+                            scale = -1, 1
+                        ]
+
+                        port p_node {
+                            position = right center
+                            kind = pe
+                        }
+                        [
+                            position = 7904, 7992
+                            rotation = right
+                            hide_name = True
+                        ]
+
+                        connect Vs1.n_node n_node as Connection2
+                        connect p_node Vs1.p_node as Connection1
+
+                        mask {
+                            description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Small-signal AC Current Source</p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br>Use this source to perform the AC small-signal analysis.</p></body></html>"
+
+                            VA {
+                                label = "Amplitude"
+                                widget = edit
+                                type = generic
+                                default_value = "1"
+                                unit = "A"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
+                            }
+
+                            PHASE {
+                                label = "Phase"
+                                widget = edit
+                                type = generic
+                                default_value = "0"
+                                unit = "°"
+
+                                CODE property_value_changed
+                                    mdl.refresh_icon(container_handle)
+                                ENDCODE
+                            }
+
+                            meas_v {
+                                label = "Voltage"
+                                widget = checkbox
+                                type = bool
+                                default_value = "False"
+                                group = "Measurements"
+                                no_evaluate
+                            }
+
+                            meas_i {
+                                label = "Current"
+                                widget = checkbox
+                                type = bool
+                                default_value = "False"
+                                group = "Measurements"
+                                no_evaluate
+                            }
+
+                            meas_p {
+                                label = "Power"
+                                widget = checkbox
+                                type = bool
+                                default_value = "False"
+                                group = "Measurements"
+                                no_evaluate
+                            }
+
+                            CODE open
+                                from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                            
+                                dialog = RegularComponentPropertiesDialog(
+                                    component=component,
+                                    property_container=component.masks[-1],
+                                    current_diagram=current_diagram
+                                )
+                                dialog.exec_()
+                                
+                            ENDCODE
+
+                            CODE define_icon
+                                mdl.set_component_icon_image(item_handle, 'Xyce/small_signal_iac.svg')
+                                
+                                def unit_conv(value, unit):
+                                    if value == 0:
+                                        pass
+                                    elif value < 1e-9:
+                                        value = value * 1e12
+                                        unit = "p" + unit
+                                    elif value < 1e-6:
+                                        value = value * 1e9
+                                        unit = "n" + unit
+                                    elif value < 1e-3:
+                                        value = value * 1e6
+                                        unit = "μ" + unit
+                                    elif value < 1:
+                                        value = value * 1e3
+                                        unit = "m" + unit
+                                    elif value < 1e3:
+                                        pass
+                                    elif value < 1e6:
+                                        value = value * 1e-3
+                                        unit = "k" + unit
+                                    elif value < 1e9:
+                                        value = value * 1e-6
+                                        unit = "M" + unit
+                                    elif value < 1e12:
+                                        value = value * 1e-9
+                                        unit = "G" + unit
+                                    return (value, unit)
+                                
+                                def prefix_to_scientific(prefix):
+                                    if prefix == "p":
+                                        return "e-12"
+                                    if prefix == "n":
+                                        return "e-9"
+                                    if prefix == "u":
+                                        return "e-6"
+                                    if prefix == "m":
+                                        return "e-3"
+                                    if prefix == "k":
+                                        return "e3"
+                                    if prefix == "M":
+                                        return "e6"
+                                    if prefix == "G":
+                                        return "e9"
+                                
+                                def get_text(prop_handle, unit):
+                                    val = mdl.get_property_value(prop_handle)
+                                    # If val is not a string
+                                    if not isinstance(val, str):
+                                        if val < 0:
+                                            val, unit = unit_conv(-val, unit)
+                                            val = -val
+                                        else:
+                                            val, unit = unit_conv(val, unit)
+                                        color = "blue"
+                                        inside_text = f"{val} {unit}"
+                                        return (inside_text, color)
+                                    # In case a variable (or a unit prefix) is being used
+                                    else:
+                                        try:
+                                            import re
+                                            matching = re.match(r"(-?[0-9.]+)\s*(p|n|u|m|k|M|G)", val)
+                                            if matching.group(2):
+                                                nonlocal ignore
+                                                n_val = matching.group(1) + prefix_to_scientific(matching.group(2))
+                                                # The property must have mdl.refresh_icon(container_handle) in property_value_edited
+                                                mdl.set_property_value(prop_handle, n_val)
+                                                ignore = True
+                                                return ("", "")
+                                        except:
+                                            color = "green"
+                                            inside_text = f"{val}"
+                                            return (inside_text, color)
+                                
+                                ignore = False
+                                VA_prop = mdl.prop(item_handle, "VA")
+                                VA_text, color = get_text(VA_prop, "A")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, VA_text, relpos_x = 0.5, relpos_y = 0.2, size = 8, trim_factor = 0.9)
+                                
+                                ignore = False
+                                PHASE_prop = mdl.prop(item_handle, "PHASE")
+                                PHASE_text, color = get_text(PHASE_prop, "°")
+                                if not ignore == True:
+                                    mdl.set_color(item_handle, color)
+                                    mdl.disp_component_icon_text(item_handle, PHASE_text, relpos_x = 0.5, relpos_y = 0.8, size = 8, trim_factor = 0.9)
+                            ENDCODE
+                        }
+                    }
+                    [
+                        position = 8416, 8080
                         rotation = left
                         size = 64, 64
                     ]
@@ -7565,6 +7967,7 @@ library "xyce_lib" {
                         type = bool
                         default_value = "False"
                         group = "Hysteresis:2"
+                        no_evaluate
 
                         CODE property_value_changed
                             mdl.refresh_icon(container_handle)
@@ -7576,8 +7979,8 @@ library "xyce_lib" {
                         widget = edit
                         type = generic
                         default_value = "0"
-                        group = "Hysteresis"
                         unit = "V"
+                        group = "Hysteresis"
                     }
 
                     vt_lo {
@@ -7585,8 +7988,8 @@ library "xyce_lib" {
                         widget = edit
                         type = generic
                         default_value = "0"
-                        group = "Hysteresis"
                         unit = "V"
+                        group = "Hysteresis"
                     }
 
                     CODE open
@@ -7607,7 +8010,7 @@ library "xyce_lib" {
                             mdl.set_component_icon_image(item_handle, 'Xyce/comparator_hyst.svg')
                         else:
                             mdl.set_component_icon_image(item_handle, 'Xyce/comparator.svg')
-
+                    
                     ENDCODE
 
                     CODE init
@@ -8034,6 +8437,7 @@ library "xyce_lib" {
             layout = dynamic
             component Subsystem "Dynamic SPICE component" {
                 layout = dynamic
+                label = "DynSPICE"
 
                 mask {
                     description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Dynamic SPICE component</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">This component is able to load and identify subcircuits in a Xyce library file. The appropriate terminals are created automatically; the positions of the terminals, however, must be configured manually.<br></br><br></br>The selection of a new subcircuit must be confirmed to enable the configuration of the terminals.</p></body></html>"
@@ -9079,6 +9483,7 @@ library "xyce_lib" {
 
             component Subsystem NodeID {
                 layout = static
+                label = "V"
                 component src_ground gnd1 {
                 }
                 [
@@ -11558,7 +11963,7 @@ library "xyce_lib" {
 
             component Subsystem "Voltage Measurement" {
                 layout = static
-                label = "V"
+                label = "Vm"
                 component "core/Voltage Measurement" V {
                     execution_rate = "1"
                     sig_output = "True"
@@ -12072,6 +12477,7 @@ library "xyce_lib" {
 
             component Subsystem "Trig Function" {
                 layout = dynamic
+                label = "TrigFcn"
                 component gen_gain G {
                 }
                 [

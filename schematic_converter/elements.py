@@ -23,8 +23,11 @@ class Element:
             self.meas_string += self.v_measurement_line()
             self.meas_alias.append(self.v_measurement_alias())
         if "I" in enabled_measurements:
-            self.meas_string += self.i_measurement_line()
-            self.meas_alias.append(self.i_measurement_alias())
+            if analysis_type=="AC small-signal" and not self.available_ac_current:
+                pass
+            else:
+                self.meas_string += self.i_measurement_line()
+                self.meas_alias.append(self.i_measurement_alias())
         if "P" in enabled_measurements:
             self.meas_string += self.p_measurement_line()
             self.meas_alias.append(self.p_measurement_alias())
@@ -79,6 +82,10 @@ class Element:
             return VoltageSource(elem_type,**elem_data)
         elif any(elem_type == t for t in ["Idc", "Isin", "Ipulse", "Iexp", "V_meas"]):
             return CurrentSource(elem_type, **elem_data)
+        elif elem_type == "Vsmall":
+            return VoltageSmallSignal(elem_type, **elem_data)
+        elif elem_type == "Ismall":
+            return CurrentSmallSignal(elem_type, **elem_data)
         elif elem_type == "I_meas_out" or elem_type == "V_meas_out":
             return MeasureWithOutput(elem_type, **elem_data)
         elif elem_type == "P_meas":
@@ -134,6 +141,7 @@ class TwoTerminal(Element):
         super().__init__(name)
         self.node_p = nodes["p_node"]
         self.node_n = nodes["n_node"]
+        self.available_ac_current = True
 
     def xyce_line(self):
         return  (Element.xyce_element(self) + " n_" +
@@ -155,13 +163,13 @@ class TwoTerminal(Element):
     def i_measurement_line(self):
         if self.init_data["analysis_type"]=="Transient":
             return f"I({self.xyce_element()}) "
-        elif self.init_data["analysis_type"]=="AC small-signal":
+        elif (self.init_data["analysis_type"]=="AC small-signal"):
             return f"IM({self.xyce_element()}) IP({self.xyce_element()}) "
 
     def i_measurement_alias(self):
         if self.init_data["analysis_type"]=="Transient":
             return f"I({self.name})"
-        elif self.init_data["analysis_type"]=="AC small-signal":
+        elif (self.init_data["analysis_type"]=="AC small-signal"):
             return f"IM({self.name}),IP({self.name})"
 
     def p_measurement_line(self):
@@ -413,7 +421,7 @@ class VoltageSource(TwoTerminal):
                         }
 
         if init_data["analysis_type"] == "AC small-signal":
-            self.source_spec = ac_spec_dict[elem_type]
+            self.source_spec = tr_spec_dict[elem_type]
         else:
             self.source_spec = tr_spec_dict[elem_type]
 
@@ -431,6 +439,22 @@ class VoltageSource(TwoTerminal):
         elif analysis_type == "AC small-signal":
             return  f"IM(V_{self.name}) IP(V_{self.name})"
 
+class VoltageSmallSignal(TwoTerminal):
+    type = "V"
+    # V<name> <(+) node> <(-) node> [ [DC] <value> ]
+    # + [AC [magnitude value [phase value] ] ] [transient specification]
+    def __init__(self, elem_type, name, nodes, init_data):
+        super().__init__(name, nodes)
+        self.init_data = init_data
+
+        self.source_spec = "AC " + init_data["VA"] + " " + init_data["PHASE"]
+
+    # Needs special xyce_line method
+    def xyce_line(self):
+        return  (Element.xyce_element(self) + " n_" +
+                self.node_p + " n_" + self.node_n + " " +
+                self.source_spec  + "\n")
+
 class CurrentSource(TwoTerminal):
     type = "I"
     # I<name> <(+) node> <(-) node> [ [DC] <value> ]
@@ -440,9 +464,10 @@ class CurrentSource(TwoTerminal):
         tr_spec = []
         self.elem_type = elem_type
         self.init_data = init_data
+        self.available_ac_current = False
 
         for k in init_data.keys():
-            if not k == ["analysis_type", "meas_v", "meas_i", "meas_p"]:
+            if not k in ["analysis_type", "meas_v", "meas_i", "meas_p"]:
                 tr_spec.append(f"{k}={init_data[k]}")
 
         tr_spec_dict = {"Idc":init_data["current"] if elem_type == "Idc" else "",
@@ -452,15 +477,8 @@ class CurrentSource(TwoTerminal):
                         "Iexp": "EXP " + " ".join(tr_spec) if elem_type == "Iexp" else "",
                         }
 
-        ac_spec_dict = {"Idc":"AC " + init_data["current"] if elem_type == "Idc" else "",
-                        "V_meas": init_data["current"] if elem_type == "V_meas" else "",
-                        "Isin":"AC " + init_data["VA"]  + " " + init_data["PHASE"] if elem_type == "Isin" else "",
-                        "Ipulse":"AC " + init_data["V1"] if elem_type == "Ipulse" else "",
-                        "Iexp": "AC " + init_data["V1"] if elem_type == "Iexp" else "",
-                        }
-
         if init_data["analysis_type"] == "AC small-signal":
-            self.source_spec = ac_spec_dict[elem_type]
+            self.source_spec = tr_spec_dict[elem_type]
         else:
             self.source_spec = tr_spec_dict[elem_type]
 
@@ -478,6 +496,24 @@ class CurrentSource(TwoTerminal):
             return  f"V(n_{self.node_p},n_{self.node_n})"
         elif analysis_type == "AC small-signal":
             return  f"VM(n_{self.node_p},n_{self.node_n}) VP(n_{self.node_p},n_{self.node_n})"
+
+
+class CurrentSmallSignal(TwoTerminal):
+    type = "I"
+    # I<name> <(+) node> <(-) node> [ [DC] <value> ]
+    # + [AC [magnitude value [phase value] ] ] [transient specification]
+    def __init__(self, elem_type, name, nodes, init_data):
+        super().__init__(name, nodes)
+        self.init_data = init_data
+        self.available_ac_current = False
+
+        self.source_spec = "AC " + init_data["VA"] + " " + init_data["PHASE"]
+
+    # Needs special xyce_line method
+    def xyce_line(self):
+        return  (Element.xyce_element(self) + " n_" +
+                self.node_p + " n_" + self.node_n + " " +
+                self.source_spec  + "\n")
 ################################################################################
 
 ### General Non-Linear Devices #################################################

@@ -299,8 +299,8 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    sim_params = {'analysis_type': 'Transient', 'max_ts': '1e-6', 'sim_time': '10ms'}
-    # sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
+    #sim_params = {'analysis_type': 'Transient', 'max_ts': '1e-6', 'sim_time': '10ms'}
+    sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
     mainwindow = XyceOutput(
         r"C:\Users\marco\Desktop\delete_this Target files\delete_this.json",
         sim_params)
