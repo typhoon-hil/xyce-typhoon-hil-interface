@@ -201,8 +201,9 @@ def tse2xyce(jsonfile, sim_params_dict):
                 meas_string, meas_alias = this_element.measurements(sim_params_dict["analysis_type"], enabled_measurements)
 
                 if enabled_measurements:
-                    measurements.append(meas_string)
-                    meas_aliases.extend([meas_alias])
+                    if not meas_string == "":
+                        measurements.append(meas_string)
+                        meas_aliases.extend([meas_alias])
 
         # Search for the ground node. It has to be named "0" in Xyce.
         if elem_type == "GND":
