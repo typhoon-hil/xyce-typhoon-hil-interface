@@ -959,10 +959,18 @@ class ModelBasedOperationalAmplifier(SubcircuitBased):
 
 class Comparator(SubcircuitBased):
     def __init__(self, elem_type, name, nodes, init_data):
-        init_data["model_name"] = "comparator"
         init_data["model_path"] = included_models_path + "comparator.lib"
         self.nodes = [nodes["non_inv"], nodes["inv"], nodes["Out"]]
-        params = f"PARAMS: VOUT={init_data['output_voltage']}"
+        enable_hyst = init_data['enable_hysteresis']
+        if enable_hyst == "True":
+            init_data["model_name"] = "comparator_hyst"
+            vt_hi = init_data['vt_hi']
+            vt_lo = init_data['vt_lo']
+        else:
+            init_data["model_name"] = "comparator"
+            vt_hi = 0
+            vt_lo = 0
+        params = f"PARAMS: VHI={init_data['v_hi']} VLO={init_data['v_lo']} VT_HI={vt_hi} VT_LO={vt_lo}"
         super().__init__(elem_type, name, self.nodes, init_data, params)
 
 class PWM(SubcircuitBased):

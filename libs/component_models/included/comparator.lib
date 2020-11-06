@@ -1,16 +1,43 @@
 * Comparator Model
 
 .SUBCKT comparator non_inv inv out
-+PARAMS: VOUT=5
++PARAMS: VHI=5 VLO=0 TS={GLOBAL_TS*1e-4}
 
-B_COMP out 0 V={IF(V(op)>=0, VOUT, 0)} smoothbsrc=0
-+ rcconst = {GLOBAL_TS*1e-5}
+B_COMP out 0 V={IF((V(non_inv)-V(inv))>0, VHI, VLO)} smoothbsrc=1
++ rcconst = TS
 
-B_OPAMP op 0 V={1e10*(V(non_inv)-V(inv))} smoothbsrc=1
-+ rcconst = {GLOBAL_TS*1e-6}
-R_OPAMP op 0 1e7
-
-R_non_inv non_inv 0 1e7
-R_inv inv 0 1e7
+R_non_inv non_inv 0 1e6
+R_out out 0 1e6
+R_inv inv 0 1e6
 
 .ENDS comparator
+
+
+* Comparator Model with Hysteresis
+
+.SUBCKT comparator_hyst non_inv inv out
++PARAMS: VHI=5 VLO=0 VT_HI=0 VT_LO=0 TS={GLOBAL_TS*1e-4}
+
+B_COMP out 0 V={IF((V(non_inv)-V(inv))>VT_HI, VHI, IF((V(non_inv)-V(inv))<VT_LO, VLO, V(buf_out)))} smoothbsrc=1
++ rcconst = TS
+
+R_non_inv non_inv 0 1e6
+R_inv inv 0 1e6
+
+* Aux buffer
+
+VDPWR_P dpwr_p 0 {VHI}
+VDPWR_N dpwr_n 0 {VLO}
+
+UFF BUF dpwr_p dpwr_n out buf_out DMODEL
+
+.model DMODEL DIG (
++ CLO=0 CHI=0
++ S0RLO=0.001 S0RHI=1000000 S0TSW=TS
++ S0VLO=-100 S0VHI={VLO/2}
++ S1RLO=1000000 S1RHI=0.001 S1TSW=TS
++ S1VLO={VHI/2} S1VHI=100
++ RLOAD=1e4
++ CLOAD=0 )
+
+.ENDS comparator_hyst

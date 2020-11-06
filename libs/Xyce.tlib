@@ -7543,11 +7543,49 @@ library "xyce_lib" {
                 mask {
                     description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Comparator</p><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p><p style=\"margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">The comparator outputs the specified voltage magnitude. The polarity is determined by the sign of the diference between the non-inverting input and inverting input voltage values.</p></body></html>"
 
-                    output_voltage {
-                        label = "Output Voltage"
+                    v_hi {
+                        label = "High-state Voltage"
                         widget = edit
                         type = generic
                         default_value = "3.3"
+                        unit = "V"
+                    }
+
+                    v_lo {
+                        label = "Low-state Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        unit = "V"
+                    }
+
+                    enable_hysteresis {
+                        label = "Enable Hysteresis"
+                        widget = checkbox
+                        type = bool
+                        default_value = "False"
+                        group = "Hysteresis:2"
+
+                        CODE property_value_changed
+                            mdl.refresh_icon(container_handle)
+                        ENDCODE
+                    }
+
+                    vt_hi {
+                        label = "High Threshold Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        group = "Hysteresis"
+                        unit = "V"
+                    }
+
+                    vt_lo {
+                        label = "Low Threshold Voltage"
+                        widget = edit
+                        type = generic
+                        default_value = "0"
+                        group = "Hysteresis"
                         unit = "V"
                     }
 
@@ -7564,7 +7602,12 @@ library "xyce_lib" {
                     ENDCODE
 
                     CODE define_icon
-                        mdl.set_component_icon_image(item_handle, 'Xyce/op_amp.svg')
+                        enable_hyst = mdl.get_property_value(mdl.prop(item_handle, "enable_hysteresis"))
+                        if enable_hyst:
+                            mdl.set_component_icon_image(item_handle, 'Xyce/comparator_hyst.svg')
+                        else:
+                            mdl.set_component_icon_image(item_handle, 'Xyce/comparator.svg')
+
                     ENDCODE
 
                     CODE init
