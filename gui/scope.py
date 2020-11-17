@@ -393,9 +393,11 @@ class Scope(QDialog, Ui_Scope):
         self.viewport_4.customContextMenuRequested.connect(self.viewport_menu)
 
         # Mode radio buttons
+        mode = "transient" # Signal Analyzer is not ready yet
         if mode == "transient":
             self.mode_transient.setChecked(True)
             self.mode_AC.setChecked(False)
+            self.mode_AC.setDisabled(True) # Signal Analyzer is not ready yet
         elif mode == "ac":
             self.mode_transient.setChecked(False)
             self.mode_AC.setChecked(True)
@@ -435,6 +437,10 @@ class Scope(QDialog, Ui_Scope):
             self.current_mode = "transient"
         if self.mode_AC.isChecked():
             self.current_mode = "ac"
+
+        # Signal Analyzer is not ready yet
+        self.current_mode = "transient"
+
         self.clear_av_measurements()
         self.fill_av_measurements()
         for vp in [self.viewport_1, self.viewport_2, self.viewport_3, self.viewport_4]:

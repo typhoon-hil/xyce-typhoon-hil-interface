@@ -299,8 +299,18 @@ class XyceOutput(QDialog, Ui_XyceOutput):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    #sim_params = {'analysis_type': 'Transient', 'max_ts': '1e-6', 'sim_time': '10ms'}
-    sim_params = {'analysis_type': 'AC small-signal', 'start_f': '10', 'end_f': '100000', 'num_points': '1000'}
+    sim_params = {
+        'timeint_abstol': '1e-6',
+        'timeint_reltol': '1e-2',
+        'timeint_method': 'Trap',
+    }
+    # sim_params.update({'analysis_type':'Transient','max_ts':'1e-6','sim_time':'1ms'})
+    sim_params.update({
+        'analysis_type': 'AC small-signal',
+        'start_f': '10',
+        'end_f': '100000',
+        'num_points': '1000'
+    })
     mainwindow = XyceOutput(
         r"path_to.json",
         sim_params)

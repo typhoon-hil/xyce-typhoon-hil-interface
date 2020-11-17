@@ -9460,6 +9460,14 @@ library "xyce_lib" {
                               raise Exception()
                     
                             sim_params_dict = {}
+
+                            timeint_abstol = mdl.get_property_disp_value(mdl.prop(ih, "timeint_abstol"))
+                            timeint_reltol = mdl.get_property_disp_value(mdl.prop(ih, "timeint_reltol"))
+                            timeint_method_dict = {"Trapezoidal": "7", "Gear":"8"}
+                            timeint_method = mdl.get_property_disp_value(mdl.prop(ih, "timeint_method"))
+                            sim_params_dict['timeint_abstol'] = timeint_abstol
+                            sim_params_dict['timeint_reltol'] = timeint_reltol
+                            sim_params_dict['timeint_method'] = timeint_method_dict[timeint_method]
                     
                             analysis_type = mdl.get_property_disp_value(mdl.prop(ih, "sim_type"))
                             sim_params_dict['analysis_type'] = analysis_type
@@ -9468,13 +9476,6 @@ library "xyce_lib" {
                                 max_ts = mdl.get_property_disp_value(mdl.prop(ih, "max_ts"))
                                 sim_params_dict['sim_time'] = sim_time
                                 sim_params_dict['max_ts'] = max_ts
-                                timeint_abstol = mdl.get_property_disp_value(mdl.prop(ih, "timeint_abstol"))
-                                timeint_reltol = mdl.get_property_disp_value(mdl.prop(ih, "timeint_reltol"))
-                                timeint_method_dict = {"Trapezoidal": "7", "Gear":"8"}
-                                timeint_method = mdl.get_property_disp_value(mdl.prop(ih, "timeint_method"))
-                                sim_params_dict['timeint_abstol'] = timeint_abstol
-                                sim_params_dict['timeint_reltol'] = timeint_reltol
-                                sim_params_dict['timeint_method'] = timeint_method_dict[timeint_method]
                                 nonlinear_solver_dict = {"Newton": "0", "Gradient":"1", "Trust region": "2"}
                                 nonlinear_solver = mdl.get_property_disp_value(mdl.prop(ih, "nonlinear_solver"))
                                 nonlinear_maxstep = mdl.get_property_disp_value(mdl.prop(ih, "nonlinear_maxstep"))
