@@ -9307,7 +9307,7 @@ library "xyce_lib" {
                     }
 
                     max_ts {
-                        label = "Maximum time-step"
+                        label = "Maximum simulation time-step"
                         widget = edit
                         type = generic
                         default_value = "1e-7"
@@ -9321,7 +9321,7 @@ library "xyce_lib" {
                         no_evaluate
 
                         CODE button_clicked
-                            sim_with_xyce(container_handle)
+                            sim_with_xyce(mdl, container_handle)
                         ENDCODE
                     }
 
@@ -9335,6 +9335,88 @@ library "xyce_lib" {
                             open_sa()
                         ENDCODE
                     }
+
+                    timeint_method {
+                        label = "Integration method"
+                        widget = combo
+                        combo_values = "Trapezoidal", "Gear"
+                        type = string
+                        default_value = "Trapezoidal"
+                        group = "Advanced:2"
+                        no_evaluate
+                    }
+
+                    timeint_abstol {
+                        label = "Relative error tolerance"
+                        widget = edit
+                        type = string
+                        default_value = "1e-6"
+                        group = "Advanced:2"
+                        no_evaluate
+                    }
+
+                    timeint_reltol {
+                        label = "Relative error tolerance"
+                        widget = edit
+                        type = string
+                        default_value = "1e-3"
+                        group = "Advanced:2"
+                        no_evaluate
+                    }
+
+                    nonlinear_solver {
+                        label = "Nonlinear solution strategy"
+                        widget = combo
+                        combo_values = "Newton", "Gradient", "Trust region"
+                        type = string
+                        default_value = "Newton"
+                        group = "Advanced:2"
+                        no_evaluate
+
+                        CODE property_value_edited
+                            maxstep_prop = mdl.prop(container_handle, "nonlinear_maxstep")
+                            if new_value == "Newton":
+                                mdl.show_property(maxstep_prop)
+                            else:
+                                mdl.hide_property(maxstep_prop)
+                        ENDCODE
+
+                        CODE property_value_changed
+                            maxstep_prop = mdl.prop(container_handle, "nonlinear_maxstep")
+                            if new_value == "Newton":
+                                mdl.show_property(maxstep_prop)
+                            else:
+                                mdl.hide_property(maxstep_prop)
+                        ENDCODE
+                    }
+
+                    nonlinear_maxstep {
+                        label = "Maximum Newton steps"
+                        widget = edit
+                        type = string
+                        default_value = "20"
+                        group = "Advanced:2"
+                        no_evaluate
+                    }
+
+                    nonlinear_abstol {
+                        label = "Absolute residual vector tolerance"
+                        widget = edit
+                        type = string
+                        default_value = "1e-6"
+                        group = "Advanced:2"
+                        no_evaluate
+                    }
+
+                    nonlinear_reltol {
+                        label = "Relative residual vector tolerance"
+                        widget = edit
+                        type = string
+                        default_value = "1e-2"
+                        group = "Advanced:2"
+                        no_evaluate
+                    }
+
 
                     CODE open
                         from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
@@ -9360,8 +9442,6 @@ library "xyce_lib" {
                             break
                         dialog.exec()
                     
-                    
-                    
                     ENDCODE
 
                     CODE init
@@ -9371,7 +9451,7 @@ library "xyce_lib" {
                     
                         keep_open = {}
                     
-                        def sim_with_xyce(mask_handle):
+                        def sim_with_xyce(mdl, mask_handle):
                     
                             try:
                               ih = mdl.get_parent(mask_handle) # Component handle
@@ -9388,6 +9468,22 @@ library "xyce_lib" {
                                 max_ts = mdl.get_property_disp_value(mdl.prop(ih, "max_ts"))
                                 sim_params_dict['sim_time'] = sim_time
                                 sim_params_dict['max_ts'] = max_ts
+                                timeint_abstol = mdl.get_property_disp_value(mdl.prop(ih, "timeint_abstol"))
+                                timeint_reltol = mdl.get_property_disp_value(mdl.prop(ih, "timeint_reltol"))
+                                timeint_method_dict = {"Trapezoidal": "7", "Gear":"8"}
+                                timeint_method = mdl.get_property_disp_value(mdl.prop(ih, "timeint_method"))
+                                sim_params_dict['timeint_abstol'] = timeint_abstol
+                                sim_params_dict['timeint_reltol'] = timeint_reltol
+                                sim_params_dict['timeint_method'] = timeint_method_dict[timeint_method]
+                                nonlinear_solver_dict = {"Newton": "0", "Gradient":"1", "Trust region": "2"}
+                                nonlinear_solver = mdl.get_property_disp_value(mdl.prop(ih, "nonlinear_solver"))
+                                nonlinear_maxstep = mdl.get_property_disp_value(mdl.prop(ih, "nonlinear_maxstep"))
+                                nonlinear_abstol = mdl.get_property_disp_value(mdl.prop(ih, "nonlinear_abstol"))
+                                nonlinear_reltol = mdl.get_property_disp_value(mdl.prop(ih, "nonlinear_reltol"))
+                                sim_params_dict['nonlinear_solver'] = nonlinear_solver_dict[nonlinear_solver]
+                                sim_params_dict['nonlinear_maxstep'] = nonlinear_maxstep
+                                sim_params_dict['nonlinear_abstol'] = nonlinear_abstol
+                                sim_params_dict['nonlinear_reltol'] = nonlinear_reltol
                             elif analysis_type == "AC small-signal":
                                 start_f = mdl.get_property_disp_value(mdl.prop(ih, "start_f"))
                                 end_f = mdl.get_property_disp_value(mdl.prop(ih, "end_f"))
@@ -9431,8 +9527,8 @@ library "xyce_lib" {
                             ok_button = mdl.get_ns_var("ok_button_handle")
                             ok_button.click()
                     
-                        def start_sim(mask_handle):
-                            sim_with_xyce(mask_handle)
+                        def start_sim(mdl, mask_handle):
+                            sim_with_xyce(mdl, mask_handle)
                     
                         def open_sa():
                             if keep_open.get('xycewin'):
