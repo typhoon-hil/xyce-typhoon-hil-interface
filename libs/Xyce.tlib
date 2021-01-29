@@ -8594,7 +8594,7 @@ library "xyce_lib" {
                             def parse_models(self, file):
                                 subcircuit_model_list = []
                                 # Find subcircuit-based models
-                                sub_based = re.compile(r"^\.SUBCKT\s+(\S+)\s+([ A-z0-9_]+)\s+(?:PARAMS)?",
+                                sub_based = re.compile(r"^\.SUBCKT\s+(\S+)\s+([^\n]+)\s+(?:PARAMS)?",
                                                         flags = re.I)
                                 with io.open(file) as lib:
                                     in_sub_flag = False
@@ -8629,7 +8629,7 @@ library "xyce_lib" {
                                 try:
                                     subcircuit_model_list = []
                                     # Find subcircuit-based models
-                                    sub_based = re.compile(r"^\.SUBCKT\s+(\S+)\s+([ A-z0-9_]+)\s+(?:PARAMS)?",
+                                    sub_based = re.compile(r"^\.SUBCKT\s+(\S+)\s+([^\n]+)\s+(?:PARAMS)?",
                                                             flags = re.I)
                                     with io.open(file) as lib:
                                         in_sub_flag = False
@@ -9513,11 +9513,11 @@ library "xyce_lib" {
                             if json_file_path:
                                 os.chdir(xycesim_path)
                                 sys.path.append(xycesim_path)
-                                sys.path.append(xycesim_path+'\gui')
-                                sys.path.append(xycesim_path+'\schematic_converter')
+                                sys.path.append(xycesim_path+r'\xyce_conv')
+
                                 try:
-                                    from minimalistic_gui import XyceOutput
-                                    import tse2xyce
+                                    from xyce_conv.gui.minimalistic_gui import XyceOutput
+                                    import xyce_conv.schematic_converter.tse2xyce as tse2xyce
                                 except:
                                     mdl.info("Could not find the converter tool. Make sure Control Center is restarted after running install.bat in the xyce-typhoon-hil-interface folder.")
                                     raise Exception()

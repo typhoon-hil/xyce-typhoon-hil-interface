@@ -1,20 +1,20 @@
 # Built-in #
 import traceback, sys, os, re
 from subprocess import Popen, PIPE
-import gui.temp_log_plot as logplot
+import xyce_conv.gui.temp_log_plot as logplot
 import subprocess
 from functools import partial
 
 # Add submodules folder to path
-sys.path.append('gui')
-sys.path.append('schematic_converter')
+#sys.path.append('gui')
+#sys.path.append('schematic_converter')
 
 # My modules #
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.dirname(__file__)))
-    import schematic_converter.tse2xyce as tse2xyce
+    from xyce_conv import schematic_converter as tse2xyce
 else:
-    import schematic_converter.tse2xyce as tse2xyce
+    import xyce_conv.schematic_converter.tse2xyce as tse2xyce
 
 # PyQt #
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog

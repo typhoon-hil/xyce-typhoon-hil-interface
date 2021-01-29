@@ -1,5 +1,5 @@
-from schematic_converter.libfqn_dict import determine_elem
-from schematic_converter.elements import *
+from xyce_conv.schematic_converter.libfqn_dict import determine_elem
+from xyce_conv.schematic_converter.elements import *
 
 import time
 import json
