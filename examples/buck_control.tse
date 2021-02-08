@@ -2,7 +2,7 @@ version = 4.2
 
 //
 // Saved by sw version: 2020.3
-// Save timestamp: 19-Oct-2020 @ 03:09:00 PM
+// Save timestamp: 06-Nov-2020 @ 02:53:15 PM
 //
 
 model "buck_control" {
@@ -59,6 +59,7 @@ model "buck_control" {
         [
             position = 8824, 8304
             rotation = left
+            scale = 1, -1
             size = 64, 64
         ]
 
@@ -66,8 +67,7 @@ model "buck_control" {
             L = "L"
         }
         [
-            position = 8672, 8216
-            scale = -1, 1
+            position = 8664, 8216
             size = 64, 64
         ]
 
@@ -77,7 +77,7 @@ model "buck_control" {
         [
             position = 8944, 8312
             rotation = left
-            scale = -1, 1
+            scale = -1, -1
             size = 64, 64
         ]
 
@@ -136,7 +136,6 @@ model "buck_control" {
             [
                 position = 7808, 8008
                 rotation = down
-                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -146,7 +145,6 @@ model "buck_control" {
             [
                 position = 7968, 7928
                 rotation = down
-                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -156,7 +154,6 @@ model "buck_control" {
             [
                 position = 8112, 8024
                 rotation = down
-                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -172,7 +169,6 @@ model "buck_control" {
             [
                 position = 7824, 8336
                 rotation = down
-                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -182,6 +178,7 @@ model "buck_control" {
             [
                 position = 7968, 8264
                 rotation = down
+                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -197,7 +194,6 @@ model "buck_control" {
             [
                 position = 8128, 8352
                 rotation = down
-                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -229,7 +225,6 @@ model "buck_control" {
             [
                 position = 8320, 8112
                 rotation = down
-                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -239,7 +234,6 @@ model "buck_control" {
             [
                 position = 8576, 8128
                 rotation = down
-                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -249,7 +243,6 @@ model "buck_control" {
             [
                 position = 8432, 8192
                 rotation = down
-                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -400,7 +393,6 @@ model "buck_control" {
         [
             position = 9632, 8160
             rotation = down
-            scale = -1, 1
             size = 64, 64
         ]
 
@@ -416,9 +408,8 @@ model "buck_control" {
             R = "Rsens"
         }
         [
-            position = 9440, 8184
+            position = 9320, 8216
             rotation = down
-            scale = -1, 1
             size = 64, 64
         ]
 
@@ -428,7 +419,6 @@ model "buck_control" {
         [
             position = 9440, 8272
             rotation = down
-            scale = -1, 1
             size = 64, 64
         ]
 
@@ -446,8 +436,7 @@ model "buck_control" {
                 C = "Ctri"
             }
             [
-                position = 8168, 8128
-                scale = -1, 1
+                position = 8176, 8128
                 size = 64, 64
             ]
 
@@ -456,6 +445,7 @@ model "buck_control" {
             }
             [
                 position = 8040, 8192
+                scale = -1, 1
                 size = 64, 64
             ]
 
@@ -478,7 +468,6 @@ model "buck_control" {
             ]
 
             component "xyce_lib/Ideal Comparator" "Ideal Comparator1" {
-                output_voltage = "1"
             }
             [
                 position = 8368, 8112
@@ -694,6 +683,9 @@ model "buck_control" {
             breakpoints = 8944, 8400
         ]
         connect Junction10 Rsens.p_node as Connection49
+        [
+            breakpoints = 9488, 8216; 9368, 8216
+        ]
         connect Rerr.n_node Junction17 as Connection140
         connect Junction17 Junction10 as Connection141
         [
@@ -736,9 +728,6 @@ model "buck_control" {
         connect NodeID3.node S.gate as Connection364
         connect D.n_node Junction38 as Connection366
         connect Junction38 "Ideal Inductor1.p_node" as Connection367
-        [
-            breakpoints = 8520, 8216; 8568, 8216
-        ]
         connect Junction20 "PI Controller.error" as Connection369
         [
             breakpoints = 9688, 8240; 9688, 8240; 9728, 8240
@@ -780,9 +769,6 @@ model "buck_control" {
             breakpoints = 8824, 8216; 8824, 8216; 8824, 8216
         ]
         connect "Ideal Inductor1.n_node" Junction45 as Connection432
-        [
-            breakpoints = 8824, 8216
-        ]
         connect Junction38 S.src as Connection431
         [
             breakpoints = 8520, 8216; 8520, 8216
@@ -806,7 +792,11 @@ model "buck_control" {
         }
 
         "xyce_lib/Ideal Comparator" {
-            output_voltage = "3.3"
+            v_hi = "3.3"
+            v_lo = "0"
+            enable_hysteresis = "False"
+            vt_hi = "0"
+            vt_lo = "0"
         }
 
         "xyce_lib/Ideal Diode" {

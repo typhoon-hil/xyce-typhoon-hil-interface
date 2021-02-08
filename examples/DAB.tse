@@ -2,10 +2,10 @@ version = 4.2
 
 //
 // Saved by sw version: 2020.3
-// Save timestamp: 19-Oct-2020 @ 03:04:19 PM
+// Save timestamp: 10-Nov-2020 @ 05:28:38 PM
 //
 
-model "DAB" {
+model "dab" {
     configuration {
         hil_device = "HIL402"
         hil_configuration_id = 1
@@ -55,6 +55,7 @@ model "DAB" {
         }
         [
             position = 7800, 8224
+            scale = -1, 1
             size = 64, 64
         ]
 
@@ -156,7 +157,6 @@ model "DAB" {
         }
         [
             position = 7040, 8040
-            scale = -1, 1
             size = 64, 64
         ]
 
@@ -165,7 +165,6 @@ model "DAB" {
         }
         [
             position = 7320, 8040
-            scale = -1, 1
             size = 64, 64
         ]
 
@@ -176,6 +175,7 @@ model "DAB" {
         [
             position = 8584, 8024
             rotation = down
+            scale = -1, 1
             size = 64, 64
         ]
 
@@ -185,7 +185,7 @@ model "DAB" {
         [
             position = 8864, 8328
             rotation = right
-            scale = -1, -1
+            scale = -1, 1
             size = 64, 64
         ]
 
@@ -195,6 +195,7 @@ model "DAB" {
         [
             position = 7224, 8328
             rotation = left
+            scale = 1, -1
             size = 64, 64
         ]
 
@@ -204,6 +205,7 @@ model "DAB" {
         [
             position = 8712, 8328
             rotation = left
+            scale = 1, -1
             size = 64, 64
         ]
 
@@ -399,7 +401,7 @@ model "DAB" {
         ]
 
         component "xyce_lib/XyceSim" XyceSim1 {
-            max_ts = "1e-9"
+            max_ts = "5e-9"
             sim_time = "0.2ms"
         }
         [
@@ -770,6 +772,13 @@ model "DAB" {
             max_ts = "1e-7"
             start_sim = "Start simulation"
             open_sa = "Plot"
+            timeint_method = "Trapezoidal"
+            timeint_abstol = "1e-6"
+            timeint_reltol = "1e-3"
+            nonlinear_solver = "Newton"
+            nonlinear_maxstep = "20"
+            nonlinear_abstol = "1e-6"
+            nonlinear_reltol = "1e-2"
         }
     }
 
