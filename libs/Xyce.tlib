@@ -1451,6 +1451,18 @@ library "xyce_lib" {
                         ENDCODE
                     }
 
+                    fix_syntax {
+                        label = "Attempt to fix SPICE syntax"
+                        widget = checkbox
+                        type = bool
+                        default_value = "False"
+
+                        CODE property_value_edited
+                            loaded_lib_prop = mdl.prop(container_handle, "loaded_lib")
+                            mdl.set_property_disp_value(loaded_lib_prop, "Select a library file")
+                        ENDCODE
+                    }
+
                     library {
                         label = "SPICE library"
                         widget = button
@@ -1461,6 +1473,19 @@ library "xyce_lib" {
                         CODE button_clicked
                             mdl.refresh_icon(container_handle)
                             load_and_parse_file(mdl, container_handle)
+                        ENDCODE
+                    }
+
+                    loaded_lib {
+                        label = "Loaded library file"
+                        widget = edit
+                        type = string
+                        default_value = "None"
+                        no_evaluate
+
+                        CODE property_value_edited
+                            old_value = mdl.get_property_value(prop_handle)
+                            mdl.set_property_value(prop_handle, old_value)
                         ENDCODE
                     }
 
