@@ -40,6 +40,7 @@ set path=%path%;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;%S
 xcopy /E /I /Y "%path_to_this_folder:~0,-2%\gui" "%appdata_folder%\xyce-typhoon-hil-interface\gui" > NUL
 xcopy /E /I /Y "%path_to_this_folder:~0,-2%\libs" "%appdata_folder%\xyce-typhoon-hil-interface\libs" > NUL
 xcopy /E /I /Y "%path_to_this_folder:~0,-2%\schematic_converter" "%appdata_folder%\xyce-typhoon-hil-interface\schematic_converter" > NUL
+xcopy /E /I /Y "%path_to_this_folder:~0,-2%\xyce_conv" "%appdata_folder%\xyce-typhoon-hil-interface\xyce_conv" > NUL
 xcopy /Y "%path_to_this_folder:~0,-2%\libs\Xyce.tlib" "%path_to_userlibs%\" > NUL
 xcopy /Y "%path_to_this_folder:~0,-2%\__init__.py" "%appdata_folder%\xyce-typhoon-hil-interface\" > NUL
 xcopy /E /I /Y "%path_to_this_folder:~0,-2%\libs\Xyce" "%path_to_userlibs%\Xyce" > NUL
