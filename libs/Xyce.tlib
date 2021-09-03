@@ -12600,8 +12600,8 @@ library "xyce_lib" {
                     
                         os.chdir(xycesim_path)
                         sys.path.append(xycesim_path)
-                        sys.path.append(xycesim_path+'\gui')
-                        sys.path.append(xycesim_path+'\schematic_converter')
+                        sys.path.append(xycesim_path+r'\xyce_conv\gui')
+                        sys.path.append(xycesim_path+r'\xyce_conv\schematic_converter')
                         import scope
                     
                         all_components = all_circuit_components(mdl)
