@@ -102,7 +102,7 @@ model "libinstall" {
                   process = subprocess.Popen('cmd', stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                   out, err = process.communicate(commands.encode('utf-8'))
 
-                  if not "Successfully installed tse-to-xyce" in out.decode('utf-8', errors="ignore"):
+                  if not "Successfully installed" in out.decode('utf-8', errors="ignore"):
                       mdl.info("Installation failed")
                       mdl.info("-------")
                       mdl.info("Command line output:")
