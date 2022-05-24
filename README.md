@@ -35,22 +35,21 @@ In case the command is not found, check the extra step at the end of this guide.
 
 ## 3) Xyce to Typhoon Schematic Editor converter
 
-1) Go to the master branch of the repository: https://github.com/typhoon-hil/xyce-typhoon-hil-interface
-2) Download the contents by clicking the *Clone or download* button then *Download ZIP*
-3) Extract the *xyce-typhoon-hil-interface-master* folder
-4) With Typhoon HIL Control Center closed, run *install.bat*
+1) Download the latest release of the repository: https://github.com/typhoon-hil/xyce-typhoon-hil-interface/releases
+2) Extract the contents
+3) Open *installation.tse* with the Schematic Editor and double-click the component in the model
+4) Click on the menu option *File | Reload libraries*
 
 ## 4) Building a model and simulating
 
-1) Open the Control Center and click on the Schematic Editor
-2) You can use elements from the *xyce_lib* library to build your circuit*
-3) After the circuit is built, add a *XyceSim* component and double-click it to open the mask
-4) Enter the simulation parameters
-5) Click on *Start simulation*
-6) A window opens with the text output from the *Xyce*
-7) If the simulation finishes successfully, a *Signal Analyzer* window opens automatically
+1) You can use elements from the *xyce_lib* library to build your circuit*
+2) After the circuit is built, add a *XyceSim* component from the *Special* category and double-click it to open the mask
+3) Enter the simulation parameters
+4) Click on *Start simulation*
+5) A window opens with the text output from the *Xyce*
+6) If the simulation finishes successfully, a *Signal Analyzer* window opens automatically
 
-You can also find circuit examples within the *xyce-typhoon-hil-interface-master/examples* folder.
+*You can also find circuit examples in the master branch examples folder.
 
 ## Extra step
 
