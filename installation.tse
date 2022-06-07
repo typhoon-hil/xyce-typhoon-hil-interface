@@ -1,11 +1,10 @@
 version = 4.2
 
 //
-// Saved by sw version: 2022.1 SP1
-// Save timestamp: 13-Apr-2022 @ 01:12:01 PM
+// Saved by sw version: 2022.2
 //
 
-model "libinstall" {
+model "installation" {
     configuration {
         hil_device = "HIL402"
         hil_configuration_id = 1
@@ -36,6 +35,7 @@ model "libinstall" {
         cpl_dynamics_analysis = False
         export_ss_to_pickle = False
         ground_scope_core = False
+        dss_num_tol = 1e-15
         cce_platform = "generic"
         cce_use_relative_names = False
         cce_type_mapping_real = "double"
@@ -75,53 +75,68 @@ model "libinstall" {
                 }
 
                 CODE open
+                    import sys
+                    import pathlib
+                    import subprocess
+                    import os
+                    from typhoon.model.library.registry import get_library_registry
 
-                  import sys
-                  import pathlib
-                  import subprocess
-                  import os
-                  from typhoon.model.library.registry import get_library_registry
+                    # Install converter
+
+                    mdl.info("Xyce installation started.")
+                    typhoon_path = pathlib.Path(sys.executable).parent
+                    appdata = pathlib.Path(os.getenv("appdata"))
+                    with open(str(typhoon_path.joinpath(".version")), "r") as f:
+                        sw_ver = f.readline()
+
+                    p3path = typhoon_path.joinpath("bin").joinpath("python3-portable.cmd")
+
+                    source_path = pathlib.Path(mdl.get_model_file_path()).parent.joinpath("sources.tar.gz")
+
+                    commands = f'''"{str(p3path)}"
+                    pip install "{source_path}"
+                    '''
+
+                    mdl.info("Installing the converter...")
+                    process = subprocess.Popen('cmd', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    out, err = process.communicate(commands.encode('utf-8'))
+                    successful_install = True
 
 
-                  # Install converter
+                    if not "Successfully installed" in out.decode('utf-8', errors="ignore"):
+                        mdl.info("- Converter installation failed")
+                        mdl.info("-------")
+                        mdl.info("Command line output:")
+                        for line in out.decode('utf-8', errors="ignore").split("\n"):
+                          mdl.info(line)
+                        mdl.info("-------")
+                        mdl.info("Errors:")
+                        for l in err.decode('utf-8', errors="ignore").split("\n"):
+                          mdl.info(l)
+                        mdl.info("-------")
+                        mdl.info("-------")
+                        successful_install = False
 
-                  mdl.info("Installing the Xyce converter...")
-                  typhoon_path = pathlib.Path(sys.executable).parent
-                  appdata = pathlib.Path(os.getenv("appdata"))
-                  with open(str(typhoon_path.joinpath(".version")), "r") as f:
-                      sw_ver = f.readline()
+                    mdl.info("Adding the xyce_lib library to the Schematic Editor...")
+                    current_lib = get_library_registry(load=False)
+                    old_paths = current_lib.user_lib_paths
+                    addpath = str(appdata.joinpath('typhoon', sw_ver,'python_portables', 'python3_portable', 'lib', 'site-packages', 'tse_to_xyce', 'thcc_libs'))
+                    new_paths = old_paths + (f"{addpath}", )
+                    old_subdirs = tuple(current_lib.user_lib_paths_subdirs.values())
+                    if not addpath in old_paths:
+                        current_lib.user_lib_paths = new_paths
+                        current_lib.user_lib_paths_subdirs = dict(zip(new_paths, old_subdirs + (False,)))
+                        current_lib.save()
+                    else:
+                        mdl.info("- Library path already exists.")
 
-                  p3path = typhoon_path.joinpath("bin").joinpath("python3-portable.cmd")
+                    if successful_install:
+                        mdl.info("- Installation complete. Please reload the libraries from the File menu.")
+                    else:
+                        mdl.info("- The converter installation failed. Please check the debug information.")
 
-                  source_path = pathlib.Path(mdl.get_model_file_path()).parent.joinpath("source.tar.gz")
-
-                  commands = f'''"{str(p3path)}"
-                  pip install "{source_path}"
-                  '''
-
-                  process = subprocess.Popen('cmd', stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-                  out, err = process.communicate(commands.encode('utf-8'))
-
-                  if not "Successfully installed" in out.decode('utf-8', errors="ignore"):
-                      mdl.info("Installation failed")
-                      mdl.info("-------")
-                      mdl.info("Command line output:")
-                      mdl.info(out.decode('utf-8', errors="ignore"))
-                  else:
-                      current_lib = get_library_registry(load=False)
-                      old_paths = current_lib.user_lib_paths
-                      addpath = str(appdata.joinpath('typhoon', sw_ver,'python_portables', 'python3_portable', 'lib', 'site-packages', 'tse_to_xyce', 'thcc_libs'))
-                      new_paths = old_paths + (f"{addpath}", )
-                      old_subdirs = tuple(current_lib.user_lib_paths_subdirs.values())
-                      if not addpath in old_paths:
-                          current_lib.user_lib_paths = new_paths
-                          current_lib.user_lib_paths_subdirs = dict(zip(new_paths, old_subdirs + (False,)))
-                          current_lib.save()
-
-                      mdl.info("Installation complete. Please reload the libraries from the File menu.")
 
                 ENDCODE
-
             }
         }
         [
