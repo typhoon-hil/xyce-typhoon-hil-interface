@@ -91,7 +91,7 @@ model "installation" {
 
                     p3path = typhoon_path.joinpath("bin").joinpath("python3-portable.cmd")
 
-                    source_path = pathlib.Path(mdl.get_model_file_path()).parent.joinpath("sources.tar.gz")
+                    source_path = pathlib.Path(mdl.get_model_file_path()).parent.joinpath("source.tar.gz")
 
                     commands = f'''"{str(p3path)}"
                     pip install "{source_path}"
