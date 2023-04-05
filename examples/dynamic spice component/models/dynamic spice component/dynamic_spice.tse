@@ -1,0 +1,544 @@
+version = 4.2
+
+//
+// Saved by sw version: 2023.1
+//
+
+model "dynamic_spice" {
+    configuration {
+        hil_device = "HIL402"
+        hil_configuration_id = 1
+        simulation_method = exact
+        simulation_time_step = auto
+        simulation_discret_scaling = 1.0
+        dsp_timer_periods = 100e-6, 50e-3
+        ss_calc_method = "systematic elimination"
+        enb_pole_shift = True
+        enb_gds_oversampling = True
+        show_modes = False
+        device_ao_limit_enable = False
+        reset_analog_outputs_on_sim_stop = True
+        reset_digital_outputs_on_sim_stop = True
+        vhil_adio_loopback = False
+        cpl_stb = False
+        enb_dep_sw_detect = False
+        code_section = "internal memory"
+        data_section = "internal memory"
+        sys_sp_rate_1 = 0.0001
+        sys_sp_rate_2 = 0.05
+        sys_real_type_precision = "default"
+        user_real_type_precision = "default"
+        sys_cpu_optimization = "high"
+        user_cpu_optimization = "high"
+        user_cpu_part_option = "default"
+        matrix_based_reduction = True
+        cpl_dynamics_analysis = False
+        export_ss_to_pickle = False
+        ground_scope_core = False
+        dss_num_tol = 1e-15
+        cce_platform = "generic"
+        cce_use_relative_names = False
+        cce_type_mapping_real = "double"
+        cce_type_mapping_uint = "unsigned int"
+        cce_type_mapping_int = "int"
+        cce_directory = ""
+        cce_custom_type_int = ""
+        cce_custom_type_uint = ""
+        cce_custom_type_real = ""
+        tunable_params = "component defined"
+        sp_compiler_type = "C compiler"
+        sig_stim = "off"
+        export_resource_list = ""
+        export_dependency_list = ""
+        excluded_resource_list = ""
+        export_out_file = ""
+        export_lock_top_level = True
+        export_encrypt_library = True
+        export_encrypt_resources = True
+    }
+
+    component Subsystem Root {
+        component "xyce_lib/Dynamic SPICE component" DynSPICE1 {
+            loaded_lib = "D:/Dropbox/Typhoon HIL/Repository/tse_to_third_party_tools_modules/tse2tpt_xyce_module/examples/dynamic_spice/unidirectional_switch.lib"
+            model_name = "unidir_switch"
+            model_path = "D:/Dropbox/Typhoon HIL/Repository/tse_to_third_party_tools_modules/tse2tpt_xyce_module/examples/dynamic_spice/unidirectional_switch.lib"
+            pin_idx = "1,1,1"
+            pin_order = "drain,gate,source"
+            pin_positions = "left,top,right"
+            relative_model_path = "unidirectional_switch.lib"
+            selected_model = "unidir_switch"
+        }
+        [
+            position = 8216, 8160
+            size = 120, 88
+        ]
+
+        component "xyce_lib/DC Voltage Source" Vin {
+            meas_v = "True"
+        }
+        [
+            position = 7904, 8264
+            rotation = left
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Resistor" R1 {
+            R = "1e-3"
+        }
+        [
+            position = 8008, 8160
+            rotation = down
+            scale = -1, -1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ground" gnd1 {
+        }
+        [
+            position = 7904, 8440
+        ]
+
+        component Subsystem sine_gs {
+            layout = dynamic
+            visible = "disable"
+            component "xyce_lib/Ideal Resistor" R2 {
+                R = "1e6"
+            }
+            [
+                position = 8688, 8216
+                rotation = left
+                scale = -1, -1
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Pulse Width Modulator" PWM1 {
+                freq = "10000"
+            }
+            [
+                position = 8624, 8152
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Signal-to-Power" Sig2Pwr1 {
+            }
+            [
+                position = 8440, 8160
+                size = 48, 48
+            ]
+
+            component "xyce_lib/Trig Function" Sin {
+            }
+            [
+                position = 8008, 8144
+                size = 48, 48
+            ]
+
+            component "xyce_lib/Triangular Voltage Source" Vtri1 {
+                tfall = "0"
+                trise = "1/f"
+                vmax = "360"
+            }
+            [
+                position = 7552, 8144
+                rotation = left
+                size = 64, 64
+            ]
+
+            component "xyce_lib/Ground" gnd2 {
+            }
+            [
+                position = 7552, 8256
+            ]
+
+            component "xyce_lib/Voltage Measurement" angle {
+                signal_out = "True"
+            }
+            [
+                position = 7816, 8144
+                rotation = right
+                size = 64, 32
+            ]
+
+            component "xyce_lib/Ground" gnd3 {
+            }
+            [
+                position = 8488, 8272
+            ]
+
+            component "xyce_lib/Ground" gnd4 {
+            }
+            [
+                position = 8688, 8280
+            ]
+
+            component "xyce_lib/Probe" sine_signal {
+            }
+            [
+                position = 8240, 8048
+                size = 32, 32
+            ]
+
+            component "xyce_lib/Sum" Sum1 {
+            }
+            [
+                position = 8296, 8160
+                size = 48, 80
+            ]
+
+            component "xyce_lib/Constant" Offset {
+                value = "0.5"
+            }
+            [
+                position = 8128, 8248
+                size = 48, 48
+            ]
+
+            component "xyce_lib/Gain" Gain1 {
+                gain = "0.25"
+            }
+            [
+                position = 8136, 8144
+                size = 48, 48
+            ]
+
+            component "xyce_lib/Node Voltage" v_g {
+            }
+            [
+                position = 8752, 8048
+                size = 32, 32
+            ]
+
+            port P1 {
+                position = right:1
+                kind = pe
+            }
+            [
+                position = 8752, 8136
+                rotation = down
+            ]
+
+            junction Junction1 pe
+            [
+                position = 7552, 8192
+            ]
+
+            junction Junction2 sp
+            [
+                position = 8184, 8144
+            ]
+
+            junction Junction3 pe
+            [
+                position = 8696, 8136
+            ]
+
+            comment Comment1 START <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;"><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This source measures and outputs a signal processing (SP) signal.<br /><br />The SP components in the library are electrical components in Xyce. </p><p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The conversion is done to facilitate a possible future HIL-simulation support. </p></body></html> ENDCOMMENT 
+            [
+                position = 7520, 7984
+            ]
+
+            comment Comment2 START <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;"><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Triangular (sawtooth) source</p><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">that outputs an angle value</p><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">from 0 to 360 degrees  </p></body></html> ENDCOMMENT 
+            [
+                position = 7280, 8120
+            ]
+
+            comment Comment3 START <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;"><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Converts back to power</p><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">electronics (PE) signals. </p></body></html> ENDCOMMENT 
+            [
+                position = 8352, 8072
+            ]
+
+            connect angle.p_node Vtri1.p_node as Connection4
+            connect gnd2.node Junction1 as Connection5
+            connect Junction1 Vtri1.n_node as Connection6
+            connect angle.n_node Junction1 as Connection7
+            connect Sin.In angle.signal_out as Connection8
+            connect Sig2Pwr1.p_node PWM1.duty as Connection10
+            connect gnd3.node Sig2Pwr1.n_node as Connection11
+            connect "PWM1.Comp Out" R2.p_node as Connection12
+            connect gnd4.node R2.n_node as Connection13
+            connect Sum1.Out Sig2Pwr1.In as Connection19
+            connect Junction2 sine_signal.In as Connection21
+            [
+                breakpoints = 8184, 8144
+            ]
+            connect Sum1.In1 Junction2 as Connection22
+            connect Offset.Out Sum1.In2 as Connection23
+            connect Sin.Out Gain1.In as Connection24
+            connect Gain1.Out Junction2 as Connection25
+            connect PWM1.Out Junction3 as Connection26
+            connect Junction3 P1 as Connection27
+            connect v_g.node Junction3 as Connection28
+
+            f = "60"
+
+            mask {
+                description = "<html><head><meta name=\"qrichtext\" content=\"1\"></meta><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\"\"><p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br></br></p></body></html>"
+
+                f {
+                    label = "Frequency"
+                    widget = edit
+                    type = real
+                    default_value = "0"
+                    unit = "Hz"
+                }
+
+                CODE open
+                    from typhoon.apps.schematic_editor.dialogs.component_property_dialogs.general import RegularComponentPropertiesDialog
+                
+                    dialog = RegularComponentPropertiesDialog(
+                        component=component,
+                        property_container=component.masks[-1],
+                        current_diagram=current_diagram
+                    )
+                    dialog.exec_()
+                    
+                ENDCODE
+            }
+        }
+        [
+            position = 7760, 8000
+            size = 88, 88
+        ]
+
+        component "xyce_lib/Ideal Resistor" R2 {
+            R = "R"
+            meas_v = "True"
+        }
+        [
+            position = 8800, 8272
+            rotation = left
+            scale = -1, -1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Capacitor" C1 {
+            C = "C"
+        }
+        [
+            position = 8656, 8272
+            rotation = left
+            scale = -1, -1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/XyceSim" XyceSim1 {
+            max_ts = "2e-7"
+            sim_time = "40ms"
+        }
+        [
+            position = 8408, 7960
+            size = 112, 56
+        ]
+
+        component "xyce_lib/Ideal Inductor" L1 {
+            L = "L"
+            meas_i = "True"
+        }
+        [
+            position = 8552, 8160
+            rotation = down
+            scale = -1, -1
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Ideal Diode" D {
+        }
+        [
+            position = 8480, 8272
+            rotation = right
+            size = 64, 64
+        ]
+
+        component "xyce_lib/Scope" Scope1 {
+        }
+        [
+            position = 8824, 7968
+            size = 122, 96
+        ]
+
+        junction Junction1 pe
+        [
+            position = 7904, 8400
+        ]
+
+        junction Junction2 pe
+        [
+            position = 8656, 8400
+        ]
+
+        junction Junction3 pe
+        [
+            position = 8656, 8160
+        ]
+
+        junction Junction4 pe
+        [
+            position = 8480, 8400
+        ]
+
+        junction Junction5 pe
+        [
+            position = 8480, 8160
+        ]
+
+        comment Comment1 START <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;"><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Use Dynamic Spice to load subcircuits.<br /><br />Ports are automatically created.</p></body></html> ENDCOMMENT 
+        [
+            position = 8072, 8240
+        ]
+
+        comment Comment2 START <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;"><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Use XyceSim to convert the model and run Xyce.</p></body></html> ENDCOMMENT 
+        [
+            position = 8232, 7880
+        ]
+
+        comment Comment3 START <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;"><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Use the Scope to preset the signals you would like</p><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">to observe on the Signal Analyzer. </p></body></html> ENDCOMMENT 
+        [
+            position = 8632, 8048
+        ]
+
+        comment Comment4 START <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;"><p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This masked subsystem generates a 0 to 1 sinusoidal waveform.<br /><br />Look under the mask for more details.</p></body></html> ENDCOMMENT 
+        [
+            position = 7536, 7864
+        ]
+
+        connect R1.p_node Vin.p_node as Connection1
+        connect gnd1.node Junction1 as Connection3
+        connect Junction1 Vin.n_node as Connection4
+        connect Junction2 C1.n_node as Connection5
+        connect Junction2 R2.n_node as Connection6
+        connect Junction3 R2.p_node as Connection10
+        connect C1.p_node Junction3 as Connection11
+        connect R1.n_node DynSPICE1.drain as Connection12
+        connect sine_gs.P1 DynSPICE1.gate as Connection13
+        connect L1.n_node Junction3 as Connection15
+        connect Junction4 D.p_node as Connection16
+        connect Junction4 Junction2 as Connection17
+        connect Junction4 Junction1 as Connection18
+        connect Junction5 D.n_node as Connection19
+        connect Junction5 DynSPICE1.source as Connection20
+        connect Junction5 L1.p_node as Connection21
+    }
+
+    default {
+        "xyce_lib/Constant" {
+            value = "0"
+        }
+
+        "xyce_lib/DC Voltage Source" {
+            voltage = "100"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+        }
+
+        "xyce_lib/Dynamic SPICE component" {
+            fix_syntax = "False"
+            library = "Choose File..."
+            loaded_lib = "None"
+            model_path = "-"
+            relative_model_path = ""
+            model_name = "None"
+            show_netlist = "Netlist"
+            configure_positions = "Configure"
+            pin_positions = "-"
+            pin_idx = "-"
+            pin_order = "-"
+            selected_model = "None"
+        }
+
+        "xyce_lib/Gain" {
+            gain = "0"
+        }
+
+        "xyce_lib/Ideal Capacitor" {
+            C = "100e-6"
+            IC = "0"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+        }
+
+        "xyce_lib/Ideal Diode" {
+            r_on = "1e-4"
+            vd_on = "0"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+        }
+
+        "xyce_lib/Ideal Inductor" {
+            L = "10e-6"
+            IC = "0"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+        }
+
+        "xyce_lib/Ideal Resistor" {
+            R = "100"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+        }
+
+        "xyce_lib/Pulse Width Modulator" {
+            vmax = "5"
+            freq = "1000"
+            deadtime = "0"
+        }
+
+        "xyce_lib/Sum" {
+            signs = "++"
+        }
+
+        "xyce_lib/Triangular Voltage Source" {
+            vmax = "1"
+            vmin = "0"
+            trise = "0.5"
+            tfall = "0.5"
+            meas_v = "False"
+            meas_i = "False"
+            meas_p = "False"
+        }
+
+        "xyce_lib/Trig Function" {
+            trig_fcn = "sin"
+        }
+
+        "xyce_lib/Voltage Measurement" {
+            signal_out = "False"
+        }
+
+        "xyce_lib/XyceSim" {
+            sim_type = "Transient"
+            start_f = "10"
+            end_f = "10000"
+            num_points = "100"
+            sim_time = "0.1ms"
+            max_ts = "1e-7"
+            calculate_operation_point = "True"
+            start_sim = "Start simulation"
+            open_sa = "Plot"
+            timeint_method = "Trapezoidal"
+            voltage_limiting = "True"
+            timeint_abstol = "1e-6"
+            timeint_reltol = "1e-3"
+            nonlinear_solver = "Newton"
+            nonlinear_maxstep = "20"
+            nonlinear_abstol = "1e-6"
+            nonlinear_reltol = "1e-2"
+        }
+    }
+
+    CODE model_init
+        # Numpy module is imported as 'np'
+        # Scipy module is imported as 'sp'
+        # The Schematic API is imported as 'mdl'
+        # To get the model file path, use 'mdl.get_model_file_path()'
+        # To print information to the console, use info()
+        
+        R = 1
+        C = 500e-6
+        L = 400e-6
+    ENDCODE
+}

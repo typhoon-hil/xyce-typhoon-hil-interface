@@ -1,0 +1,30 @@
+* Ideal unidirectional switch model
+
+.SUBCKT unidir_switch drain gate source
++PARAMS: R_ON=1e-4 VSW_ON=0 VD_ON=0
+
+* Gate aux resistor
+R_auxGATE gate 0 0.1
+
+* Diode
+SW_DIODE source mid_node_d IDDIODE OFF CONTROL={IF(V(gate)>0.99, 0, IF(I(V_MEAS_D) > 0, 1, 0))}
+
+B_DROP_D mid_meas_d drain V={IF(V(source, drain)<VD_ON, IF(V(source, drain)>0, V(source, drain), 0), VD_ON)} smoothbsrc=1
++ rcconst = {GLOBAL_TS*1e-10}
+
+V_MEAS_D mid_node_d mid_meas_d 0
+
+*Switch
+SW_UNI source mid_node_sw UNIDIR OFF CONTROL={IF(V(gate)>0.99, 1, 0)}
+
+B_DROP_SW mid_meas_sw drain V={IF(V(gate)>0.99, IF(abs(V(drain, source))<VSW_ON, IF(abs(V(drain, source))>0, -V(drain, source), 0), -sgn(V(drain, source))*VSW_ON), 0)} smoothbsrc=1
++ rcconst = {GLOBAL_TS*1e-10}
+
+V_MEAS_SW mid_node_sw mid_meas_sw 0
+
+* Switch Models
+
+.MODEL IDDIODE SWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF={1e11*R_ON} ON=0.99 OFF=0.01
+.MODEL UNIDIR SWITCH RON={IF(R_ON<1e-5,1e-5,R_ON)} ROFF={1e11*R_ON} VON=0.99 VOFF=0.01
+
+.ENDS unidir_switch

@@ -1,0 +1,72 @@
+{
+    "signals": {
+        "V(Vin)": {
+            "viewports": [
+                1
+            ],
+            "type": "analog",
+            "color": {
+                "1": "#ff0000"
+            },
+            "display": {
+                "1": "solid"
+            }
+        },
+        "V(sine_gs.angle)": {
+            "viewports": [],
+            "type": "analog",
+            "color": {},
+            "display": {}
+        },
+        "V(sine_gs.v_g)": {
+            "viewports": [
+                2
+            ],
+            "type": "analog",
+            "color": {
+                "2": "#ff0000"
+            },
+            "display": {
+                "2": "solid"
+            }
+        },
+        "V(R2)": {
+            "viewports": [
+                1
+            ],
+            "type": "analog",
+            "color": {
+                "1": "#0000ff"
+            },
+            "display": {
+                "1": "solid"
+            }
+        },
+        "I(L1)": {
+            "viewports": [
+                3
+            ],
+            "type": "analog",
+            "color": {
+                "3": "#0000ff"
+            },
+            "display": {
+                "3": "solid"
+            }
+        }
+    },
+    "viewports": {
+        "1": {
+            "x_label": "time (s)"
+        },
+        "2": {
+            "x_label": "time (s)"
+        },
+        "3": {
+            "x_label": "time (s)"
+        },
+        "4": {
+            "x_label": "time (s)"
+        }
+    }
+}

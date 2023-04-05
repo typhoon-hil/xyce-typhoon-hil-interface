@@ -1,0 +1,5 @@
+recursive-include tse_to_xyce *.*
+prune tests
+recursive-exclude tse_to_xyce .git
+recursive-exclude tse_to_xyce .gitignore
+

@@ -1,0 +1,14 @@
+* Measurements with signal outputs
+
+.SUBCKT i_meas_out node_p node_n out
+
+V_MEAS node_p node_n 0
+B_SIGNAL out 0 V={I(V_MEAS)}
+
+.ENDS i_meas_out
+
+.SUBCKT v_meas_out node_p node_n out
+
+B_SIGNAL out 0 V={V(node_p, node_n)}
+
+.ENDS v_meas_out

@@ -1,0 +1,1 @@
+{"title": "Dynamic SPICE component", "description": "Shows how the Dynamic SPICE component can be used to load subcircuit models.", "model": "dynamic_spice.tse", "images": ["dyn_spice.png"], "tags": [], "app_note": "", "tests": []}

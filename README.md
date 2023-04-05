@@ -2,9 +2,9 @@
 
 Follow this guide to set up everything needed to build circuit schematics with Typhoon HIL software and simulate using the Xyce open-source engine.
 There are four main steps:
-1) Downloading and installing Typhoon HIL Control Center
+1) Downloading and installing Typhoon HIL Control Center (THCC)
 2) Downloading and installing Xyce
-3) Setting up the Typhoon HIL/Xyce interface
+3) Installing the TSE to Xyce converter package
 4) Building a circuit model
 
 ## 1) Typhoon HIL Control Center
@@ -12,54 +12,31 @@ There are four main steps:
 If you already have Control Center installed you can ignore these steps, but we highly recommend an update to the latest version
 
 1) Go to https://www.typhoon-hil.com/products/hil-software/
-2) In the *Test drive on Virtual HIL* section, click *Download*
-3) Fill in the details and submit
-4) The installation is straightforward
-5) Open the Typhoon HIL Control Center and on the main window, click *Schematic Editor*
-6) Wait for the first run setup to finish and close the Control Center
+2) Click *Download Control Center*
+3) Register and get a download link
+4) Install Typhoon HIL Control Center
 
 ## 2) Xyce
 1) Go to Xyce's website: https://xyce.sandia.gov/
-2) Click *Download*, then on the left panel, find *Executables*
-3) Find the Windows version (the only one supported for now)
+2) Click *Downloads | Executables*
+3) Find the Windows version (only Windows is supported for now)
 4) Download and install
-5) Open a **new** Windows Command Prompt and enter the command *xyce*. You should see the following output:
 
-```
-Netlist not found on command line
-Usage: xyce [arguments] netlist
-Use -h argument to get additional help info
-```
+## 3) Typhoon Schematic Editor to Xyce converter
 
-In case the command is not found, check the extra step at the end of this guide.
-
-## 3) Xyce to Typhoon Schematic Editor converter
-
-1) Download the latest release of the repository: https://github.com/typhoon-hil/xyce-typhoon-hil-interface/releases
-2) Extract the contents
-3) Open *installation.tse* with the Schematic Editor and double-click the component in the model
-4) Click on the menu option *File | Reload libraries*
+1) Open Typhoon HIL Control Center (close existing Schematic Editor windows) and click on *Additional tools*
+2) Click on *Package Manager*
+3) In the *Marketplace* tab, locate Xyce
+4) Click the *Install* button
 
 ## 4) Building a model and simulating
 
-1) You can use elements from the *xyce_lib* library to build your circuit*
-2) After the circuit is built, add a *XyceSim* component from the *Special* category and double-click it to open the mask
-3) Enter the simulation parameters
-4) Click on *Start simulation*
-5) A window opens with the text output from the *Xyce*
-6) If the simulation finishes successfully, a *Signal Analyzer* window opens automatically
+1) Open the Schematic Editor
+2) You can use elements from the *xyce_lib* library to build your circuit*
+3) After the circuit is built, add a *XyceSim* component from the *Special* category and double-click it to open the mask
+4) Enter the simulation parameters
+5) Click on *Start simulation*
+6) A window opens with the text output from the Xyce simulator
+7) If the simulation finishes successfully, a *Signal Analyzer* window opens automatically
 
-*You can also find circuit examples in the master branch examples folder.
-
-## Extra step
-
-In case the *xyce* command was not recognized, you need to add Xyce's path to the environment variables:
-
-1) Type *cmd* in the windows search bar, right-click the Command Prompt icon and select *Open as Administrator*
-2) In the command prompt window, paste this: *rundll32.exe sysdm.cpl,EditEnvironmentVariables* and press *Enter*
-3) Find *Path* on *System's Variables*, click *Edit* then *New*
-4) Enter the path to Xyce's installation folder + *\bin* (e.g. *C:\Program Files\Xyce 7.00 OPENSOURCE\bin*)*
-5) Accept the changes by clicking *OK* on both windows
-6) Open a **new** Command Prompt window and test the *xyce* command again
-
-> Don't change or remove any other path variable, as it may break the operation of other software
+- You can also find circuit examples in the *Examples* tool on THCC after installing the package

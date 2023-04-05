@@ -1,0 +1,7 @@
+* Signal to Power
+
+.SUBCKT sgn_to_pwr node_p node_n in
+
+B_SIGNAL node_p node_n V={V(in, 0)}
+
+.ENDS sgn_to_pwr

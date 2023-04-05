@@ -1,5 +1,11 @@
-xyce_out.csv
-xyce_f_out.csv
-ui_design
+debug.py
 .idea
 __pycache__
+* Target files
+allure-html
+importer_output
+pytest_results/*
+tse_to_xyce.egg-info/*
+xyce_simulator_path.txt
+/dist/
+/build/
