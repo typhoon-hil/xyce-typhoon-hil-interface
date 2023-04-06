@@ -70,6 +70,29 @@ def available_variables(csv_file, cir_file):
     except FileNotFoundError:
         return False
 
+def plot_with_frequency_tool(mdl, mask_handle):
+    sa_process_string_prop = mdl.prop(mask_handle, "sa_process_string")
+    process_string = mdl.get_property_value(sa_process_string_prop)
+
+    if process_string:
+        filename = "xyce_f_out"
+        # Use the temporary log-plot solution
+        PlotWindow.plot_instances.append(PlotWindow(f"{os.getcwd()}\\{filename}.csv"))
+        # Show this new instance
+        PlotWindow.plot_instances[-1].show()
+    else:
+        mdl.info("Couldn't plot the last simulation data with Signal Analyzer. Please make sure the simulation was "
+                 "valid.")
+
+def plot_with_signal_analyzer(mdl, mask_handle):
+    sa_process_string_prop = mdl.prop(mask_handle, "sa_process_string")
+    process_string = mdl.get_property_value(sa_process_string_prop)
+
+    if process_string:
+        Popen(process_string, stdin=PIPE, stdout=PIPE, shell=True)
+    else:
+        mdl.info("Couldn't plot the last simulation data with Signal Analyzer. Please make sure the simulation was "
+                 "valid.")
 
 # Widget definition
 class Ui_XyceOutput(object):
@@ -288,7 +311,7 @@ window, and that Typhoon HIL Control Center was restarted after adding Xyce to t
                               f"decimation = {float(self.sim_params_dict['max_ts'])}\n"])
         # Xyce simulation command
         os.chdir(os.path.dirname(self.xyce_file_path))
-        #command = f'cmd /c pushd "{os.path.abspath(self.xyce_file_path)}" & xyce -prf "{self.params_path}" "{self.xyce_file_path}"\n'
+        # command = f'cmd /c pushd "{os.path.abspath(self.xyce_file_path)}" & xyce -prf "{self.params_path}" "{self.xyce_file_path}"\n'
         # Start the Xyce process
         command = f'"{str(self.xyce_simulator_path)}" "{self.xyce_file_path}"\n'
         # self.mdl.info(command)
@@ -308,21 +331,28 @@ window, and that Typhoon HIL Control Center was restarted after adding Xyce to t
         cfg_file = pathlib.Path(self.json_file_path).parent.parent.joinpath(f"{model_name}_plot_cfg.json")
         add_config_file = f'--config_file="{str(cfg_file)}"' if cfg_file.is_file() else ""
 
+        self.process_string = ""
+
         if self.sim_params_dict['analysis_type'] == "Transient":
             filename = "xyce_out"
             try:
                 thcc_folder = os.environ["TYPHOONPATH"]
-                process_string = f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa --data_file="{os.getcwd()}\\{filename}.csv" {add_config_file} '
-                self.plotprocess.startDetached(process_string)
+                self.process_string = f'cmd /c pushd "{thcc_folder[:2]}" & typhoon_hil sa ' \
+                                 f'--data_file="{os.getcwd()}\\{filename}.csv" {add_config_file} '
+                self.plotprocess.startDetached(self.process_string)
             except KeyError:
-                self.plotprocess.startDetached(
-                    f'cmd /c pushd "C:" & typhoon_hil sa --data_file "{os.getcwd()}\\{filename}.csv" {add_config_file} ')
+                process_string = f'cmd /c pushd "C:" & typhoon_hil sa ' \
+                                 f'--data_file "{os.getcwd()}\\{filename}.csv" {add_config_file} '
+                self.plotprocess.startDetached(self.process_string)
+
         else:
             filename = "xyce_f_out"
             # Use the temporary log-plot solution
             PlotWindow.plot_instances.append(PlotWindow(f"{os.getcwd()}\\{filename}.csv"))
             # Show this new instance
             PlotWindow.plot_instances[-1].show()
+
+
 
 if __name__ == "__main__":
     from temp_log_plot import PlotWindow
@@ -337,7 +367,8 @@ if __name__ == "__main__":
         'nonlinear_reltol': '1e-2',
         'nonlinear_solver': '0',
     }
-    sim_parameters.update({'analysis_type': 'Transient', 'max_ts': '5e-9', 'sim_time': '0.2ms', "voltage_limiting": True})
+    sim_parameters.update(
+        {'analysis_type': 'Transient', 'max_ts': '5e-9', 'sim_time': '0.2ms', "voltage_limiting": True})
     # sim_parameters.update({
     #     'analysis_type': 'AC small-signal',
     #     'start_f': '1',
@@ -345,8 +376,8 @@ if __name__ == "__main__":
     #     'num_points': '10000'
     # })
     mainwindow = XyceOutput(None,
-        r"D:\Dropbox\Typhoon HIL\Repository\xyce-typhoon-hil-interface\examples\logic_ports Target files\logic_ports.json",
-        # r"D:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\buck_control Target files\buck_control.json",
-        sim_parameters, xyce_simulator_path="xyce")
+                            r"D:\Dropbox\Typhoon HIL\Repository\xyce-typhoon-hil-interface\examples\logic_ports Target files\logic_ports.json",
+                            # r"D:\Dropbox\Typhoon HIL\Ideas\TSE2Xyce\Toronto Uni\buck_control Target files\buck_control.json",
+                            sim_parameters, xyce_simulator_path="xyce")
     mainwindow.show()
     sys.exit(app.exec_())

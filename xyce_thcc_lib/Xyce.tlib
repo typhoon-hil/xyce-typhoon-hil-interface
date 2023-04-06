@@ -145,6 +145,14 @@ library "xyce_lib" {
                         ENDCODE
                     }
 
+                    sa_process_string {
+                        widget = edit
+                        type = string
+                        default_value = ""
+                        no_evaluate
+                        nonvisible
+                    }
+
                     open_sa {
                         widget = button
                         type = string
@@ -152,7 +160,8 @@ library "xyce_lib" {
                         no_evaluate
 
                         CODE button_clicked
-                            open_sa(mdl)
+                            comp_script = return_comp_script(mdl, container_handle)
+                            comp_script.open_sa(mdl, container_handle)
                         ENDCODE
                     }
 

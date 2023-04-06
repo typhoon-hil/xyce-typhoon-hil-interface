@@ -132,11 +132,12 @@ def start_sim(mdl, mask_handle):
     sim_with_xyce(mdl, mask_handle, xyce_simulator_path)
 
 
-def open_sa(mdl):
+def open_sa(mdl, mask_handle):
     if keep_open.get('xycewin'):
+        mdl.info("Plotting previous data...")
         keep_open['xycewin'].plot_data()
     else:
-        mdl.info('No plot data.')
+        mdl.info('No data to plot.')
 
 def update_display(mdl, mask_handle):
     sim_type = mdl.get_property_disp_value(mdl.prop(mask_handle, "sim_type"))

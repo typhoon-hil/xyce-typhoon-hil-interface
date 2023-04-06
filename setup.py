@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='tse_to_xyce',
     version='0.4.0',
-    packages=find_packages(exclude=('tests', 'xyce_thcc_lib')),
+    packages=find_packages(exclude=['tests']),
     install_requires=[],
     url='https://www.typhoon-hil.com/',
     include_package_data=True,
